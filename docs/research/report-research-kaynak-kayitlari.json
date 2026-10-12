@@ -1,0 +1,398 @@
+{
+  "version": 1,
+  "research_date": "2026-10-12",
+  "timezone": "Europe/Istanbul",
+  "scope": "Official product documentation and university author-published instructional material; not a systematic empirical review",
+  "network": "Inherited HTTP(S) proxy and CA; TLS verification enabled; no configuration changes",
+  "sources": [
+    {
+      "key": "ear-home",
+      "status": 200,
+      "url": "https://www.earmaster.com/",
+      "final": "https://www.earmaster.com/",
+      "bytes": 105201,
+      "sha256": "d6afc6afb258d8ee61ed15b8fe3f9fa4f4b24f22d5aa0be3987586c0ad9f9490",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ear-features",
+      "url": "https://www.earmaster.com/products/earmaster-pro/features.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ear-cloud",
+      "url": "https://www.earmaster.com/products/earmaster-cloud.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ear-affiliate",
+      "url": "https://www.earmaster.com/affiliate.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "theory",
+      "status": 200,
+      "url": "https://www.musictheory.net/exercises",
+      "final": "https://www.musictheory.net/exercises",
+      "bytes": 15354,
+      "sha256": "d2f54b251781ffb0de3b8f0060a4d1c39da1ee0676a34b88ada7b9fa8d45a67f",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "izotope",
+      "url": "https://www.izotope.com/en/learn/how-to-train-your-ears.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "harman",
+      "status": 200,
+      "url": "https://harmanhowtolisten.blogspot.com/",
+      "final": "https://harmanhowtolisten.blogspot.com/",
+      "bytes": 67360,
+      "sha256": "6f0bed2c4d24ee4bd4652b7f10a341d00ac9c73fc907775882e8fbd5ddae34f4",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "fet",
+      "status": 200,
+      "url": "https://www.miles.be/software/functional-ear-trainer-v2/",
+      "final": "https://www.miles.be/software/functional-ear-trainer-v2/",
+      "bytes": 39911,
+      "sha256": "a29c6afb7af3c73c23cd2e50377c94addaaa949bd809f1c7d877e3f9826c26c4",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "bing",
+      "status": 200,
+      "url": "https://www.bing.com/search?q=site%3Ahacettepe.edu.tr%20retrieval%20practice%20spaced%20learning%20music",
+      "final": "https://www.bing.com/search?q=site%3Ahacettepe.edu.tr%20retrieval%20practice%20spaced%20learning%20music",
+      "bytes": 121799,
+      "sha256": "1152616b331d7696e06af5ecca74136a1f86aeb69f3d1f541dd7fe434b054456",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false,
+      "evidence": "Unrelated dictionary results; not used as evidence"
+    },
+    {
+      "key": "ear-product",
+      "url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ear-cloud-current",
+      "status": 200,
+      "url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-cloud-edition.html",
+      "final": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-cloud-edition.html",
+      "bytes": 118625,
+      "sha256": "4d2fff850f0dadb229eb3aca8e40f47f569edaee64259d1f98e2fd7dd5e6b021",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ear-teacher-guides",
+      "status": 200,
+      "url": "https://www.earmaster.com/support/earmaster-cloud/guides-for-teachers.html",
+      "final": "https://www.earmaster.com/support/earmaster-cloud/guides-for-teachers.html",
+      "bytes": 442439,
+      "sha256": "2dd57d927c64834c35ee70dd93c54c069fa8ea8916ac57e0b5a8b8743cdcf97d",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ear-affiliate-current",
+      "status": 200,
+      "url": "https://www.earmaster.com/community/become-an-affiliate.html",
+      "final": "https://www.earmaster.com/community/become-an-affiliate.html",
+      "bytes": 94600,
+      "sha256": "9e928293701124e5208ac0ce9b1a753e98f3f0575fd5bebd2f31c345128942c7",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "izotope-critical",
+      "url": "https://www.izotope.com/en/learn/what-is-critical-listening.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "izotope-eq",
+      "url": "https://www.izotope.com/en/learn/eq-basics.html",
+      "error": "HTTP Error 404: Not Found",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "hacu-open",
+      "url": "https://acikders.hacettepe.edu.tr/",
+      "error": "HTTP Error 503: Service Unavailable",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-open",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/",
+      "final": "https://acikders.ankara.edu.tr/",
+      "bytes": 61734,
+      "sha256": "970eeeef51a6236abb5a6fbef0e8d449d04b0917b3013340ccc6e8340b33ac5e",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ank-learn",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/search.php?search=%C3%B6%C4%9Frenme",
+      "final": "https://acikders.ankara.edu.tr/course/search.php?search=%C3%B6%C4%9Frenme",
+      "bytes": 75627,
+      "sha256": "8885247656bb1108fa04021ea11187e37f0c64222439e4037a27de9dc8368756",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-assess",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/search.php?search=%C3%B6l%C3%A7me",
+      "final": "https://acikders.ankara.edu.tr/course/search.php?search=%C3%B6l%C3%A7me",
+      "bytes": 73435,
+      "sha256": "f2ae690b9ee33c7cbca9382947da16b71c7d13f537109690182646bd3f9cf7a1",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ear-software",
+      "status": 200,
+      "url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-software.html",
+      "final": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-software.html",
+      "bytes": 132656,
+      "sha256": "6688977050115358c849dd6f994ba4f2e1e6a64c562005c89e5e022384cd989c",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "izotope-learn",
+      "status": 200,
+      "url": "https://www.izotope.com/en/learn.html",
+      "final": "https://www.izotope.com/community/blog",
+      "bytes": 923959,
+      "sha256": "ad66ed141fe7b9cef7587e9800097feaa769d2a99331874d158809e897dedbea",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-learn-course",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/view.php?id=4570",
+      "final": "https://acikders.ankara.edu.tr/course/view.php?id=4570",
+      "bytes": 238233,
+      "sha256": "09aaa17d139df93721e373e370845617698e76c7676f008db4d624d32191db82",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-assess-course",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/view.php?id=102",
+      "final": "https://acikders.ankara.edu.tr/course/view.php?id=102",
+      "bytes": 319771,
+      "sha256": "effb1c55f15e5aa091efecd8cdd87d9789e679751d6d62117137478e512adf79",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-psychometric",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/view.php?id=9576",
+      "final": "https://acikders.ankara.edu.tr/course/view.php?id=9576",
+      "bytes": 221934,
+      "sha256": "5f5f0b5ed8fbfdf021109840250ffd165f5aeeaebdebf958e17999c811caa7a3",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-design",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/course/view.php?id=6456",
+      "final": "https://acikders.ankara.edu.tr/course/view.php?id=6456",
+      "bytes": 216267,
+      "sha256": "3e973911cca3cf44be3e419b710089b222950dcdc2bd8193fd92e99f67a4936c",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "izotope-parametric",
+      "status": 200,
+      "url": "https://www.izotope.com/community/blog/parametric-eq",
+      "final": "https://www.izotope.com/community/blog/parametric-eq",
+      "bytes": 973458,
+      "sha256": "a72a22450d8fd746005622fb686c572745ed0c284a72e9162a7d5f27cc4be366",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ank-long-memory-i",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/mod/resource/view.php?id=63656",
+      "final": "https://acikders.ankara.edu.tr/pluginfile.php/81553/mod_resource/content/1/13-Uzun%20S%C3%BCreli%20Bellek%20I.ppt",
+      "bytes": 9054720,
+      "sha256": "c0b5e2b25cfdb7f65acd72190ea4115e58984a7d8dd1ff3917ad0c213fc63f34",
+      "content_type": "application/vnd.ms-powerpoint",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "ank-long-memory-ii",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/mod/resource/view.php?id=63657",
+      "final": "https://acikders.ankara.edu.tr/pluginfile.php/81554/mod_resource/content/1/14-Uzun%20S%C3%BCreli%20Bellek%20II.pptx",
+      "bytes": 1235409,
+      "sha256": "cfb8f0c287d99a7b702b286689f7da3fa8ff6ce1c77dee83fab6550bad40a017",
+      "content_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ank-psychometric-5",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/mod/resource/view.php?id=149288",
+      "final": "https://acikders.ankara.edu.tr/pluginfile.php/178547/mod_resource/content/0/Psikometri_%C3%9Cnite_5_1.pptx",
+      "bytes": 334352,
+      "sha256": "44e386694fb30760ec038816c2c87ca89bf5d5612a374c87043a3a0f54093590",
+      "content_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ank-design-stage",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/mod/resource/view.php?id=97670",
+      "final": "https://acikders.ankara.edu.tr/pluginfile.php/121652/mod_resource/content/1/OT-hafta5-tasar%C4%B1mlama.pptx",
+      "bytes": 304824,
+      "sha256": "19c9570e7dae3888a60bc199694f41aab0f4e5442da658c04761c86276406cd2",
+      "content_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "ank-assess-stage",
+      "status": 200,
+      "url": "https://acikders.ankara.edu.tr/mod/resource/view.php?id=97674",
+      "final": "https://acikders.ankara.edu.tr/pluginfile.php/121656/mod_resource/content/1/OT-Hafta9-de%C4%9Ferlendirme.pptx",
+      "bytes": 1464857,
+      "sha256": "2f31e4b29614b90be263bd6f8ca57b50c1f1def00a76258bb1a5ce3fcc78a3df",
+      "content_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": true
+    },
+    {
+      "key": "search-feedback",
+      "url": "https://www.google.com/search?q=site%3Aearmaster.com%20student%20statistics%20reports%20feedback%20teacher",
+      "status": 200,
+      "bytes": 93342,
+      "sha256": "1ad13692e5d3470496372d87cc5e3fabc46514350c83eacec10f87876b097c5c",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "search-pricing",
+      "url": "https://www.google.com/search?q=site%3Aearmaster.com%20pricing%20subscription%20school",
+      "status": 200,
+      "bytes": 93294,
+      "sha256": "17839660637d16864857e6b125ac21e8a31d2d75f9bb9eea46c15ad50d568895",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "search-partner",
+      "url": "https://www.google.com/search?q=site%3Aearmaster.com%20affiliate%20partner%20program",
+      "status": 200,
+      "bytes": 93321,
+      "sha256": "96398eda63088470394cfdbb6cad47b4fe84eb0b483e21bdd3093232b5b8a1e0",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "search-study",
+      "url": "https://www.google.com/search?q=site%3Ahacettepe.edu.tr%20retrieval%20practice%20spaced%20learning%20music",
+      "status": 200,
+      "bytes": 93434,
+      "sha256": "24da75a0bba0e82116cfef9119e4188c79a2a8575a1cbf66fd144d6308d73e5e",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "search-pdf",
+      "url": "https://www.google.com/search?q=site%3Aankara.edu.tr%20%C3%B6%C4%9Frenme%20aral%C4%B1kl%C4%B1%20tekrar%20geri%20bildirim%20m%C3%BCzik%20i%C5%9Fitme",
+      "status": 200,
+      "bytes": 93435,
+      "sha256": "195f67a9868f2f4bda27f97d649d9be8ccc95a0f89b2dca7b3b25665aaf78236",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    },
+    {
+      "key": "search-selfreg",
+      "url": "https://www.google.com/search?q=site%3Aitu.edu.tr%20music%20learning%20self%20regulated%20feedback",
+      "status": 200,
+      "bytes": 93427,
+      "sha256": "b7b25c4ab9fb18ebc2bd9b13e4008d4c132d49fadedf79cd4715a6c8262c7a1a",
+      "evidence": "JavaScript/retry shell only; no search findings used",
+      "inspected_on": "2026-10-12",
+      "timezone": "Europe/Istanbul",
+      "used_as_evidence": false
+    }
+  ]
+}

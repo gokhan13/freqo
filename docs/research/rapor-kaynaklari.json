@@ -1,0 +1,1207 @@
+{
+  "version": 1,
+  "accessed": "2026-10-12",
+  "timeZone": "Europe/Istanbul",
+  "scope": "Primary-page verification and editorial topic mapping for bilingual personalised practice reports; not video playback, paid-product hands-on testing, clinical assessment or psychometric validation.",
+  "implementation": "src/report-resources.ts",
+  "editorialPolicy": {
+    "selection": "Select only resources related to the priority skill/path; cap cards in a report. Prefer practical free instruction, with optional books separately labelled. No affiliate parameters, sponsor ranking, revenue promise or purchase requirement.",
+    "languages": "language records the verified primary teaching-page language. English resources retain their English label in the Turkish UI. Bilingual card titles/descriptions are Freq editorial explanations, not claims of an externally published translation. Video spoken language/captions were not directly checked.",
+    "cost": "free means the verified reference or exercise page is publicly accessible without a payment gate. It does not imply all products mentioned on the site are free or that every licensed material may be commercially redistributed. Paid book candidates with insufficient primary evidence were excluded. One optional commercial mixing book is included after authoritative full library bibliographic verification; its card explicitly separates metadata from the book text and says current price/availability were not checked.",
+    "technique": "Each of 20 guides supplies a listening cue, three actions, a short suggested session, a practical transfer task and a check with unheard examples. Sessions of 5–8 minutes and five-question checks are editorial workflow suggestions, not validated optimal dosages or mastery cut-offs.",
+    "limits": "Fresh-source practice outside the app extends beyond the existing material. No general mastery, guaranteed exam success, clinical hearing status, absolute sound-pressure, or device-latency measurement is inferred."
+  },
+  "resources": [
+    {
+      "id": "izotope-eq",
+      "title": {
+        "tr": "Parametrik EQ: frekans, gain ve Q",
+        "en": "Parametric EQ: what it is and how to use one"
+      },
+      "description": {
+        "tr": "Tek bir bandın merkezini, seviyesini ve genişliğini sırayla değiştir. Before/after örneklerini miks içinde karşılaştır.",
+        "en": "Change a single band’s centre, gain and width in turn. Compare the before/after examples in the mix."
+      },
+      "url": "https://www.izotope.com/community/blog/parametric-eq",
+      "kind": "video",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "eq",
+        "masking"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Chris Wainwright · iZotope",
+      "note": {
+        "tr": "İngilizce resmî anlatım sayfası ve gömülü video örnekleri. Anlatım ücretsiz; gösterilen ücretli eklentileri almak gerekmez. Video oynatma, ses dili ve Türkçe altyazı doğrulanmadı.",
+        "en": "Official English tutorial page with embedded video examples. The tutorial is free; purchasing the demonstrated plug-ins is unnecessary. Video playback, spoken language and Turkish captions were not verified."
+      },
+      "evidence": {
+        "requestIds": [
+          "eq-parametric"
+        ],
+        "excerpt": "What are the main parameters of an EQ? Gain; Frequency; Bandwidth (Q)",
+        "embeddedVideos": [
+          "https://www.youtube.com/watch?v=D_KB8dnPnwU"
+        ],
+        "verification": "Official English tutorial and embedded-video URL verified; video playback, spoken language and captions not checked. Demonstrated paid software is not required to read the tutorial."
+      },
+      "requests": [
+        {
+          "id": "eq-parametric",
+          "url": "https://www.izotope.com/community/blog/parametric-eq",
+          "resolvedUrl": "https://www.izotope.com/community/blog/parametric-eq",
+          "status": 200,
+          "bytes": 973458,
+          "sha256": "12f440c0f4d21971cab7ca16f1711c670e6369c6f39bf15338e5052fadf398ef",
+          "title": "Parametric EQ: what it is and how to use one",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "izotope-masking",
+      "title": {
+        "tr": "Mikste örtüşmeyi duy ve hedefe yer aç",
+        "en": "Unmasking Your Mix with Neutron"
+      },
+      "description": {
+        "tr": "Birbirini örten kaynakları birlikte dinle; hedefin netliğini karşılaştır. Örnekteki kesme frekansını kendi miksine reçete gibi uygulama.",
+        "en": "Hear competing sources together and compare the target’s clarity. Avoid treating the example’s cut frequency as a prescription for your mix."
+      },
+      "url": "https://www.izotope.com/community/blog/unmasking-your-mix-with-neutron",
+      "kind": "video",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "masking"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Trevor Spencer · iZotope",
+      "note": {
+        "tr": "İngilizce resmî anlatım sayfası ve gömülü video örnekleri. Anlatım ücretsiz; gösterilen ücretli eklentileri almak gerekmez. Video oynatma, ses dili ve Türkçe altyazı doğrulanmadı.",
+        "en": "Official English tutorial page with embedded video examples. The tutorial is free; purchasing the demonstrated plug-ins is unnecessary. Video playback, spoken language and Turkish captions were not verified."
+      },
+      "evidence": {
+        "requestIds": [
+          "masking"
+        ],
+        "excerpt": "Frequency masking is an auditory phenomenon that can occur when two or more sounds sharing similar frequencies are played at the same time.",
+        "embeddedVideos": [
+          "https://www.youtube.com/watch?v=U1sje7vIhaI",
+          "https://www.youtube.com/watch?v=Sk7wefcQXTI"
+        ],
+        "verification": "Official English article and embedded-video URLs verified; no universal EQ-frequency prescription inferred."
+      },
+      "requests": [
+        {
+          "id": "masking",
+          "url": "https://www.izotope.com/community/blog/unmasking-your-mix-with-neutron",
+          "resolvedUrl": "https://www.izotope.com/community/blog/unmasking-your-mix-with-neutron",
+          "status": 200,
+          "bytes": 947504,
+          "sha256": "65a39e7e2eb293f1e5286c6e6be2fbbc240dd0f90b2f88ee16aade559e8be86e",
+          "title": "Unmasking Your Mix with Neutron",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "izotope-dynamics",
+      "title": {
+        "tr": "Dinamikler: kompresör, limiter ve temel kontroller",
+        "en": "Audio dynamics 101: compressors, limiters, expanders, and gates"
+      },
+      "description": {
+        "tr": "Eşik, oran, atak, bırakma ve çıkış seviyesini örneklerle bağla. Önce yalnız zorlandığın kontrolü incele.",
+        "en": "Connect threshold, ratio, attack, release and output level with examples. Start with the control you find difficult."
+      },
+      "url": "https://www.izotope.com/community/blog/audio-dynamics-101-compressors-limiters-expanders-and-gates",
+      "kind": "video",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "compression",
+        "attack",
+        "release",
+        "loudness"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Griffin Brown · iZotope",
+      "note": {
+        "tr": "İngilizce resmî anlatım sayfası ve gömülü video örnekleri. Anlatım ücretsiz; gösterilen ücretli eklentileri almak gerekmez. Video oynatma, ses dili ve Türkçe altyazı doğrulanmadı.",
+        "en": "Official English tutorial page with embedded video examples. The tutorial is free; purchasing the demonstrated plug-ins is unnecessary. Video playback, spoken language and Turkish captions were not verified."
+      },
+      "evidence": {
+        "requestIds": [
+          "compression"
+        ],
+        "excerpt": "The average compressor has six main parameters that are important to understand: threshold, ratio, knee, attack time, release time, and makeup gain.",
+        "verification": "Official English article returned without purchase/login and contains real YouTube embeds; playback and captions not verified."
+      },
+      "requests": [
+        {
+          "id": "compression",
+          "url": "https://www.izotope.com/community/blog/audio-dynamics-101-compressors-limiters-expanders-and-gates",
+          "resolvedUrl": "https://www.izotope.com/community/blog/audio-dynamics-101-compressors-limiters-expanders-and-gates",
+          "status": 200,
+          "bytes": 1002641,
+          "sha256": "7397c0207d9d2fce233397910f72594bd60c46b981fb45d99a18da088c5e30f9",
+          "title": "Audio dynamics 101: compressors, limiters, expanders, and gates",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "izotope-stereo",
+      "title": {
+        "tr": "Mono ve stereo: dinle ve karşılaştır",
+        "en": "Mono vs. Stereo in Audio Mixing"
+      },
+      "description": {
+        "tr": "Pan ile genişliği ayır; mono toplamında dengenin ve merkez seslerin nasıl değiştiğini dinle.",
+        "en": "Separate panning from width; hear how the balance and centred sounds change in the mono sum."
+      },
+      "url": "https://www.izotope.com/community/blog/mono-vs-stereo",
+      "kind": "video",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "stereo"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Chris Wainwright · iZotope",
+      "note": {
+        "tr": "İngilizce resmî anlatım sayfası ve gömülü video örnekleri. Anlatım ücretsiz; gösterilen ücretli eklentileri almak gerekmez. Video oynatma, ses dili ve Türkçe altyazı doğrulanmadı.",
+        "en": "Official English tutorial page with embedded video examples. The tutorial is free; purchasing the demonstrated plug-ins is unnecessary. Video playback, spoken language and Turkish captions were not verified."
+      },
+      "evidence": {
+        "requestIds": [
+          "stereo"
+        ],
+        "excerpt": "In this article we will examine the differences between mono and stereo, discuss why mono compatibility of stereo mixes is important, and share some techniques to maintain the integrity of a stereo mix when reproduced in mono.",
+        "verification": "Official tutorial with public audio examples and embedded video. Audibility or video playback were not tested."
+      },
+      "requests": [
+        {
+          "id": "stereo",
+          "url": "https://www.izotope.com/community/blog/mono-vs-stereo",
+          "resolvedUrl": "https://www.izotope.com/community/blog/mono-vs-stereo",
+          "status": 200,
+          "bytes": 966095,
+          "sha256": "c9bdf38536c33a8ee2697024abdd0f1a03f2cb1d699e6a133ec271acaa846765",
+          "title": "Mono vs. Stereo in Audio Mixing",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "izotope-space",
+      "title": {
+        "tr": "Reverb ve delay: hangi farkı dinlemeli?",
+        "en": "Reverb vs. delay: when to use each"
+      },
+      "description": {
+        "tr": "Yoğun yankı kuyruğunu ayrı tekrarlardan ayır. Örneklerin ardından aynı kararı kendi kısa kaydında dene.",
+        "en": "Distinguish a dense reverb tail from discrete echoes. Then try the same decision on your own short recording."
+      },
+      "url": "https://www.izotope.com/community/blog/when-to-use-reverb-and-delay",
+      "kind": "video",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "reverb",
+        "delay"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Audrey Martinovich · iZotope",
+      "note": {
+        "tr": "İngilizce resmî anlatım sayfası ve gömülü video örnekleri. Anlatım ücretsiz; gösterilen ücretli eklentileri almak gerekmez. Video oynatma, ses dili ve Türkçe altyazı doğrulanmadı.",
+        "en": "Official English tutorial page with embedded video examples. The tutorial is free; purchasing the demonstrated plug-ins is unnecessary. Video playback, spoken language and Turkish captions were not verified."
+      },
+      "evidence": {
+        "requestIds": [
+          "space"
+        ],
+        "excerpt": "Reverbs and delays are time-based effects that mimic how sound travels in the real world. You can use both types of plugins to add space to a track, but they’ll do it in different ways.",
+        "embeddedVideos": [
+          "https://www.youtube.com/watch?v=qQJvry5GICA",
+          "https://www.youtube.com/watch?v=NmFeFh_BAFs"
+        ],
+        "verification": "English tutorial and embedded-video IDs verified. Reading does not require the paid bundle mentioned on the page."
+      },
+      "requests": [
+        {
+          "id": "space",
+          "url": "https://www.izotope.com/community/blog/when-to-use-reverb-and-delay",
+          "resolvedUrl": "https://www.izotope.com/community/blog/when-to-use-reverb-and-delay",
+          "status": 200,
+          "bytes": 930694,
+          "sha256": "b110b2f5665f614318db9af334c3d6063f2748634275be5840c92a617235ccc7",
+          "title": "Reverb vs. delay: when to use each",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "musictheory-ear",
+      "title": {
+        "tr": "Aralık ve akor için seçilebilir dinleme alıştırmaları",
+        "en": "Customisable interval and chord ear-training exercises"
+      },
+      "description": {
+        "tr": "Exercises → Ear Training altında Interval veya Chord Identification seç. Başlangıçta yalnız çalıştığın aralıkları veya majör/minör akorları aç.",
+        "en": "Under Exercises → Ear Training, choose Interval or Chord Identification. Begin with just the intervals or major/minor chords you are studying."
+      },
+      "url": "https://www.musictheory.net/exercises",
+      "kind": "practice",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "direction",
+        "interval",
+        "chord"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "musictheory.net",
+      "note": {
+        "tr": "Web alıştırmaları ücretsizdir; aynı sitedeki mobil uygulamalar ayrı ürünlerdir. İngilizce arayüz.",
+        "en": "The web exercises are free; the site’s mobile apps are separate products. English interface."
+      },
+      "evidence": {
+        "requestIds": [
+          "musictheory",
+          "musictheory-home",
+          "musictheory-faq"
+        ],
+        "excerpt": "Our exercises are provided online for free.",
+        "verification": "Index lists ear-interval and ear-chord. English site exercises are free; advertised mobile products are separate. External interactive exercise performance was not validated."
+      },
+      "requests": [
+        {
+          "id": "musictheory",
+          "url": "https://www.musictheory.net/exercises",
+          "resolvedUrl": "https://www.musictheory.net/exercises",
+          "status": 200,
+          "bytes": 15354,
+          "sha256": "d2f54b251781ffb0de3b8f0060a4d1c39da1ee0676a34b88ada7b9fa8d45a67f",
+          "title": "musictheory.net - Exercises",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "musictheory-home",
+          "url": "https://www.musictheory.net/",
+          "resolvedUrl": "https://www.musictheory.net/",
+          "status": 200,
+          "bytes": 5443,
+          "sha256": "2ef106cc7346b20e2b3841a2beda9d611c0f38e43c40d678857b775167e102ba",
+          "title": "musictheory.net",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "musictheory-faq",
+          "url": "https://www.musictheory.net/faq",
+          "resolvedUrl": "https://www.musictheory.net/faq",
+          "status": 200,
+          "bytes": 21377,
+          "sha256": "f8eb9a1797c26a7e9e0a41a0349c80c7ca9083a3e342de28fb4c7efa0ca4aba2",
+          "title": "musictheory.net - FAQ",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "teoria-melody",
+      "title": {
+        "tr": "Melodik dikte",
+        "en": "Melodic Dictation"
+      },
+      "description": {
+        "tr": "Kısa melodiyi dinle, yaz ve karşılaştır. Bu dış alıştırma porte kullanır; Freq’in eşit vuruş kutularından daha geniş bir görevdir.",
+        "en": "Listen to a short melody, write it and compare. This external exercise uses staff notation and goes beyond Freq’s equal-beat boxes."
+      },
+      "url": "https://www.teoria.com/en/exercises/md.php",
+      "kind": "practice",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "tonic",
+        "degree",
+        "memory",
+        "melodic-dictation"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "José Rodríguez Alvira · teoría",
+      "evidence": {
+        "requestIds": [
+          "md",
+          "md-help",
+          "dictation"
+        ],
+        "excerpt": "Melodic Dictation",
+        "verification": "Public exercise title and help verified. Uses staff notation; no claims about equivalent Freq task difficulty or aural-training efficacy."
+      },
+      "requests": [
+        {
+          "id": "md",
+          "url": "https://www.teoria.com/en/exercises/md.php",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/md.php",
+          "status": 200,
+          "bytes": 4935,
+          "sha256": "0b008791713c51bf2a89ff6e0549a193363c4c8cbba81001ec3fd4513cd93a17",
+          "title": "Melodic Dictation",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "md-help",
+          "url": "https://www.teoria.com/en/help/exercises/md.php",
+          "resolvedUrl": "https://www.teoria.com/en/help/exercises/md.php",
+          "status": 200,
+          "bytes": 6621,
+          "sha256": "a163774a7130d8f77b9b88b458eb0aa0bcaf942763225cdd109a3145483086cd",
+          "title": "Melodic Dictation - Help",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "dictation",
+          "url": "https://www.teoria.com/en/exercises/",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/",
+          "status": 200,
+          "bytes": 13043,
+          "sha256": "8656f3471968a5e85f19826dfea660f4ee6345302e9c8edc94a426aa39b6cc3d",
+          "title": "teoria - Exercises",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "teoria-rhythm",
+      "title": {
+        "tr": "Kalıplarla ritmik dikte",
+        "en": "Rhythmic Dictation using Patterns"
+      },
+      "description": {
+        "tr": "Duyduğun ritmi kalıplarla yaz. Az sayıda nota değeriyle başla; sesli sayımı ve vuruşları birlikte koru.",
+        "en": "Write the rhythm you hear using patterns. Start with a small set of note values; maintain the pulse while counting aloud."
+      },
+      "url": "https://www.teoria.com/en/exercises/rdp.php",
+      "kind": "practice",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "rhythm",
+        "rhythmic-dictation",
+        "rhythm-repeat"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "José Rodríguez Alvira · teoría",
+      "evidence": {
+        "requestIds": [
+          "rdp",
+          "rdp-help",
+          "dictation"
+        ],
+        "excerpt": "In this exercise, you will listen to rhythmic patterns. Then, you will transcribe these rhythms on a staff by clicking on the patterns.",
+        "verification": "Public exercise and help inspected, no account/payment required to retrieve the exercise. CC BY-NC-ND4.0 footer is a material licence; free access does not grant commercial redistribution."
+      },
+      "requests": [
+        {
+          "id": "rdp",
+          "url": "https://www.teoria.com/en/exercises/rdp.php",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/rdp.php",
+          "status": 200,
+          "bytes": 5106,
+          "sha256": "4fd3fd0db49dd40efe7c02aee45b639d7d8622cf27da076e3875c190ccc17c1d",
+          "title": "Rhythmic Dictation using Patterns",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "rdp-help",
+          "url": "https://www.teoria.com/en/help/exercises/rdp.php",
+          "resolvedUrl": "https://www.teoria.com/en/help/exercises/rdp.php",
+          "status": 200,
+          "bytes": 6248,
+          "sha256": "3513a20b0db77c3b939b19243d44812eef8e829085b084ce106a1828db491955",
+          "title": "Rhythmic Dictation using Patterns - Help",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "dictation",
+          "url": "https://www.teoria.com/en/exercises/",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/",
+          "status": 200,
+          "bytes": 13043,
+          "sha256": "8656f3471968a5e85f19826dfea660f4ee6345302e9c8edc94a426aa39b6cc3d",
+          "title": "teoria - Exercises",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "teoria-harmony",
+      "title": {
+        "tr": "Kalıplarla armonik yürüyüşler",
+        "en": "Harmonic Progressions using Patterns"
+      },
+      "description": {
+        "tr": "Tonal bağlamı dinleyip akor yürüyüşünü yaz. Önce basit majör kadansları ve tonik–hazırlık–dominant ilişkisini çalış.",
+        "en": "Hear the tonal context and write the chord progression. Begin with simple major-key cadences and tonic–predominant–dominant relationships."
+      },
+      "url": "https://www.teoria.com/en/exercises/hpp.php",
+      "kind": "practice",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "function",
+        "tonic",
+        "degree"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "José Rodríguez Alvira · teoría",
+      "evidence": {
+        "requestIds": [
+          "hpp",
+          "hpp-help",
+          "dictation"
+        ],
+        "excerpt": "Harmonic Progressions using Patterns",
+        "verification": "Public exercise and help inspected. Its harmonic notation and scope are broader than Freq’s major-tonal introductory function tasks."
+      },
+      "requests": [
+        {
+          "id": "hpp",
+          "url": "https://www.teoria.com/en/exercises/hpp.php",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/hpp.php",
+          "status": 200,
+          "bytes": 5263,
+          "sha256": "dbd553f01c1617eb3d0bbbe4366fec8fa2b0a4fb1a72c306c469b6e1ed721441",
+          "title": "Harmonic Progressions using Patterns",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "hpp-help",
+          "url": "https://www.teoria.com/en/help/exercises/hpp.php",
+          "resolvedUrl": "https://www.teoria.com/en/help/exercises/hpp.php",
+          "status": 200,
+          "bytes": 7345,
+          "sha256": "515f232eb8c97924d98196d26c14809d0925a975f6b5e107b390af23a54f6787",
+          "title": "Harmonic Progressions using Patterns - Help",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "dictation",
+          "url": "https://www.teoria.com/en/exercises/",
+          "resolvedUrl": "https://www.teoria.com/en/exercises/",
+          "status": 200,
+          "bytes": 13043,
+          "sha256": "8656f3471968a5e85f19826dfea660f4ee6345302e9c8edc94a426aa39b6cc3d",
+          "title": "teoria - Exercises",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "ankara-note-values",
+      "title": {
+        "tr": "Notaların Süre Değerleri 1",
+        "en": "Note durations 1"
+      },
+      "description": {
+        "tr": "Ritim kutularından nota sürelerine geçmek için kısa bir temel konu. Videodan sonra dörtlük ve sekizlikleri sayıp el çırparak uygula.",
+        "en": "A foundational topic for moving from rhythm boxes to note durations. After the video, count and clap quarter notes and eighth notes."
+      },
+      "url": "https://acikders.ankara.edu.tr/mod/url/view.php?id=58726",
+      "kind": "video",
+      "language": "tr",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "rhythm",
+        "rhythmic-dictation",
+        "rhythm-repeat"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "Salim Sever · Ankara Üniversitesi ANKADEM",
+      "note": {
+        "tr": "Türkçe eğitim sayfası videoyu resmî olarak sunar; misafir erişimi açık ve ücretsizdir. Bağlı YouTube videosunun oynatımı, ses dili ve altyazıları bu incelemede doğrulanmadı.",
+        "en": "The Turkish teaching page officially presents the video with free guest access. Playback, spoken language and captions of the linked YouTube video were not verified in this review."
+      },
+      "evidence": {
+        "requestIds": [
+          "ankara-duration",
+          "ankara-home"
+        ],
+        "excerpt": "Salim SEVER tarafından hazırlanmış eğitim videosu.",
+        "embeddedVideos": [
+          "https://www.youtube.com/watch?v=rbwzMA8gPwY"
+        ],
+        "freeAccessEvidence": "Ankara University describes its portal as açık ve ücretsiz öğrenme kaynakları; the resource page says Şu anda misafir erişimini kullanıyorsunuz.",
+        "verification": "Official Turkish teaching page and actual linked YouTube ID verified. Spoken language, subtitles and playback not verified because YouTube access was denied. Link recommendation only; no university course content or videos copied into Freq. Portal material CC BY-NC-SA4.0 does not imply commercial re-use permission."
+      },
+      "requests": [
+        {
+          "id": "ankara-duration",
+          "url": "https://acikders.ankara.edu.tr/mod/url/view.php?id=58726",
+          "resolvedUrl": "https://acikders.ankara.edu.tr/mod/url/view.php?id=58726",
+          "status": 200,
+          "bytes": 38622,
+          "sha256": "6955ba8412ea8c83b41905e8b07830f1959f17f3b81e9af9dc33c5fdfd879dff",
+          "title": "ASÖ 205 Müzik: Notaların Süre Değerleri 1 | @nkadem",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "ankara-home",
+          "url": "https://acikders.ankara.edu.tr/",
+          "resolvedUrl": "https://acikders.ankara.edu.tr/",
+          "status": 200,
+          "bytes": 61734,
+          "sha256": "2690dd3063117b2b046d6d38a5b43cca3ea1d5dff9e16dbfbdfff30155c162cd",
+          "title": "Ana sayfa | @nkadem",
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "open-music-theory",
+      "title": {
+        "tr": "Open Music Theory · açık ders kitabı",
+        "en": "Open Music Theory · open textbook"
+      },
+      "description": {
+        "tr": "Aralıklar, ritmik değerler ve melodik dikte için ücretsiz İngilizce başvuru. Yalnız çalıştığın konuyu oku, ardından sesi söyle/çal ve yeni örneğe uygula.",
+        "en": "A free English reference for intervals, rhythmic values and melodic dictation. Read only the topic you are studying, then sing/play it and apply it to a fresh example."
+      },
+      "url": "https://github.com/openmusictheory/openmusictheory.github.io",
+      "kind": "book",
+      "language": "en",
+      "price": "free",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "direction",
+        "interval",
+        "chord",
+        "rhythm",
+        "memory",
+        "tonic",
+        "degree",
+        "function",
+        "melodic-dictation",
+        "rhythmic-dictation",
+        "rhythm-repeat"
+      ],
+      "paths": [
+        "music",
+        "exam"
+      ],
+      "author": "Kris Shaffer, Bryn Hughes, Brian Moseley · Hybrid Pedagogy Publishing",
+      "note": {
+        "tr": "Yazarların resmî açık kitap deposu ve CC BY–SA 4.0 lisansı doğrulandı. Bu, eski açık web sürümünün kaynak metnidir; güncel Pressbooks sürümünün erişimi doğrulanmadı. Türkçe çeviri iddiası yok.",
+        "en": "The authors’ official open-book repository and CC BY–SA 4.0 licence were verified. This is the source text of the earlier open web edition; access to the current Pressbooks edition was not verified. No Turkish translation is claimed."
+      },
+      "evidence": {
+        "requestIds": [
+          "omt-github",
+          "omt-readme",
+          "omt-index",
+          "omt-about",
+          "omt-footer",
+          "omt-contents",
+          "omt-interval",
+          "omt-rhythm",
+          "omt-melodic"
+        ],
+        "excerpt": "OMT was built on resources authored by Kris Shaffer, Bryn Hughes, and Brian Moseley. It is edited by Kris Shaffer and Robin Wharton, and is published by Hybrid Pedagogy Publishing.",
+        "licence": "CC BY-SA 4.0, explicitly linked in the official repository footer; about.md permits use/modification/distribution with attribution and share-alike.",
+        "verification": "Official author-created repository, primary publisher/author statement, licence footer and actual chapters verified. Earlier web edition only, source Markdown readable on GitHub; current Pressbooks page access unverified. This is a legal open-textbook recommendation, not a pirated scan or an invented translation."
+      },
+      "requests": [
+        {
+          "id": "omt-github",
+          "url": "https://github.com/openmusictheory/openmusictheory.github.io",
+          "resolvedUrl": "https://github.com/openmusictheory/openmusictheory.github.io",
+          "status": 200,
+          "bytes": 489379,
+          "sha256": "bda700aa960c09ed95a8d86021606c282ea00788181c5b8a0d9abeeaff5a9f31",
+          "title": "GitHub - openmusictheory/openmusictheory.github.io: A growing, online &quot;textbook&quot; for music theory and aural skills · GitHub",
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-readme",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/README.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/README.md",
+          "status": 200,
+          "bytes": 190,
+          "sha256": "9a00749c6522fe9b95d47b8bfbd859c32a2073cb94a5e06770d18cf92f2460e5",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-index",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/index.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/index.md",
+          "status": 200,
+          "bytes": 974,
+          "sha256": "8280adcbd342befc8bf1d59cd3d112fa9d6f4b2f68314bd00efd316dec1a8c39",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-about",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/about.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/about.md",
+          "status": 200,
+          "bytes": 7788,
+          "sha256": "e3a0f451a8413999f938851aee2b156457ee3d01809ada8c35942cc7f55fa1d3",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-footer",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/_includes/footer.html",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/_includes/footer.html",
+          "status": 200,
+          "bytes": 2588,
+          "sha256": "23dc76aa165792081d12d42b52c2b4b5239e4127fce475b5b642ef2825420c39",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-contents",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/contents.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/contents.md",
+          "status": 200,
+          "bytes": 6679,
+          "sha256": "703d5d7610a00bbceff7c206ef21a65585e64dd7161cfdd144a1abe61541b6f5",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-interval",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/intervals.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/intervals.md",
+          "status": 200,
+          "bytes": 10531,
+          "sha256": "61fe680be48086fb61209a6cd54315b127302c5d78046652275648e383d47274",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-rhythm",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/rhythmicValues.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/rhythmicValues.md",
+          "status": 200,
+          "bytes": 1929,
+          "sha256": "c88c41fe9132cc6f218d0c2025aab1b5d0285193917f6d768badeecb6e092b8c",
+          "title": null,
+          "accessed": "2026-10-12"
+        },
+        {
+          "id": "omt-melodic",
+          "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/melodicDictationDemo.md",
+          "resolvedUrl": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/melodicDictationDemo.md",
+          "status": 200,
+          "bytes": 1028,
+          "sha256": "23a8bf5b2e0f36b0d0367e4bafe2057df816b57fba84b833de3550484cdcf184",
+          "title": null,
+          "accessed": "2026-10-12"
+        }
+      ]
+    },
+    {
+      "id": "mixing-secrets-book",
+      "title": {
+        "tr": "Mixing Secrets for the Small Studio · isteğe bağlı kitap",
+        "en": "Mixing Secrets for the Small Studio · optional book"
+      },
+      "description": {
+        "tr": "Mike Senior’ın denge, kompresyon, EQ, reverb, delay ve stereo konularını içeren İngilizce kitabı. Yalnız odak konunu seç; okuduktan sonra kendi kısa kaydında tek değişkenle dene.",
+        "en": "Mike Senior’s English book covers balance, compression, EQ, reverb, delay and stereo. Choose only your focus topic, then try one variable on your own short recording."
+      },
+      "url": "https://kutuphane.gazi.edu.tr/record=b1659292*tur",
+      "kind": "book",
+      "language": "en",
+      "price": "paid",
+      "sourceChecked": "2026-10-12",
+      "skills": [
+        "eq",
+        "loudness",
+        "compression",
+        "attack",
+        "release",
+        "masking",
+        "stereo",
+        "reverb",
+        "delay"
+      ],
+      "paths": [
+        "mix"
+      ],
+      "author": "Mike Senior · Elsevier/Focal Press",
+      "note": {
+        "tr": "Gazi Üniversitesi kataloğundan 2011 baskısının yazar, başlık, yayıncı ve içindekiler bilgisi doğrulandı. Bağlantı kitap metni veya satış sayfası değildir; e-kitap erişimi, güncel fiyat ve stok doğrulanmadı. Ücretli kitap isteğe bağlıdır; önce kütüphane erişimini araştır.",
+        "en": "Gazi University’s catalogue verifies the author, title, publisher and contents of the 2011 edition. The link is bibliographic metadata, not the book text or a sales page; e-book access, current price and availability were not verified. The paid book is optional; check library access first."
+      },
+      "evidence": {
+        "requestIds": [
+          "gazi-mixing-secrets"
+        ],
+        "excerpt": "Author Senior, Mike. Title Mixing secrets for the small studio [electronic resource] / Mike Senior. Imprint Amsterdam ; Boston : Elsevier/Focal Press, ©2011.",
+        "printISBN": "9780240815800",
+        "electronicISBN": "9780240815817",
+        "contentsExcerpt": "Compressing for a reason -- Equalizing for a reason -- Mixing with reverb -- Mixing with delays -- Stereo enhancements",
+        "verification": "Full official Gazi University library record verified the 2011 publication and topics, not paid book contents. No ebook-access link followed. Commercial/optional-book classification does not assert a current price, stock, unrestricted ebook access or free licence. Library/borrowed access can be checked by the learner; publisher/author sites remain inaccessible."
+      },
+      "requests": [
+        {
+          "id": "gazi-mixing-secrets",
+          "url": "https://kutuphane.gazi.edu.tr/record=b1659292*tur",
+          "resolvedUrl": "https://kutuphane.gazi.edu.tr/record=b1659292*tur",
+          "status": 200,
+          "bytes": 23003,
+          "sha256": "eebe1564c264fff489bccbc21ee5d387e7aa1f08513243745beeadfe4fb8a79f",
+          "accessed": "2026-10-12"
+        }
+      ]
+    }
+  ],
+  "skillMapping": {
+    "eq": {
+      "resourceIds": [
+        "izotope-eq",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "loudness": {
+      "resourceIds": [
+        "izotope-dynamics",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "compression": {
+      "resourceIds": [
+        "izotope-dynamics",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "attack": {
+      "resourceIds": [
+        "izotope-dynamics",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "release": {
+      "resourceIds": [
+        "izotope-dynamics",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "masking": {
+      "resourceIds": [
+        "izotope-masking",
+        "izotope-eq",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "stereo": {
+      "resourceIds": [
+        "izotope-stereo",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "reverb": {
+      "resourceIds": [
+        "izotope-space",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "delay": {
+      "resourceIds": [
+        "izotope-space",
+        "mixing-secrets-book"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "direction": {
+      "resourceIds": [
+        "musictheory-ear",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "interval": {
+      "resourceIds": [
+        "musictheory-ear",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "chord": {
+      "resourceIds": [
+        "musictheory-ear",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "rhythm": {
+      "resourceIds": [
+        "ankara-note-values",
+        "teoria-rhythm",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "memory": {
+      "resourceIds": [
+        "teoria-melody",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "tonic": {
+      "resourceIds": [
+        "teoria-harmony",
+        "teoria-melody",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "degree": {
+      "resourceIds": [
+        "teoria-melody",
+        "teoria-harmony",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "function": {
+      "resourceIds": [
+        "teoria-harmony",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "melodic-dictation": {
+      "resourceIds": [
+        "teoria-melody",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "rhythmic-dictation": {
+      "resourceIds": [
+        "ankara-note-values",
+        "teoria-rhythm",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    },
+    "rhythm-repeat": {
+      "resourceIds": [
+        "ankara-note-values",
+        "teoria-rhythm",
+        "open-music-theory"
+      ],
+      "steps": 3,
+      "includes": [
+        "cue",
+        "session",
+        "transfer",
+        "freshCheck"
+      ],
+      "guideText": "src/report-resources.ts"
+    }
+  },
+  "excludedCandidates": [
+    {
+      "id": "moulton-book",
+      "url": "https://www.moultonlabs.com/Total_Recording/",
+      "error": "HTTP Error 503: Service Unavailable",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "moulton-root",
+      "url": "https://moultonlabs.com/",
+      "error": "HTTP Error 503: Service Unavailable",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "mixing-secrets",
+      "url": "https://www.cambridge-mt.com/ms/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "open-music-theory",
+      "url": "https://viva.pressbooks.pub/openmusictheory/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "routledge",
+      "url": "https://www.routledge.com/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "accessed": "2026-10-12"
+    },
+    {
+      "host": "www.ufukonen.com",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    },
+    {
+      "host": "www.borauslusoy.com",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    },
+    {
+      "host": "www.sunyayinevi.com",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    },
+    {
+      "host": "www.arkadas.com.tr",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    },
+    {
+      "host": "www.ituvakif.org.tr",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    },
+    {
+      "host": "www.youtube.com",
+      "error": "HTTPS CONNECT 403 Forbidden through inherited proxy",
+      "accessed": "2026-10-12",
+      "source": "Parallel primary-source research; no bypass or configuration mutation attempted."
+    }
+  ],
+  "rejectedOldOrMissingPaths": [
+    {
+      "id": "omt-license",
+      "url": "https://raw.githubusercontent.com/openmusictheory/openmusictheory.github.io/master/LICENSE",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "eq-current",
+      "url": "https://www.izotope.com/community/blog/eq-for-beginners",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "pae",
+      "url": "https://pae.izotope.com/",
+      "error": "<urlopen error Tunnel connection failed: 403 Forbidden>",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "musictheory-about",
+      "url": "https://www.musictheory.net/about",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "earmaster-reading",
+      "url": "https://www.earmaster.com/wiki/music-memos/ear-training-books.html",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "eq-basics",
+      "url": "https://www.izotope.com/community/blog/what-is-eq",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    },
+    {
+      "id": "eq",
+      "url": "https://www.izotope.com/en/learn/eq-for-beginners.html",
+      "error": "HTTP Error 404: Not Found",
+      "accessed": "2026-10-12"
+    }
+  ],
+  "verification": {
+    "primaryResources": 12,
+    "skillGuides": 20,
+    "webSources": "Successful HTTP200 responses retained as byte-count/SHA256 evidence; raw pages are local research scratch files, not shipped copyrighted source content.",
+    "typecheck": "npm run typecheck completed with exit0 on 2026-10-12, including the additive mixing book entry; root validates complete report UI/PDF integration."
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "total_records": 390,
+  "by_feed": {
+    "ahenk_reviews": 7,
+    "complete_reviews": 38,
+    "duy_reviews": 1,
+    "earmaster_reviews": 50,
+    "earpeggio_reviews": 50,
+    "functional_reviews": 50,
+    "heareq_reviews": 50,
+    "kulakapp_reviews": 6,
+    "mixsense_reviews": 6,
+    "muzikdersim_reviews": 1,
+    "myear_reviews": 28,
+    "perfect_reviews": 50,
+    "quiztones_reviews": 50,
+    "tonegym_reviews": 3
+  },
+  "scope": "First page of selected US/TR Apple customer review feeds; selected reviews were read for qualitative analysis, not a representative sentiment survey.",
+  "audit_checked_at_utc": "2026-10-10",
+  "raw_csv_sha256": "e901e04433a5c5ad163851014f7a3db9224b8f2ebfd449baf160b54cba61629a",
+  "index": "yorum-kayit-indeksi.csv",
+  "limitations_tr": "Seçili yorum akışlarının ilk sayfaları. Temsili memnuniyet araştırması değildir; yorumların tümü nitel olarak kodlanmadı. Yorum metinleri ve kullanıcı adları bu indeksle yeniden yayımlanmaz. Kaynaklar yeniden getirildiğinde ilk sayfa değişebilir; kimlik/tarih ve hash eski örneklemi ayırt eder."
+}

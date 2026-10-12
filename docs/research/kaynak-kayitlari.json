@@ -1,0 +1,1145 @@
+[
+  {
+    "label": "ahenk_ios",
+    "requested_url": "https://apps.apple.com/tr/app/ahenk/id1563646256",
+    "retrieved_at_utc": "2026-10-08T21:29:21.072065+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/ahenk/id1563646256",
+    "bytes": 581682,
+    "sha256": "236c5bdf90af12dfaf1b72eaade53dd7ff214b448cfe46864ef323c2afbf4258"
+  },
+  {
+    "label": "ahenk_reviews",
+    "requested_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=1563646256/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:32:02.803719+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=1563646256/sortby=mostrecent/json",
+    "bytes": 8210,
+    "sha256": "4ab82701fe8c3ec4d39dd77da5c4b26f790d728760c860c858c0eca00f6670ab"
+  },
+  {
+    "label": "apple_audiodrillz",
+    "requested_url": "https://itunes.apple.com/search?term=AudioDrillz&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:28:30.512117+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=AudioDrillz&entity=software&country=us&limit=10",
+    "bytes": 94796,
+    "sha256": "5e06e15961c5e4d2ea0d6dff2354d8fd77cac93f24a6c19e45bfdc239bd0455e"
+  },
+  {
+    "label": "apple_chear",
+    "requested_url": "https://itunes.apple.com/search?term=Chet%20ear%20training&entity=software&country=us&limit=5",
+    "retrieved_at_utc": "2026-10-08T21:28:30.514229+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Chet%20ear%20training&entity=software&country=us&limit=5",
+    "bytes": 48857,
+    "sha256": "464e8dff8317920434de2ea31fc7d9bcf403a2f3c6ac0f1042a02d2d9fb33d72"
+  },
+  {
+    "label": "apple_eargym",
+    "requested_url": "https://itunes.apple.com/search?term=Ear%20Gym&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:28:30.513063+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Ear%20Gym&entity=software&country=us&limit=10",
+    "bytes": 107385,
+    "sha256": "7160a17ffebd972a8f783f57571ba931900ab407c6afaea102cb5ee0b321733e"
+  },
+  {
+    "label": "apple_ella",
+    "requested_url": "https://itunes.apple.com/search?term=Ella%20Sight%20Singing&entity=software&country=us&limit=5",
+    "retrieved_at_utc": "2026-10-08T21:28:30.513602+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Ella%20Sight%20Singing&entity=software&country=us&limit=5",
+    "bytes": 44236,
+    "sha256": "4b1da9ff237ed3bde6f4451b33ec4d8d3c6b352df82baf9c173f9ea19055d28c"
+  },
+  {
+    "label": "apple_exam",
+    "requested_url": "https://itunes.apple.com/search?term=m%C3%BCzik%20yetenek%20s%C4%B1nav%C4%B1&entity=software&country=tr&limit=20",
+    "retrieved_at_utc": "2026-10-08T21:30:23.687968+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=m%C3%BCzik%20yetenek%20s%C4%B1nav%C4%B1&entity=software&country=tr&limit=20",
+    "bytes": 19374,
+    "sha256": "aaf72c3170544fcebfbc702e739421f7b3ffaf68511b28135a4f01458a2fc4f9"
+  },
+  {
+    "label": "apple_makam",
+    "requested_url": "https://itunes.apple.com/search?term=makam&entity=software&country=tr&limit=20",
+    "retrieved_at_utc": "2026-10-08T21:28:30.512622+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=makam&entity=software&country=tr&limit=20",
+    "bytes": 143049,
+    "sha256": "56cf99d09d218f2dcf06c3feb7bbf6e74e15ed660d7f8b2151d506e3967bd325"
+  },
+  {
+    "label": "apple_search_better",
+    "requested_url": "https://itunes.apple.com/search?term=Better%20Ears&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:27:54.804818+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Better%20Ears&entity=software&country=us&limit=10",
+    "bytes": 99861,
+    "sha256": "21a51048823eed41f5a5c1a6d7dd0365d33e9398bdc7c7d84ac3df2b42c70ed5"
+  },
+  {
+    "label": "apple_search_functional",
+    "requested_url": "https://itunes.apple.com/search?term=Functional%20Ear%20Trainer&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:26:49.452893+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Functional%20Ear%20Trainer&entity=software&country=us&limit=10",
+    "bytes": 100116,
+    "sha256": "168739606bbe927e44000140c20990f2e360eac20e4c22a9a2feb273b13d950a"
+  },
+  {
+    "label": "apple_search_heareq",
+    "requested_url": "https://itunes.apple.com/search?term=HearEQ&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:27:54.800350+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=HearEQ&entity=software&country=us&limit=10",
+    "bytes": 74454,
+    "sha256": "9f292e63d777da6abcc99d2e5cc843b7bae8cc56b7368ef36db15f1fc5046f8c"
+  },
+  {
+    "label": "apple_search_mix",
+    "requested_url": "https://itunes.apple.com/search?term=Quiztones&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:26:49.452477+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=Quiztones&entity=software&country=us&limit=10",
+    "bytes": 95036,
+    "sha256": "0e5496841a6316ca154e01695b2e539e8d051d624c303e500785fc3d5429abce"
+  },
+  {
+    "label": "apple_search_more",
+    "requested_url": "https://itunes.apple.com/search?term=ear%20training%20mixing&entity=software&country=us&limit=30",
+    "retrieved_at_utc": "2026-10-08T21:27:54.778745+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=ear%20training%20mixing&entity=software&country=us&limit=30",
+    "bytes": 279323,
+    "sha256": "d79cdf5636bc2b7c15fca09e37c4078211a1af299ee19ab466da48c020093d93"
+  },
+  {
+    "label": "apple_search_myear",
+    "requested_url": "https://itunes.apple.com/search?term=MyEarTraining&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:26:49.453367+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=MyEarTraining&entity=software&country=us&limit=10",
+    "bytes": 91286,
+    "sha256": "be250135638f2d5b48237758d27241b02ef7107cb3754cfed9c9df1a90f136ea"
+  },
+  {
+    "label": "apple_soundgym",
+    "requested_url": "https://itunes.apple.com/search?term=SoundGym&entity=software&country=us&limit=10",
+    "retrieved_at_utc": "2026-10-08T21:28:30.511398+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=SoundGym&entity=software&country=us&limit=10",
+    "bytes": 98871,
+    "sha256": "7f2661cd427f5a5fdeeda63795942da072da89bc2636050c13d4ce71ca577e54"
+  },
+  {
+    "label": "apple_turkish",
+    "requested_url": "https://itunes.apple.com/search?term=kulak%20e%C4%9Fitimi&entity=software&country=tr&limit=20",
+    "retrieved_at_utc": "2026-10-08T21:30:23.686464+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/search?term=kulak%20e%C4%9Fitimi&entity=software&country=tr&limit=20",
+    "bytes": 188018,
+    "sha256": "6738c0ef177d288969ad514b88c9ae16ef5495f3b28197c850bc467457960afa"
+  },
+  {
+    "label": "auditions_ios",
+    "requested_url": "https://apps.apple.com/tr/app/ear-training-for-auditions/id6814007853",
+    "retrieved_at_utc": "2026-10-08T21:31:42.271870+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/ear-training-for-auditions/id6814007853",
+    "bytes": 485381,
+    "sha256": "1559a9a727fe4695a2b275bbee35a042c0e31b3fa87a3fbd0e4319e2e9bb6a47"
+  },
+  {
+    "label": "auralia",
+    "requested_url": "https://www.risingsoftware.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.187135+00:00",
+    "status": 200,
+    "final_url": "https://www.risingsoftware.com/",
+    "bytes": 60650,
+    "sha256": "dcf1b70d8aa41c7901a60a4a222f835e5d564e5130a9385e695674c5ace460d3"
+  },
+  {
+    "label": "auralia_features",
+    "requested_url": "https://www.risingsoftware.com/auralia",
+    "retrieved_at_utc": "2026-10-08T21:26:13.784819+00:00",
+    "status": 200,
+    "final_url": "https://www.risingsoftware.com/auralia",
+    "bytes": 63552,
+    "sha256": "ce8694d5dcc39fcd931c577fbd60b22bc7d1818d2fbbf5369d8c0370b9e76ac5"
+  },
+  {
+    "label": "auralia_shop",
+    "requested_url": "https://www.risingsoftware.com/shop",
+    "retrieved_at_utc": "2026-10-08T21:26:13.813251+00:00",
+    "status": 200,
+    "final_url": "https://www.risingsoftware.com/shop",
+    "bytes": 55787,
+    "sha256": "7e79f483e7bfa69a0891cd393b132be720953a80fba053fb8654194b22b3bcf3"
+  },
+  {
+    "label": "better",
+    "requested_url": "https://www.better-ears.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.604516+00:00",
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  {
+    "label": "better_ios",
+    "requested_url": "https://apps.apple.com/us/app/better-ears-ear-trainer/id284444548",
+    "retrieved_at_utc": "2026-10-08T21:29:20.606672+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/better-ears-ear-trainer/id284444548",
+    "bytes": 648884,
+    "sha256": "72508ae3e45e525b99b2e8c13a2a9d850bdb712c1b3b3a97fc7f240b487fbb33"
+  },
+  {
+    "label": "bing_alternatives",
+    "requested_url": "https://www.bing.com/search?q=audio+mixing+ear+training+apps+Audiodrillz+AudioGym+alternatives",
+    "retrieved_at_utc": "2026-10-08T21:26:13.408721+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=audio+mixing+ear+training+apps+Audiodrillz+AudioGym+alternatives",
+    "bytes": 118155,
+    "sha256": "96cb4cd4883ff305cc590d5e6bd3e57a40bf13fdd3e645df8cd5d8f93fb2cbf1"
+  },
+  {
+    "label": "bing_earmaster",
+    "requested_url": "https://www.bing.com/search?q=EarMaster+reviews+problems+reddit",
+    "retrieved_at_utc": "2026-10-08T21:26:13.407031+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=EarMaster+reviews+problems+reddit",
+    "bytes": 118770,
+    "sha256": "589120906b1c9814fc68356f76bc6aab11c722490085100fc97fb5f03dcf2022"
+  },
+  {
+    "label": "bing_exact",
+    "requested_url": "https://www.bing.com/search?q=%22SoundGym%22&format=rss",
+    "retrieved_at_utc": "2026-10-08T21:26:49.450246+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=%22SoundGym%22&format=rss",
+    "bytes": 5019,
+    "sha256": "1124bb8ad0cccf5045742d53fc421fd54c7b9b2144a7f1b459f2187046b5aa5b"
+  },
+  {
+    "label": "bing_functional",
+    "requested_url": "https://www.bing.com/search?q=Functional+Ear+Trainer+reviews+problems",
+    "retrieved_at_utc": "2026-10-08T21:26:13.407946+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=Functional+Ear+Trainer+reviews+problems",
+    "bytes": 121238,
+    "sha256": "f52196e1a3a1b544883f9afafd128020605b994906f1a11268c3d6dc701fb3c7"
+  },
+  {
+    "label": "bing_quiztones",
+    "requested_url": "https://www.bing.com/search?q=Quiztones+App+Store+reviews",
+    "retrieved_at_utc": "2026-10-08T21:26:13.406565+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=Quiztones+App+Store+reviews",
+    "bytes": 121696,
+    "sha256": "e2f801f1f38e57f8e1563f2916f9d30b96f806ce4052fa6202d1e2ef8446fd58"
+  },
+  {
+    "label": "bing_soundgym",
+    "requested_url": "https://www.bing.com/search?q=SoundGym+review+reddit+feedback+price",
+    "retrieved_at_utc": "2026-10-08T21:26:13.405320+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=SoundGym+review+reddit+feedback+price",
+    "bytes": 126075,
+    "sha256": "dbb177f8880785d0dde5fce1c6b1cc909b01a1d1ce955729d730a0f5eb101776"
+  },
+  {
+    "label": "bing_turkish",
+    "requested_url": "https://www.bing.com/search?q=makam+kulak+e%C4%9Fitimi+uygulama",
+    "retrieved_at_utc": "2026-10-08T21:26:13.409635+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=makam+kulak+e%C4%9Fitimi+uygulama",
+    "bytes": 114182,
+    "sha256": "8c85f4cf77152121d2a0c9ee3768065fc3a9fcab4f79e99394f0f40b415ae2f7"
+  },
+  {
+    "label": "bing_tye",
+    "requested_url": "https://www.bing.com/search?q=TrainYourEars+review+reddit",
+    "retrieved_at_utc": "2026-10-08T21:26:13.406087+00:00",
+    "status": 200,
+    "final_url": "https://www.bing.com/search?q=TrainYourEars+review+reddit",
+    "bytes": 124766,
+    "sha256": "ec52bbf472c2e0ffd8eebaef8d9b033f9997d391d2fdc44759c221e5ecceea70"
+  },
+  {
+    "label": "chet_ios",
+    "requested_url": "https://apps.apple.com/us/app/chet-ear-training/id1405525467",
+    "retrieved_at_utc": "2026-10-08T21:29:20.603778+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/chet-ear-training/id1405525467",
+    "bytes": 696285,
+    "sha256": "b5dad040255d5cfeedee3f98d9787fe310d821f6ba8f920a6c19c322c3a5ec7d"
+  },
+  {
+    "label": "chordprog_ios",
+    "requested_url": "https://apps.apple.com/us/app/chordprog-ear-trainer/id1454739512",
+    "retrieved_at_utc": "2026-10-08T21:31:42.277412+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/chordprog-ear-trainer/id1454739512",
+    "bytes": 598967,
+    "sha256": "c6d215bb07bca2982b79ab5924ec3d2b41510a4ee48b53f1c71bec92d93ccf1d"
+  },
+  {
+    "label": "complete",
+    "requested_url": "https://completeeartrainer.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.435261+00:00",
+    "status": 200,
+    "final_url": "https://completeeartrainer.com/",
+    "bytes": 151729,
+    "sha256": "fe43c56dc9892553a7e0191abb7f3be8c0fbad8f52aca9b0c2de7aae5d52fcd5"
+  },
+  {
+    "label": "complete_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.binaryguilt.completeeartrainer&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:28:30.515011+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.binaryguilt.completeeartrainer&hl=en&gl=US",
+    "bytes": 1322991,
+    "sha256": "8c4e4e59e40d444ba1de636b6d8d0988e9d46855f384042ca0598e691c6f9fe3"
+  },
+  {
+    "label": "complete_ios",
+    "requested_url": "https://apps.apple.com/us/app/complete-ear-trainer/id1012455471",
+    "retrieved_at_utc": "2026-10-08T21:26:13.820462+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/complete-ear-trainer/id1012455471",
+    "bytes": 648773,
+    "sha256": "d917a9718ff8ccd6a64f8f06fbeb11e5aa60770f7426e25baa61a867fb1fa53e"
+  },
+  {
+    "label": "complete_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1012455471/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:26:49.453964+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1012455471/sortby=mostrecent/json",
+    "bytes": 40309,
+    "sha256": "09e4d12bd46bf34fc6b4addf081acfb31018bd449541814f207077d59e43c9d8"
+  },
+  {
+    "label": "duy_ios",
+    "requested_url": "https://apps.apple.com/tr/app/duy/id6804042622",
+    "retrieved_at_utc": "2026-10-08T21:31:42.272427+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/duy/id6804042622",
+    "bytes": 505488,
+    "sha256": "e4ca27fe6900da0ca3198fbb66cea7534ccf1df841c93c6e8ac1d177abe6d9ea"
+  },
+  {
+    "label": "duy_reviews",
+    "requested_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6804042622/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:32:02.801738+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6804042622/sortby=mostrecent/json",
+    "bytes": 2315,
+    "sha256": "9fe943fc56d8c5d7cf440b2be2e2c29efebbb3f190f33de936351513bcef1c30"
+  },
+  {
+    "label": "earmaster",
+    "requested_url": "https://www.earmaster.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.186349+00:00",
+    "status": 200,
+    "final_url": "https://www.earmaster.com/",
+    "bytes": 105142,
+    "sha256": "56ea1fb977b300755bf9d533b58a309878cfa3a8d93a6a505069fe2f6dd57227"
+  },
+  {
+    "label": "earmaster_features",
+    "requested_url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-software.html",
+    "retrieved_at_utc": "2026-10-08T21:26:13.732757+00:00",
+    "status": 200,
+    "final_url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-software.html",
+    "bytes": 132656,
+    "sha256": "09c05e44ccc201cf34671678cbe2e58c9c11b9cd21e754221b6008f5faa774f5"
+  },
+  {
+    "label": "earmaster_ios",
+    "requested_url": "https://apps.apple.com/us/app/earmaster-music-theory/id1105030163",
+    "retrieved_at_utc": "2026-10-08T21:27:54.530182+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/earmaster-music-theory/id1105030163",
+    "bytes": 615088,
+    "sha256": "2efc3215f76a0292944b09524d1fe1ab9548445a62aea836082cf6b264ee90dd"
+  },
+  {
+    "label": "earmaster_price",
+    "requested_url": "https://www.earmaster.com/how-to-buy-earmaster.html",
+    "retrieved_at_utc": "2026-10-08T21:26:13.743210+00:00",
+    "status": 200,
+    "final_url": "https://www.earmaster.com/how-to-buy-earmaster.html",
+    "bytes": 99234,
+    "sha256": "c6af66d616bdbe3884050a021ec1e4a0a6a9691b86760e1618ab812ad93d7067"
+  },
+  {
+    "label": "earmaster_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1105030163/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:27:54.537455+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1105030163/sortby=mostrecent/json",
+    "bytes": 43663,
+    "sha256": "3515ada18dc9994fd55114e991393c8d2ce6e1713c2457427cd46ae4a0a4fb75"
+  },
+  {
+    "label": "earpeggio",
+    "requested_url": "https://earpeggio.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.684391+00:00",
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "label": "earpeggio_ios",
+    "requested_url": "https://apps.apple.com/us/app/earpeggio/id884775105",
+    "retrieved_at_utc": "2026-10-08T21:27:54.529723+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/earpeggio/id884775105",
+    "bytes": 637976,
+    "sha256": "fdfe60e874728731a6fc1b3b365976d2b0ba977e899472b8179245d02bc120ad"
+  },
+  {
+    "label": "earpeggio_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=884775105/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:27:54.533130+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=884775105/sortby=mostrecent/json",
+    "bytes": 40579,
+    "sha256": "524ca03016506c0f6c47804e86c6779ba855c2ba22036697c2eed48d925484a6"
+  },
+  {
+    "label": "ella_ios",
+    "requested_url": "https://apps.apple.com/us/app/ella-sight-singing-reading/id1301456113",
+    "retrieved_at_utc": "2026-10-08T21:29:20.604754+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/ella-sight-singing-reading/id1301456113",
+    "bytes": 708446,
+    "sha256": "0953319f5b68347c908dbe1ce7d022c4db73f7d32d4d652d89f814afda459fad"
+  },
+  {
+    "label": "eqperfect_ios",
+    "requested_url": "https://apps.apple.com/us/app/eq-perfect-pro-eq-ear-training/id1580955897",
+    "retrieved_at_utc": "2026-10-08T21:29:20.591811+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/eq-perfect-pro-eq-ear-training/id1580955897",
+    "bytes": 578289,
+    "sha256": "8e668629630357b03ecac55323537f02930ad0241483c4435b82e7e8023e6484"
+  },
+  {
+    "label": "eqtrainer_ios",
+    "requested_url": "https://apps.apple.com/us/app/eq-trainer/id1472810579",
+    "retrieved_at_utc": "2026-10-08T21:29:20.592865+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/eq-trainer/id1472810579",
+    "bytes": 507392,
+    "sha256": "6e559477a60260a1802e67b681f82b2c721bd52da2daca2b274fb51152e1e8dd"
+  },
+  {
+    "label": "functional",
+    "requested_url": "https://www.miles.be/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.193396+00:00",
+    "status": 200,
+    "final_url": "https://www.miles.be/",
+    "bytes": 33322,
+    "sha256": "d89aa1be3e0746bd2f2e57fbefda049806c238da2104f9c2be6a52a47729da94"
+  },
+  {
+    "label": "functional_ios",
+    "requested_url": "https://apps.apple.com/us/app/functional-ear-trainer/id1088761926",
+    "retrieved_at_utc": "2026-10-08T21:27:54.528719+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/functional-ear-trainer/id1088761926",
+    "bytes": 616738,
+    "sha256": "13a4473357a363a0f89a9e704f3868ef41ed9ad4438f2d9160a20af964b78340"
+  },
+  {
+    "label": "functional_method",
+    "requested_url": "https://www.miles.be/software/functional-ear-trainer-v2",
+    "retrieved_at_utc": "2026-10-08T21:27:55.176669+00:00",
+    "status": 200,
+    "final_url": "https://www.miles.be/software/functional-ear-trainer-v2/",
+    "bytes": 39911,
+    "sha256": "a29c6afb7af3c73c23cd2e50377c94addaaa949bd809f1c7d877e3f9826c26c4"
+  },
+  {
+    "label": "functional_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1088761926/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:27:54.531107+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1088761926/sortby=mostrecent/json",
+    "bytes": 43586,
+    "sha256": "36518eb87862edcf50a5584cd9db427220a4052e6fa9d317e359f93ef2ebc6ae"
+  },
+  {
+    "label": "goldenears",
+    "requested_url": "https://www.moultonlabs.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.182344+00:00",
+    "error": "HTTP Error 503: Service Unavailable"
+  },
+  {
+    "label": "google_basic",
+    "requested_url": "https://www.google.com/search?q=SoundGym&gbv=1&udm=14",
+    "retrieved_at_utc": "2026-10-08T21:26:49.451063+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=SoundGym&gbv=1",
+    "bytes": 92396,
+    "sha256": "56c964cc89c48a5571628388c98b6cfad67534b737d91a58a42515fd160c348c"
+  },
+  {
+    "label": "googleplay_turkish",
+    "requested_url": "https://play.google.com/store/search?q=kulak%20egitimi&c=apps&hl=tr&gl=TR",
+    "retrieved_at_utc": "2026-10-08T21:30:23.687412+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/search?q=kulak%20egitimi&c=apps&hl=tr&gl=TR",
+    "bytes": 1563643,
+    "sha256": "398d843e3c3e1f8053dc0868e52085cd8f3e9f5d3ee3c608fd9a4965e3fd11cb"
+  },
+  {
+    "label": "harman",
+    "requested_url": "https://harmanhowtolisten.blogspot.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.182938+00:00",
+    "status": 200,
+    "final_url": "https://harmanhowtolisten.blogspot.com/",
+    "bytes": 67360,
+    "sha256": "658c284e133dcec000aa1194834c167e5f990f262976ad7bb339c51ac7f1482c"
+  },
+  {
+    "label": "heareq_ios",
+    "requested_url": "https://apps.apple.com/us/app/heareq-ear-training-for-eq/id840906542",
+    "retrieved_at_utc": "2026-10-08T21:29:20.589962+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/heareq-ear-training-for-eq/id840906542",
+    "bytes": 655272,
+    "sha256": "ebc53f7c108241c922f523205c727f4ec6294e23c261c1d81800039352b6eee3"
+  },
+  {
+    "label": "heareq_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=840906542/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:29:21.146809+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=840906542/sortby=mostrecent/json",
+    "bytes": 43302,
+    "sha256": "eff5e003acd20ab5ac324a5612e8e71e31a21b3a10c68e5bc6160d8ab2da8318"
+  },
+  {
+    "label": "iwas",
+    "requested_url": "https://www.iwasdoingallright.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:27.093038+00:00",
+    "status": 200,
+    "final_url": "https://www.iwasdoingallright.com/",
+    "bytes": 15870,
+    "sha256": "4e7bec09e783d4dc8f8ad4139a2619b925f61259f2c05b00225e709cbaf0ac5f"
+  },
+  {
+    "label": "iwas_trainer",
+    "requested_url": "https://www.iwasdoingallright.com/tools/ear_training/online/",
+    "retrieved_at_utc": "2026-10-08T21:34:25.645823+00:00",
+    "status": 200,
+    "final_url": "https://www.iwasdoingallright.com/tools/ear_training/online/",
+    "bytes": 158210,
+    "sha256": "f7b195e77080ccd6998f3a6b57c8c414acf651124b8b407182cae4ddacec79ef"
+  },
+  {
+    "label": "izotope",
+    "requested_url": "https://pae.izotope.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.183363+00:00",
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "label": "kulakapp_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.codefastapp.kulak&hl=tr&gl=TR",
+    "retrieved_at_utc": "2026-10-08T21:32:02.790271+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.codefastapp.kulak&hl=tr&gl=TR",
+    "bytes": 1216622,
+    "sha256": "ce0aa29eb45bee2cdfac62d23c2359cdd0809b4555bd88be53ce5761691e7b40"
+  },
+  {
+    "label": "kulakapp_ios",
+    "requested_url": "https://apps.apple.com/tr/app/kulakapp-ear-training/id6761266705",
+    "retrieved_at_utc": "2026-10-08T21:31:42.270569+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/kulakapp-ear-training/id6761266705",
+    "bytes": 610124,
+    "sha256": "a1d9d715bc08631fa416b68b93aa10602355b95fd8a6f32c5fd6da1c881ef979"
+  },
+  {
+    "label": "kulakapp_reviews",
+    "requested_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6761266705/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:32:02.802172+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6761266705/sortby=mostrecent/json",
+    "bytes": 6732,
+    "sha256": "456ae3bf71b2189d6c4f0d6664be8139e0ff329966f454eefb3bc7310b57809f"
+  },
+  {
+    "label": "makamstudio_ios",
+    "requested_url": "https://apps.apple.com/tr/app/makam-studio/id6759348598",
+    "retrieved_at_utc": "2026-10-08T21:29:21.046646+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/makam-studio/id6759348598",
+    "bytes": 470989,
+    "sha256": "5d1065e775e362375eb4a5805a0f0cab3c8fd8040ec0bd86d9183772c3925091"
+  },
+  {
+    "label": "maqamat_ios",
+    "requested_url": "https://apps.apple.com/tr/app/maqamat/id766256433",
+    "retrieved_at_utc": "2026-10-08T21:29:21.136289+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/maqamat/id766256433",
+    "bytes": 515804,
+    "sha256": "4138ef9c8c78e622d31ef15ecd9d8643c75b29c6f07ea706ae6c045e299b0b08"
+  },
+  {
+    "label": "meludia",
+    "requested_url": "https://www.meludia.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.703484+00:00",
+    "status": 200,
+    "final_url": "https://meludia.com/fr/",
+    "bytes": 395762,
+    "sha256": "1c08faa21174e125a35a11c27dbd4c517482a1f1c6001432d19d4d6efdb57e59"
+  },
+  {
+    "label": "meludia_en",
+    "requested_url": "https://www.meludia.com/en/",
+    "retrieved_at_utc": "2026-10-08T21:27:55.181109+00:00",
+    "status": 200,
+    "final_url": "https://meludia.com/en/",
+    "bytes": 396557,
+    "sha256": "8e02c18045f119c647cd0efd6f37cbb23edadb89deb2dfc763c5a9b7d0f21ff3"
+  },
+  {
+    "label": "meludia_offers",
+    "requested_url": "https://meludia.com/en/offers/",
+    "retrieved_at_utc": "2026-10-08T21:31:42.277991+00:00",
+    "status": 200,
+    "final_url": "https://meludia.com/en/offers/",
+    "bytes": 221780,
+    "sha256": "85902d6eac4f854e2ab01b1c6372cd2be4b0a5aaf11c1415db943464e841b15d"
+  },
+  {
+    "label": "meludia_tr",
+    "requested_url": "https://meludia.com/tr/",
+    "retrieved_at_utc": "2026-10-08T21:31:42.281473+00:00",
+    "status": 200,
+    "final_url": "https://meludia.com/tr/",
+    "bytes": 393395,
+    "sha256": "dd5ad2b0ff37b253ebb63a1f60c7d6282e1be39f5db56c9826e5ccbc85e2d266"
+  },
+  {
+    "label": "mesk_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.meskteknoloji.mesktune&hl=tr&gl=TR",
+    "retrieved_at_utc": "2026-10-08T21:32:02.789445+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.meskteknoloji.mesktune&hl=tr&gl=TR",
+    "bytes": 1225659,
+    "sha256": "4f51a9f8a6c3b8eb68fad31b68964ae25bbe3eb82c80fc0dbd5166170ee733c6"
+  },
+  {
+    "label": "microtonal_ios",
+    "requested_url": "https://apps.apple.com/us/app/microtonal-ear-trainer/id6775422266",
+    "retrieved_at_utc": "2026-10-08T21:29:20.597445+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/microtonal-ear-trainer/id6775422266",
+    "bytes": 507116,
+    "sha256": "5945b3acc5a2d762c53bb3b6a260167c9aef08046a17e57c8d7d84a2663f05df"
+  },
+  {
+    "label": "mixear_ios",
+    "requested_url": "https://apps.apple.com/us/app/mixear-ear-trainer-for-mixing/id6812959406",
+    "retrieved_at_utc": "2026-10-08T21:29:20.591245+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/mixear-ear-trainer-for-mixing/id6812959406",
+    "bytes": 519123,
+    "sha256": "e5bff5b109a7168c857c0d11e1424f038b3f468456f9ed7fd708ab298e3d7717"
+  },
+  {
+    "label": "mixsense_ios",
+    "requested_url": "https://apps.apple.com/us/app/mixsense-learn-mixing-by-ear/id6503040180",
+    "retrieved_at_utc": "2026-10-08T21:29:20.590766+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/mixsense-learn-mixing-by-ear/id6503040180",
+    "bytes": 593582,
+    "sha256": "7b3d81aa8a597aca99beadf1b085defe54c860fb049ceee94cc73254d519609d"
+  },
+  {
+    "label": "mixsense_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=6503040180/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:29:21.179181+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=6503040180/sortby=mostrecent/json",
+    "bytes": 8839,
+    "sha256": "baabc597bf54a4cca09754ffea5cc3f432075c6c880d68637adbf998b646efeb"
+  },
+  {
+    "label": "musictheory",
+    "requested_url": "https://www.musictheory.net/",
+    "retrieved_at_utc": "2026-10-08T21:25:27.071229+00:00",
+    "status": 200,
+    "final_url": "https://www.musictheory.net/",
+    "bytes": 5443,
+    "sha256": "2ef106cc7346b20e2b3841a2beda9d611c0f38e43c40d678857b775167e102ba"
+  },
+  {
+    "label": "musictheory_exercises",
+    "requested_url": "https://www.musictheory.net/exercises",
+    "retrieved_at_utc": "2026-10-08T21:30:23.688964+00:00",
+    "status": 200,
+    "final_url": "https://www.musictheory.net/exercises",
+    "bytes": 15354,
+    "sha256": "d2f54b251781ffb0de3b8f0060a4d1c39da1ee0676a34b88ada7b9fa8d45a67f"
+  },
+  {
+    "label": "musictheory_tenuto",
+    "requested_url": "https://www.musictheory.net/products/tenuto",
+    "retrieved_at_utc": "2026-10-08T21:27:55.334638+00:00",
+    "status": 200,
+    "final_url": "https://www.musictheory.net/products/tenuto",
+    "bytes": 7250,
+    "sha256": "cb3aa1d7be5c9a63f251e32f30bf3ee2b53a76119e566d9fbd6fb613fc55800f"
+  },
+  {
+    "label": "muzikdersim_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.muzikegitim.app&hl=tr&gl=TR",
+    "retrieved_at_utc": "2026-10-08T21:32:02.791234+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.muzikegitim.app&hl=tr&gl=TR",
+    "bytes": 1188007,
+    "sha256": "e3faeeb819488a5e53a0919f256f27ddeda4beb9c162b3f5ecb2ae0b2d523e51"
+  },
+  {
+    "label": "muzikdersim_ios",
+    "requested_url": "https://apps.apple.com/tr/app/m%C3%BCzik-dersim-ear-training/id6761864079",
+    "retrieved_at_utc": "2026-10-08T21:31:42.271324+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/m%C3%BCzik-dersim-ear-training/id6761864079",
+    "bytes": 620722,
+    "sha256": "6f68ffd6f5e9ef70f43df28a69e40e6b37db14e4cc45b0cdcc6234ed2822254f"
+  },
+  {
+    "label": "muzikdersim_reviews",
+    "requested_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6761864079/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:32:02.803006+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/tr/rss/customerreviews/page=1/id=6761864079/sortby=mostrecent/json",
+    "bytes": 2312,
+    "sha256": "d9f95aca6bf98a31159c3ca2bd14226df40a0e02e08be221c4713dc8b4f575f8"
+  },
+  {
+    "label": "myear",
+    "requested_url": "https://www.myeartraining.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.580587+00:00",
+    "status": 200,
+    "final_url": "https://www.myeartraining.com/",
+    "bytes": 114,
+    "sha256": "6dc9c7fc93bb488bb0520a6c780a8d3c0fb5486a4711aca49b4c53fac7393023"
+  },
+  {
+    "label": "myear_ios",
+    "requested_url": "https://apps.apple.com/us/app/myeartraining-ear-trainer/id885622580",
+    "retrieved_at_utc": "2026-10-08T21:27:54.529200+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/myeartraining-ear-trainer/id885622580",
+    "bytes": 687518,
+    "sha256": "c1626d73dd6dde260fbee85e8c1eec15961ce10bca89e87c5bc3713d533e35d0"
+  },
+  {
+    "label": "myear_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=885622580/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:27:54.532473+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=885622580/sortby=mostrecent/json",
+    "bytes": 24449,
+    "sha256": "9477a13b4eda7853e5994aed4d8f958953665be64905dc50a00b27b5f857a820"
+  },
+  {
+    "label": "perfect",
+    "requested_url": "https://www.perfectear.app/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.551285+00:00",
+    "status": 200,
+    "final_url": "https://www.perfectear.app/",
+    "bytes": 18914,
+    "sha256": "a8fc60013bf4b9e38ade8d8de7c1e535478d1673720b6841efc0af1eb44ceb2b"
+  },
+  {
+    "label": "perfect_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.evilduck.musiciankit&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:28:30.528580+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.evilduck.musiciankit&hl=en&gl=US",
+    "bytes": 1306852,
+    "sha256": "98b665cd7cfe48bdc66257559abfaf6b1dc1e1c2cdabd9258da3e7e0d468018a"
+  },
+  {
+    "label": "perfect_ios",
+    "requested_url": "https://apps.apple.com/us/app/perfect-ear-ear-trainer/id1440768353",
+    "retrieved_at_utc": "2026-10-08T21:26:13.821276+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/perfect-ear-music-rhythm/id1440768353",
+    "bytes": 638659,
+    "sha256": "0b14a8d5de2a428306f140cda619e09f493e8d8506f4529ea258c91a3ee727ee"
+  },
+  {
+    "label": "perfect_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1440768353/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:26:49.455720+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=1440768353/sortby=mostrecent/json",
+    "bytes": 40597,
+    "sha256": "0f7cbe9cf955ee5a6d396d61eae2d64e62fdfe81375105a9f23dd3ccca8a1a59"
+  },
+  {
+    "label": "quiztones",
+    "requested_url": "https://quiztones.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.181816+00:00",
+    "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+  },
+  {
+    "label": "quiztones_ios",
+    "requested_url": "https://apps.apple.com/us/app/quiztones-eq-ear-training/id436707254",
+    "retrieved_at_utc": "2026-10-08T21:27:54.527957+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/quiztones-eq-ear-training/id436707254",
+    "bytes": 644319,
+    "sha256": "cdc8919ef03516c85b580c37989796f5997262f0759eef536a6ada8a4c918ca4"
+  },
+  {
+    "label": "quiztones_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=436707254/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:27:54.530620+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=436707254/sortby=mostrecent/json",
+    "bytes": 44344,
+    "sha256": "b813012c18f58a730ac8e7f745a8ed5a9f03fe687a97f56ab6330b8d727285d5"
+  },
+  {
+    "label": "reddit_soundgym",
+    "requested_url": "https://old.reddit.com/search.json?q=SoundGym&sort=relevance&limit=25",
+    "retrieved_at_utc": "2026-10-08T21:26:49.451624+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "label": "reddit_tye",
+    "requested_url": "https://old.reddit.com/search.json?q=TrainYourEars&sort=relevance&limit=25",
+    "retrieved_at_utc": "2026-10-08T21:26:49.452090+00:00",
+    "error": "HTTP Error 403: Forbidden"
+  },
+  {
+    "label": "resolve_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=app.solotrainer.resolve&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:32:02.788363+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=app.solotrainer.resolve&hl=en&gl=US",
+    "bytes": 1199047,
+    "sha256": "af575c5e68ab792d48bfd786bc938ddfcd761ec307614a7c32fa36c0cd286bff"
+  },
+  {
+    "label": "riffy_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.nusin.eartrainer&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:32:02.787584+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.nusin.eartrainer&hl=en&gl=US",
+    "bytes": 1236008,
+    "sha256": "063425baf93958b2c5dc55ad88df9adfe94ac80a27453717a91f2b9bddd8192b"
+  },
+  {
+    "label": "search_alternatives",
+    "requested_url": "https://www.google.com/search?q=audio+mixing+ear+training+apps+Audiodrillz+AudioGym+alternatives&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.573391+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=audio+mixing+ear+training+apps+Audiodrillz+AudioGym+alternatives&num=10",
+    "bytes": 92283,
+    "sha256": "a77d9909bd2d931d30d69634e788d6cca986ca2a1250dd443713382e530ff7f0"
+  },
+  {
+    "label": "search_auralia",
+    "requested_url": "https://www.google.com/search?q=Auralia+EarMaster+review+comparison&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.575774+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=Auralia+EarMaster+review+comparison&num=10",
+    "bytes": 92284,
+    "sha256": "de2f24a2696d34fdfa724373881698073e9985529488f0ca9ea36efcaa955e07"
+  },
+  {
+    "label": "search_earmaster",
+    "requested_url": "https://www.google.com/search?q=EarMaster+reviews+problems+reddit&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.572275+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=EarMaster+reviews+problems+reddit&num=10",
+    "bytes": 92184,
+    "sha256": "dee7746ab829c16134d975c4a9111f2922705d3f3a94046a8fd08e878bc981ad"
+  },
+  {
+    "label": "search_functional",
+    "requested_url": "https://www.google.com/search?q=Functional+Ear+Trainer+reviews+problems&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.572895+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=Functional+Ear+Trainer+reviews+problems&num=10",
+    "bytes": 92194,
+    "sha256": "1940c7e7d6ccf75622217dc0b69698cba174f87ce5d6ac0f85ea61941afcc02a"
+  },
+  {
+    "label": "search_quiztones",
+    "requested_url": "https://www.google.com/search?q=Quiztones+App+Store+reviews&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.571783+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=Quiztones+App+Store+reviews&num=10",
+    "bytes": 92233,
+    "sha256": "ed94c86dea204b6f94070d3b1f00842ae4f9a095cffe2723462fd8f296449662"
+  },
+  {
+    "label": "search_soundgym",
+    "requested_url": "https://www.google.com/search?q=SoundGym+review+reddit+feedback+price&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.570494+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=SoundGym+review+reddit+feedback+price&num=10",
+    "bytes": 92055,
+    "sha256": "37e2aa39c2bf5f39a4ac91f8b562241f1aca2996c07aae6b41ab262ba37c600e"
+  },
+  {
+    "label": "search_turkish",
+    "requested_url": "https://www.google.com/search?q=makam+kulak+e%C4%9Fitimi+uygulama&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.574459+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=makam+kulak+e%C4%9Fitimi+uygulama&num=10",
+    "bytes": 92248,
+    "sha256": "2ed516af7e77fa65ddfe85db7eaf2bd82be5cc60599a623bf7ce0dbb8d2ea77e"
+  },
+  {
+    "label": "search_tye",
+    "requested_url": "https://www.google.com/search?q=TrainYourEars+review+reddit&num=10",
+    "retrieved_at_utc": "2026-10-08T21:25:43.571219+00:00",
+    "status": 200,
+    "final_url": "https://www.google.com/search?q=TrainYourEars+review+reddit&num=10",
+    "bytes": 92289,
+    "sha256": "30744ef1bdaee5f75c62dfa1469b1ccf9a0aaecb457d824b7ece98bb8642d918"
+  },
+  {
+    "label": "solfej",
+    "requested_url": "https://www.solfej.io/",
+    "retrieved_at_utc": "2026-10-08T21:25:27.182168+00:00",
+    "status": 200,
+    "final_url": "https://www.solfej.io/",
+    "bytes": 243515,
+    "sha256": "6befa37dccc4d14735fa5dd3232392f5de5ac0fc4b425ab5835c71b7754e8b76"
+  },
+  {
+    "label": "sonofield_ios",
+    "requested_url": "https://apps.apple.com/us/app/sonofield-ear-trainer/id6740409139",
+    "retrieved_at_utc": "2026-10-08T21:29:20.603329+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/sonofield-ear-trainer/id6740409139",
+    "bytes": 653814,
+    "sha256": "77f6f80648a30186a36121af9d25935bfee55fa0f6c9610b93a970450a504029"
+  },
+  {
+    "label": "soundgym",
+    "requested_url": "https://www.soundgym.co/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.180475+00:00",
+    "status": 200,
+    "final_url": "https://www.soundgym.co/",
+    "bytes": 33001,
+    "sha256": "518a4170f8ef703fb8583b861f2cc9ca5298fd9bed698e447f5c6f9b82059c1b"
+  },
+  {
+    "label": "soundgym_eq",
+    "requested_url": "https://www.soundgym.co/eq-training/index",
+    "retrieved_at_utc": "2026-10-08T21:26:13.421691+00:00",
+    "error": "HTTP Error 404: Not Found"
+  },
+  {
+    "label": "soundgym_games",
+    "requested_url": "https://www.soundgym.co/games/index",
+    "retrieved_at_utc": "2026-10-08T21:26:13.415923+00:00",
+    "status": 200,
+    "final_url": "https://www.soundgym.co/games/index",
+    "bytes": 44203,
+    "sha256": "c55fd379d28ca3be6a3720f187e57665bfc197e5ac74516f9c83a123af245637"
+  },
+  {
+    "label": "soundgym_help",
+    "requested_url": "https://www.soundgym.co/help/index",
+    "retrieved_at_utc": "2026-10-08T21:26:13.708477+00:00",
+    "status": 200,
+    "final_url": "https://www.soundgym.co/help/index",
+    "bytes": 25025,
+    "sha256": "386832676f4b7ab1fb15b3a863f8ce2e28ada642f67e58cd1474030d580e1fba"
+  },
+  {
+    "label": "soundgym_playground",
+    "requested_url": "https://www.soundgym.co/playground/eq",
+    "retrieved_at_utc": "2026-10-08T21:27:55.114982+00:00",
+    "status": 200,
+    "final_url": "https://www.soundgym.co/playground/eq",
+    "bytes": 28450,
+    "sha256": "79fe85fdc85d81018f01599bba483d4ef0370a42984e87121e5d31a08784acd6"
+  },
+  {
+    "label": "soundgym_pro",
+    "requested_url": "https://www.soundgym.co/site/pro",
+    "retrieved_at_utc": "2026-10-08T21:26:13.413414+00:00",
+    "status": 200,
+    "final_url": "https://www.soundgym.co/site/pro",
+    "bytes": 25505,
+    "sha256": "1e47e61046aa263a8a76a5f67396a78c6e594752c3783fdb2a2845fdd4532a7e"
+  },
+  {
+    "label": "soundgym_trust",
+    "requested_url": "https://www.trustpilot.com/review/soundgym.co",
+    "retrieved_at_utc": "2026-10-08T21:27:54.947268+00:00",
+    "status": 200,
+    "final_url": "https://www.trustpilot.com/review/www.soundgym.co",
+    "bytes": 514688,
+    "sha256": "de27e9cf64003735ec7969b90a83e150da98b828baf7a5662141d7b6bb3837f1"
+  },
+  {
+    "label": "syntorial",
+    "requested_url": "https://www.syntorial.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.184480+00:00",
+    "status": 200,
+    "final_url": "https://www.syntorial.com/",
+    "bytes": 197796,
+    "sha256": "f2fa0650cad705062e166ca42dd10920c8c3c901dbd14c3920f2fc1a68f0d626"
+  },
+  {
+    "label": "syntorial_more",
+    "requested_url": "https://www.syntorial.com/learn-more/",
+    "retrieved_at_utc": "2026-10-08T21:27:55.177141+00:00",
+    "status": 200,
+    "final_url": "https://www.syntorial.com/learn-more/",
+    "bytes": 220782,
+    "sha256": "c7356fa64ea32552470bc32dc85ed8ad99a24ad6542d2ac53bf2fa7dda5c4a3c"
+  },
+  {
+    "label": "tenuto_lookup",
+    "requested_url": "https://itunes.apple.com/lookup?id=404693282&country=us",
+    "retrieved_at_utc": "2026-10-08T21:31:42.288833+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/lookup?id=404693282&country=us",
+    "bytes": 42,
+    "sha256": "7f5ce663b726607eae2fde2a6dc438052ac0d1681e636de7cc3377c0bb77e047"
+  },
+  {
+    "label": "tenuto_store",
+    "requested_url": "https://www.musictheory.net/buy/tenuto",
+    "retrieved_at_utc": "2026-10-08T21:32:03.122736+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/tenuto/id459313476",
+    "bytes": 612591,
+    "sha256": "f05e9669a4a5222258a4abad717aecd87027fdb674ef4d516f6ff627c50a61e2"
+  },
+  {
+    "label": "teoria",
+    "requested_url": "https://www.teoria.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.979848+00:00",
+    "status": 200,
+    "final_url": "https://www.teoria.com/",
+    "bytes": 9574,
+    "sha256": "0e9de9eff0e75265483dfccc2b35aed816b76c32e0e2d5a96cf6c74444d4d634"
+  },
+  {
+    "label": "teoria_exercises",
+    "requested_url": "https://www.teoria.com/en/exercises/",
+    "retrieved_at_utc": "2026-10-08T21:30:23.688455+00:00",
+    "status": 200,
+    "final_url": "https://www.teoria.com/en/exercises/",
+    "bytes": 13043,
+    "sha256": "8656f3471968a5e85f19826dfea660f4ee6345302e9c8edc94a426aa39b6cc3d"
+  },
+  {
+    "label": "theta",
+    "requested_url": "https://trainer.thetamusic.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.831336+00:00",
+    "status": 200,
+    "final_url": "https://trainer.thetamusic.com/",
+    "bytes": 120661,
+    "sha256": "7f0be254a380b686df7eb600f7aea9a0b32a17a9304ddaaaedc79ec6cf58956f"
+  },
+  {
+    "label": "theta_pricing",
+    "requested_url": "https://trainer.thetamusic.com/en/content/subscription",
+    "retrieved_at_utc": "2026-10-08T21:27:55.115985+00:00",
+    "status": 200,
+    "final_url": "https://trainer.thetamusic.com/en/content/subscription",
+    "bytes": 92716,
+    "sha256": "db62f62c02ca9d375880eb9a6e49feea05d0ff7a9fb051fb7c07f6310884afdc"
+  },
+  {
+    "label": "tonedear",
+    "requested_url": "https://tonedear.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.834756+00:00",
+    "status": 200,
+    "final_url": "https://tonedear.com/",
+    "bytes": 8600,
+    "sha256": "498e5aae3bb65f6c6928360bd692da5b1450a24320c4f4b396961244c0bd36f6"
+  },
+  {
+    "label": "tonegym",
+    "requested_url": "https://www.tonegym.co/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.336008+00:00",
+    "status": 200,
+    "final_url": "https://www.tonegym.co/",
+    "bytes": 54655,
+    "sha256": "291b57f396b1c5fea4b1d3d8559cb44bbbe0449536ed2fb2b903b26fc8a0dbd2"
+  },
+  {
+    "label": "tonegym_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.hk.tonegym&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:28:30.529419+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.hk.tonegym&hl=en&gl=US",
+    "bytes": 1178296,
+    "sha256": "1df38b4da5ab69d25cf7ff61c7eb4dd13e76ef3c971060854529494e1ca72449"
+  },
+  {
+    "label": "tonegym_ios",
+    "requested_url": "https://apps.apple.com/us/app/tonegym-ear-training-studio/id6748112656",
+    "retrieved_at_utc": "2026-10-08T21:26:13.821723+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/us/app/tonegym-ear-training-studio/id6748112656",
+    "bytes": 544900,
+    "sha256": "a2dcc2a110b9e409b35950a011f3b746b28ad17ab65a23725f78605c39d7ea21"
+  },
+  {
+    "label": "tonegym_reviews",
+    "requested_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=6748112656/sortby=mostrecent/json",
+    "retrieved_at_utc": "2026-10-08T21:26:49.465419+00:00",
+    "status": 200,
+    "final_url": "https://itunes.apple.com/us/rss/customerreviews/page=1/id=6748112656/sortby=mostrecent/json",
+    "bytes": 4736,
+    "sha256": "b9258002e6b9904419ccc85f412f60dbbcf43bdb3d5e303ea39065141ad6bf1b"
+  },
+  {
+    "label": "tonica_android",
+    "requested_url": "https://play.google.com/store/apps/details?id=com.mightydigital.eartraining&hl=en&gl=US",
+    "retrieved_at_utc": "2026-10-08T21:32:02.788937+00:00",
+    "status": 200,
+    "final_url": "https://play.google.com/store/apps/details?id=com.mightydigital.eartraining&hl=en&gl=US",
+    "bytes": 1253361,
+    "sha256": "47e6d2afdaf901f46f6e76c5d8015d8b37c8932cb3f799dacbbbc9c0d53bc6b9"
+  },
+  {
+    "label": "trainyourears",
+    "requested_url": "https://www.trainyourears.com/",
+    "retrieved_at_utc": "2026-10-08T21:25:26.181231+00:00",
+    "status": 200,
+    "final_url": "https://www.trainyourears.com/",
+    "bytes": 67559,
+    "sha256": "2782adea5824628e106e2eac45e61b510a5bfb0b43c7b4ca40d1bfe32f952bd0"
+  },
+  {
+    "label": "turkishrhythms_ios",
+    "requested_url": "https://apps.apple.com/tr/app/turkish-music-rhythms/id6779267235",
+    "retrieved_at_utc": "2026-10-08T21:29:21.140562+00:00",
+    "status": 200,
+    "final_url": "https://apps.apple.com/tr/app/turkish-music-rhythms/id6779267235",
+    "bytes": 580479,
+    "sha256": "a76e477db1b54132cc77eecedd24ac9a04924bf62298a60a84656237d814b203"
+  },
+  {
+    "label": "tye_trust",
+    "requested_url": "https://www.trustpilot.com/review/trainyourears.com",
+    "retrieved_at_utc": "2026-10-08T21:27:55.003352+00:00",
+    "error": "HTTP Error 404: Not Found"
+  }
+]

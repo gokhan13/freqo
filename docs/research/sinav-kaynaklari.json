@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://msgsu.edu.tr/wp-content/uploads/2026/07/20260722-2-O%C2%A8zel-Yetenek-Sinavlari-Kilavuzu-2026-2027.pdf?v=2",
+    "bytes": 2150508,
+    "content_length": "2150508",
+    "sha256": "9d5e467515ea39160b3b799f856741aa72729072543a899fd78636cb07f84931",
+    "pdftotext_exit": 0,
+    "retrieved_at_utc": "2026-10-10",
+    "title": "MSGSÜ İstanbul Devlet Konservatuvarı Özel Yetenek Sınavları Kılavuzu",
+    "year": "2026–2027",
+    "announcement_url": "https://msgsu.edu.tr/genel-duyurular/istanbul-devlet-konservatuvari-ozel-yetenek-sinavlari-kilavuzu-2/",
+    "verified_programmes": [
+      {
+        "id": "msgsu-opera-2026",
+        "pages": "25–26",
+        "scope": "Duyuş, ses yeteneği, kesin kabul"
+      },
+      {
+        "id": "msgsu-theory-2026",
+        "pages": "17–19",
+        "scope": "Yazılı/sözlü teori, duyuş, analiz, piyano, düzey sınavı"
+      }
+    ],
+    "limitations": "Program kapsamı doğrulandı. Freq denemelerinin kurum sınavı ile eşdeğerliği veya öğretim etkinliği doğrulanmadı. Kurumun bağlantı verdiği lisans düzey sınavı örneği ayrıca incelenmedi."
+  }
+]

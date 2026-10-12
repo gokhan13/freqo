@@ -1,0 +1,66 @@
+{
+  "collection": "VSCO 2: Community Edition",
+  "commit": "440300901dfe9275fd84e0b7763af1f8443ae62e",
+  "credit": "Versilian Studios / Sam Gossner; Ivy Audio / Simon Dalzell; sample cutting Elan Hickler / Soundemote",
+  "license": "CC0-1.0",
+  "source": "https://github.com/sgossner/VSCO-2-CE",
+  "adaptation": "Mono downmix, onset trim, 22.05 kHz resampling, pitch transposition, original arrangement, peak limiting and fades.",
+  "sources": [
+    {
+      "name": "piano",
+      "url": "https://raw.githubusercontent.com/sgossner/VSCO-2-CE/440300901dfe9275fd84e0b7763af1f8443ae62e/Keys/Upright%20Piano/Player_dyn2_rr1_020.wav",
+      "sha256": "dc314226819e7af0768cd7fc08933f5e5b550083145e05af630fd7556f4d3913",
+      "license": "CC0-1.0"
+    },
+    {
+      "name": "kick",
+      "url": "https://raw.githubusercontent.com/sgossner/VSCO-2-CE/440300901dfe9275fd84e0b7763af1f8443ae62e/Percussion/BDrumNewhit_v4_rr1_Sum.wav",
+      "sha256": "7d8603e6802b51bc5acd3f73275f8e6408c7f2ccdd36d1a55b27e74034101589",
+      "license": "CC0-1.0"
+    },
+    {
+      "name": "snare",
+      "url": "https://raw.githubusercontent.com/sgossner/VSCO-2-CE/440300901dfe9275fd84e0b7763af1f8443ae62e/Percussion/Snare2-HitSN_v5_rr1_Sum.wav",
+      "sha256": "8deb654b739f6dfb01f192b7043a9aad92b7973995246252571240fe712d0876",
+      "license": "CC0-1.0"
+    },
+    {
+      "name": "claves",
+      "url": "https://raw.githubusercontent.com/sgossner/VSCO-2-CE/440300901dfe9275fd84e0b7763af1f8443ae62e/Percussion/Claves1_Hit_v2_rr1_Sum.wav",
+      "sha256": "ae0493fa57d0d1dd57693e8639dfe5fd9675b520a1c0c0eb45cf992f2a23ca9c",
+      "license": "CC0-1.0"
+    }
+  ],
+  "derived": [
+    {
+      "file": "recorded-lead.wav",
+      "sha256": "90450623a059500b2569e5c338f189c41bf68761ccb4a2c3ac234b887ca48861",
+      "duration": 4,
+      "sampleRate": 22050
+    },
+    {
+      "file": "recorded-bed.wav",
+      "sha256": "1bbfabdd7112717f564a65e2b55d625f6c43224e4d5c5db43c4abfa82906aea5",
+      "duration": 4,
+      "sampleRate": 22050
+    },
+    {
+      "file": "recorded-hits.wav",
+      "sha256": "2db30c5c9e855f708bbfcfabc7c9fe05db3826d08611c0f1b1fda2608aee4435",
+      "duration": 4,
+      "sampleRate": 22050
+    },
+    {
+      "file": "acoustic.wav",
+      "sha256": "c712b25970019ae4fb7ee26cdc53f1f07e6e537deaa70f366478b5920bc8172a",
+      "duration": 4,
+      "sampleRate": 22050
+    },
+    {
+      "file": "recorded-drums.wav",
+      "sha256": "1f81aadb148d75e78c403c18b907bda801539ce111876b72b338003150420289",
+      "duration": 4,
+      "sampleRate": 22050
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "accessed": "2026-10-10",
+  "scope": "Official descriptions; not paid-app hands-on testing. EarMaster market claims refer to the earlier market report.",
+  "requests": [
+    {
+      "id": "functional",
+      "url": "https://www.miles.be/software/functional-ear-trainer/",
+      "resolvedUrl": "https://www.miles.be/software/functional-ear-trainer-advanced-discontinued/",
+      "bytes": 39927,
+      "sha256": "db3e376732df0d8d5c28b2b084cbc3c38332861f87bc9fa287cc524a67a54df9",
+      "accessed": "2026-10-10"
+    },
+    {
+      "id": "scale-degrees",
+      "url": "https://tonedear.com/ear-training/functional-solfege-scale-degree",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "id": "tonal-context",
+      "url": "https://www.teoria.com/en/exercises/",
+      "resolvedUrl": "https://www.teoria.com/en/exercises/",
+      "bytes": 13043,
+      "sha256": "8656f3471968a5e85f19826dfea660f4ee6345302e9c8edc94a426aa39b6cc3d",
+      "accessed": "2026-10-10"
+    },
+    {
+      "id": "dictation",
+      "url": "https://www.earmaster.com/products/earmaster-pro.html",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "id": "rhythm",
+      "url": "https://www.earmaster.com/support/faq.html",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://www.teoria.com/en/exercises/rdp.php",
+      "resolvedUrl": "https://www.teoria.com/en/exercises/rdp.php",
+      "bytes": 5106,
+      "sha256": "4fd3fd0db49dd40efe7c02aee45b639d7d8622cf27da076e3875c190ccc17c1d",
+      "accessed": "2026-10-10"
+    },
+    {
+      "url": "https://www.teoria.com/en/help/exercises-help.php",
+      "resolvedUrl": "https://www.teoria.com/en/help/exercises-help.php",
+      "bytes": 8929,
+      "sha256": "bdaf745cb376ec0a043b5e4837bdb1f31de5d80fc2f525ba52d8d24cdb5b9b34",
+      "accessed": "2026-10-10"
+    },
+    {
+      "url": "https://www.miles.be/software/",
+      "resolvedUrl": "https://www.miles.be/software/",
+      "bytes": 38318,
+      "sha256": "ca374d2f6f7154a31d80dfad245b56fd6a59515440cf47afa97502783674f225",
+      "accessed": "2026-10-10"
+    },
+    {
+      "url": "https://www.musictheory.net/exercises/ear-note",
+      "resolvedUrl": "https://www.musictheory.net/exercises/ear-note",
+      "bytes": 1559,
+      "sha256": "78d8ece77e0f79ce663f029c65f524d1cd9ff8500ff9b8bc743bcc962c8142fb",
+      "accessed": "2026-10-10"
+    },
+    {
+      "url": "https://www.miles.be/software/functional-ear-trainer-v2/",
+      "resolvedUrl": "https://www.miles.be/software/functional-ear-trainer-v2/",
+      "bytes": 39911,
+      "sha256": "a29c6afb7af3c73c23cd2e50377c94addaaa949bd809f1c7d877e3f9826c26c4",
+      "accessed": "2026-10-10",
+      "excerpts": [
+        "Functional Ear Trainer v2 - Miles.be You must enable javascript to view this page properly. Miles.be probably the best free ear training resource on the internet Miles.be - probably the best free ear training resource on the internet Home Software Articles Abo",
+        "source on the internet Home Software Articles About Home » Software » Functional Ear Trainer v2 Functional Ear Trainer v2 2019-08-11 Comments Off on Functional Ear Trainer v2 Improve your musical ear with this free software tool. It contains: A complete e-learning course that will teach you how to recognize tones in a major and "
+      ]
+    },
+    {
+      "url": "https://www.teoria.com/en/help/exercises/rdp.php",
+      "resolvedUrl": "https://www.teoria.com/en/help/exercises/rdp.php",
+      "bytes": 6248,
+      "sha256": "3513a20b0db77c3b939b19243d44812eef8e829085b084ce106a1828db491955",
+      "accessed": "2026-10-10",
+      "excerpts": [
+        "Rhythmic Dictation using Patterns - Help Toggle navigation teoría Tutorials Exercises Reference Articles Help Español Sign in teoria.com uses cookies. By using our site you agree to the use of cookies. Read our privacy policy for more information. Close The exercises ",
+        "rcises The Exercises Score Problems? Predefined Levels Index Rhythmic Dictation using Patterns In this exercise, you will listen to rhythmic patterns. Then, you will transcribe these rhythms on a staff by clicking on the patterns. Options Exercise Score Search • Write to us Creative Commons Attribution-NonCommercial-NoDerivativ",
+        "Rhythmic Dictation using Patterns - Help Toggle navigation teoría Tutorials Exercises Reference Articles Help Español Sign in teoria.com uses cookies. By using our site you agree to the use of cookies. Read our privacy policy for more information. Close Th",
+        "e The exercises The Exercises Score Problems? Predefined Levels Index Rhythmic Dictation using Patterns In this exercise, you will listen to rhythmic patterns. Then, you will transcribe these rhythms on a staff by clicking on the patterns. Options Exercise Score Search • Write to us Creative Commons Attribution-NonCommercial",
+        "Rhythmic Dictation using Patterns - Help Toggle navigation teoría Tutorials Exercises Reference Articles Help Español Sign in teoria.com uses cookies. By using our site you agree to the use of cookies. Read our privacy policy for more information. Close The exercises The Ex",
+        " Reference Articles Help Español Sign in teoria.com uses cookies. By using our site you agree to the use of cookies. Read our privacy policy for more information. Close The exercises The Exercises Score Problems? Predefined Levels Index Rhythmic Dictation using Patterns In this exercise, you will listen to rhythmic pattern"
+      ]
+    },
+    {
+      "url": "https://www.earmaster.com/products/ear-training-sight-singing/earmaster-software.html",
+      "accessed": "2026-10-10",
+      "error": "HTTP Error 403: Forbidden"
+    }
+  ]
+}
