@@ -7,16 +7,21 @@ async function filesAt(dir, prefix = '') {
   const files = [];
   for (const entry of entries) {
     const relative = `${prefix}${entry.name}`;
-    if (entry.isDirectory()) files.push(...await filesAt(join(dir, entry.name), `${relative}/`));
+    if (entry.isDirectory()) files.push(...(await filesAt(join(dir, entry.name), `${relative}/`)));
     else if (entry.name !== 'sw.js') files.push(`./${relative}`);
   }
   return files.sort();
 }
-const files = await filesAt('dist');
+// jsPDF ships optional helpers for rendering HTML and SVG into a PDF. The report is built
+// from text, so they are never requested; leaving them out saves about 390 kB of the install.
+const unused = /\/(html2canvas\.esm|purify\.es|index\.es)-[^/]+\.js$/;
+const files = (await filesAt('dist')).filter(file => !unused.test(file));
 const hash = createHash('sha256');
 for (const file of files) hash.update(await readFile(join('dist', file)));
 const version = hash.digest('hex').slice(0, 12);
-await writeFile('dist/sw.js', `
+await writeFile(
+  'dist/sw.js',
+  `
 const PREFIX = 'freq-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
 const CACHE = PREFIX + '${version}';
 const ASSETS = ${JSON.stringify(files)};
@@ -40,5 +45,6 @@ self.addEventListener('fetch', event => {
     }
   }));
 });
-`);
+`,
+);
 console.log(`Offline cache: ${files.length} files, version ${version}`);

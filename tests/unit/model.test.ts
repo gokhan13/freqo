@@ -1,26 +1,54 @@
 import { evaluateAnswer } from '../../src/music-model';
+import { skillLessons } from '../../src/personal-model';
 import { describe, expect, it } from 'vitest';
 import { eqSourceIds, lessons } from '../../src/content';
-import { advanceQuestion, answerQuestion, initialProgress, makeQuestion, parseProgress, recommendedLesson, ROUND_COUNT, skillStats, withEqComparison, withAnswerComparison, type Progress } from '../../src/model';
+import { EQ_REGIONS, eqChoiceSetting, type EqRegion } from '../../src/eq-model';
+import {
+  advanceQuestion,
+  answerQuestion,
+  initialProgress,
+  makeQuestion,
+  parseProgress,
+  recommendedLesson,
+  ROUND_COUNT,
+  skillStats,
+  withEqComparison,
+  withAnswerComparison,
+  type Progress,
+} from '../../src/model';
+// The EQ ladder's second and third stages; their ids are names, not numbers.
+const EQ2 = skillLessons('eq')[1].id,
+  EQ3 = skillLessons('eq')[2].id;
 
-const practice = (id = 'eq-1'): Progress => ({ ...initialProgress(), session: { id: 'session-1', lessonId: id, seed: 4294967295, index: 0, started: true, answers: [] } });
+const practice = (id = 'eq-1'): Progress => ({
+  ...initialProgress(),
+  session: {
+    id: 'session-1',
+    lessonId: id,
+    seed: 4294967295,
+    index: 0,
+    started: true,
+    answers: [],
+  },
+});
 
 describe('question generation', () => {
   it('changing the source preserves the target and the old answer sequence', () => {
     for (const source of eqSourceIds) {
-      const q = makeQuestion('eq-3', 123, 2, source);
-      expect(q.correct).toBe(makeQuestion('eq-3', 123, 2).correct);
+      const q = makeQuestion(EQ3, 123, 2, source);
+      expect(q.correct).toBe(makeQuestion(EQ3, 123, 2).correct);
       expect(q.source).toBe(source);
-      expect(q.gain).toBe(makeQuestion('eq-3', 123, 2).gain);
+      expect(q.gain).toBe(makeQuestion(EQ3, 123, 2).gain);
     }
   });
   it('adds a comparison at the chosen frequency only for an incorrect EQ answer', () => {
-    const q = makeQuestion('eq-3', 123, 0);
+    const q = makeQuestion(EQ3, 123, 0);
     const wrong = q.options.find(o => o.id !== q.correct)!;
     const c = withEqComparison(q, wrong.id);
     expect(c.comparisonFrequency).toBe(Number(wrong.id));
     expect(c.frequency).toBe(q.frequency);
-    expect(c.gain).toBe(q.gain); expect(c.q).toBe(q.q);
+    expect(c.gain).toBe(q.gain);
+    expect(c.q).toBe(q.q);
     expect(withEqComparison(q, q.correct)).toBe(q);
     expect(withEqComparison(q, 'invalid')).toBe(q);
   });
@@ -44,7 +72,14 @@ describe('question generation', () => {
       }
       if (q.kind === 'interval') expect(q.notesA[1] - q.notesA[0]).toBe(Number(q.correct));
       if (q.kind === 'chord') expect(q.notesA[1] - q.notesA[0]).toBe(q.correct === 'minor' ? 3 : 4);
-      if (q.kind === 'eq') expect(q.frequency).toBe(Number(q.correct));
+      if (q.kind === 'eq') {
+        const setting = eqChoiceSetting(q, q.correct)!;
+        expect(setting.gain).toBe(q.gain);
+        // A region answer stands for its centre; every other answer names the exact band.
+        if (q.correct in EQ_REGIONS)
+          expect(EQ_REGIONS[q.correct as EqRegion].bands).toContain(q.frequency);
+        else expect(setting.frequency).toBe(q.frequency);
+      }
       if (q.mix) {
         expect(q.mix.target).toEqual(q.mix.alternatives[q.correct]);
         const wrong = q.options.find(o => o.id !== q.correct)!;
@@ -62,7 +97,8 @@ describe('question generation', () => {
         expect(q.tempo).toBe(100);
         expect(q.subdivision).toBe(lesson.level === 3 ? 4 : 2);
         expect(q.rhythmA!.length).toBe(q.rhythmB!.length);
-        expect(q.rhythmA![0]).toBe(0); expect(q.rhythmB![0]).toBe(0);
+        expect(q.rhythmA![0]).toBe(0);
+        expect(q.rhythmB![0]).toBe(0);
         expect(new Set(q.rhythmB).size).toBe(q.rhythmB!.length);
         const removed = q.rhythmA!.filter(slot => !q.rhythmB!.includes(slot));
         const added = q.rhythmB!.filter(slot => !q.rhythmA!.includes(slot));
@@ -97,7 +133,8 @@ describe('saved practice', () => {
     expect(advanceQuestion(p)).toBe(p);
   });
   it('does not allow answering before lesson starts', () => {
-    const p = practice(); p.session!.started = false;
+    const p = practice();
+    p.session!.started = false;
     expect(answerQuestion(p, '120')).toBe(p);
   });
   it('keeps skill scores independent', () => {
@@ -110,19 +147,33 @@ describe('saved practice', () => {
   it('changes recommendations only after repeated practice and respects main path', () => {
     const p = initialProgress();
     expect(recommendedLesson(p).id).toBe('eq-1');
-    p.attempts = Array.from({ length: 10 }, (_, index) => ({ lessonId: 'eq-1', index: index % 5, sessionId: String(index), at: new Date().toISOString(), correct: index < 8 }));
-    expect(recommendedLesson(p).id).toBe('eq-2');
+    p.attempts = Array.from({ length: 10 }, (_, index) => ({
+      lessonId: 'eq-1',
+      index: index % 5,
+      sessionId: String(index),
+      at: new Date().toISOString(),
+      correct: index < 8,
+    }));
+    expect(recommendedLesson(p).id).toBe(EQ2);
     p.path = 'exam';
     expect(recommendedLesson(p).id).toBe('memory-1');
   });
 });
 
 describe('storage validation', () => {
-  it.each([null, '', '{', 'null', '[]', '{"version":99}', '{"version":1,"session":{}}'])('handles invalid records: %s', raw => {
-    expect(parseProgress(raw).session).toBeNull();
-  });
+  it.each([null, '', '{', 'null', '[]', '{"version":99}', '{"version":1,"session":{}}'])(
+    'handles invalid records: %s',
+    raw => {
+      expect(parseProgress(raw).session).toBeNull();
+    },
+  );
   it('drops unknown lessons, invalid statistics and impossible session positions', () => {
-    const corrupt = { ...practice(), volume: 200, attempts: [{ lessonId: 'missing', correct: true }], results: [{ id: 'x', lessonId: 'eq-1', correct: -1, total: 5, at: 'bad' }] };
+    const corrupt = {
+      ...practice(),
+      volume: 200,
+      attempts: [{ lessonId: 'missing', correct: true }],
+      results: [{ id: 'x', lessonId: 'eq-1', correct: -1, total: 5, at: 'bad' }],
+    };
     corrupt.session!.index = 4;
     const p = parseProgress(JSON.stringify(corrupt));
     expect(p.volume).toBe(0.8);

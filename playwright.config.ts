@@ -7,7 +7,10 @@ export default defineConfig({
   timeout: 45_000,
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    launchOptions: { executablePath: process.env.CHROMIUM_PATH || undefined, args: ['--no-sandbox'] },
+    launchOptions: {
+      executablePath: process.env.CHROMIUM_PATH || undefined,
+      args: ['--no-sandbox'],
+    },
     trace: 'retain-on-failure',
   },
   webServer: {

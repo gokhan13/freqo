@@ -1,0 +1,11 @@
+dist/
+node_modules/
+docs/
+public/
+.vite/
+playwright-report/
+test-results/
+package-lock.json
+*.md
+*.html
+.github/

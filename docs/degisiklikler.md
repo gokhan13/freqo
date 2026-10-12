@@ -1,5 +1,38 @@
 # Sürüm değişiklikleri
 
+## 0.11 önizleme — araştırmaya dayalı eleştiri ve düzeltmeler (`0.11.0-preview.1`)
+
+Teknik kulak eğitimi literatürü ve rakip ürünler tarandı; 0.10 buna göre eleştirildi ve düzeltilebilen her şey düzeltildi. [Araştırma](research/teknik-kulak-egitimi-arastirmasi.md), [eleştiri ve düzeltme kaydı](kalite-denetimi-0.11.md).
+
+- EQ 8 aşamadan 11 aşamaya çıktı. Yeni aşamalar: **Raflar ve filtreler**, **Bant genişliği** ve **EQ'yu eşitle**. Toplam 62 pratik; miks yolu 35 pratik.
+- **EQ'yu eşitle:** B hedef, C senin ayarın. Bant ve miktar değiştikçe C, döngüdeki yerini kaybetmeden yeniden çalar. Yalnızca tam eşleşme doğru sayılır.
+- **Adil sorular:** her kaynağın spektrumu ölçüldü. Bir kaynakta duyulabilir enerji taşımayan bant o kaynakta sorulmaz; ders başında hangi bandın sorulmadığı yazılır.
+- **Pembe gürültü** kaynağı: EQ ve ses yüksekliği dersleri için referans.
+- **Seviye eşitleme** düz RMS yerine ITU-R BS.1770 K ağırlıklı ölçümle yapılır.
+- **Dinamik ve mekân dersleri:** her soru, sorulmayan bir yan koşulu da değiştirir (eşik, süre, efekt miktarı). Derslerdeki farklı örnek sayısı 2–4'ten 6–27'ye çıktı.
+- **Kişisel pratik** kaçırdığın ve henüz karşılaşmadığın yanıtları daha sık sorar. Becerilerim'de **bant haritası** hangi bantlarda zorlandığını gösterir.
+- **Arayüz:** yazı ölçeği yükseltildi (en küçük 11 piksel, akan metin 14 piksel ve üstü). Telefonda ana ekranın süsü kaldırıldı, ders satırları sıkılaştı. Ders listesinde önerilen aşama etiketlenir; beceri kartları yola göre gruplanır.
+- **Kullanım:** tarayıcının geri ve ileri tuşları ekranlar arasında çalışır. "Hazırım, dinleyelim" düğmesi ekranın altında hep görünür. Bant ızgarasında ok tuşları, geri bildirimde Enter ile sonraki soru.
+- Çevrimdışı kurulum yaklaşık 390 kB küçüldü (24 yerine 21 dosya). CI biçim denetimi çalıştırır.
+- Sorular yeniden kurulduğu için ilerleme kayıtları `freq.progress.v4` alanında sıfırdan başlar; yedek biçimi sürüm 4'tür.
+
+Açık kalanlar: gerçek stem malzemesi, zorluk eğrisinin kulakla ayarı, eşik ölçümü, diğer becerilerde eşleştirme görevleri ve uygulama kılavuzunun güncellenmesi.
+
+## 0.10 önizleme — EQ yolunun derinleştirilmesi (`0.10.0-preview.1`)
+
+Miks yolunu derinleştirme çalışmasının ilk adımı. Ana odak miks öğrenenlerdir; müzik kulağı ve sınava hazırlık yolları olduğu gibi kalır.
+
+- EQ üç aşamadan sekiz aşamaya çıktı: frekans bölgeleri → beş frekans noktası → oktav bantlarında yükseltme (+9 dB) → oktav bantlarında kesme (−12 dB) → yükseltme mi kesme mi (±9 dB) → küçük hamleler (±6 dB) → dar bant (Q 3) → üçte bir oktavda komşu bantlar. Toplam 59 pratik; miks yolu 32 pratik.
+- Yön sorulan aşamalarda yanıt, EQ gibi düzenlenmiş bir ızgaradan verilir: üst satır yükseltme, alt satır kesme, her sütun bir bant. Hem bant hem yön doğruysa yanıt doğru sayılır.
+- İlk aşamada yükseltmenin merkezi bölge içinde değişir: aynı üç ses yerine 16 farklı örnek.
+- Her EQ dersinin başında o aşamanın bütün bantları etiketli olarak dinlenebilir. Puanlanan soruda yanıt gizli kalır.
+- Yanlış yanıttan sonra grafik iki eğri gösterir: doğru hamle ve seçilen hamle. C örneği seçilen bandı seçilen yönde çalar. Frekans doğru yön ters ya da komşu bant seçildiyse bu ayrıca söylenir.
+- Kişisel çalışmadaki EQ soruları da aynı ızgarayı, eğriyi ve ipucunu kullanır.
+- EQ soruları yeniden kurulduğu için ilerleme kayıtları yeni bir alanda (`freq.progress.v3`) sıfırdan başlar; yedek biçimi sürüm 3'tür. Önceki sürümlerin tarayıcı kaydı silinmez ama okunmaz. Eski EQ yanıtları içeren yedekler açık bir mesajla reddedilir; EQ yanıtı içermeyen eski yedekler hâlâ içe alınabilir.
+- Kaynak kod otomatik biçimlendiriciyle (Prettier) düzenlendi; `npm run format` ve `npm run format:check` eklendi. Davranış değişmedi.
+
+Deneme: Yollar → Miks ve prodüksiyon → EQ ve frekans.
+
 ## 0.9 önizleme — gelişim ve çalışma raporu (`0.9.0-preview.1`)
 
 - Becerilerim'den gelişim raporu; Bugün ve pratik sonucundan kısa erişim. Yol ve Tüm geçmiş / Son 30 gün / Son 7 gün filtreleri, normal pratik özeti ve son kayıtlı günlerin etkinlik grafiği.

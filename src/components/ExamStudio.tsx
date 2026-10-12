@@ -1,8 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Clock3, Headphones, Play, Square } from 'lucide-react';
 import { getLesson, skillNames, text, tx, type Locale, type Text } from '../content';
-import { courseLevelFocus, examCourses, examProfiles, getExamProfile, mockListenLimit, mockSecondsPerQuestion } from '../exam-content';
-import { completeMockPlay, expireMock, finishMock, initialExamProgress, mockLessonIds, mockQuestion, registerMockPlay, rehearsalQuestion, refundMockPlay, startMock, submitMockAnswer } from '../exam-model';
+import {
+  courseLevelFocus,
+  examCourses,
+  examProfiles,
+  getExamProfile,
+  mockListenLimit,
+  mockSecondsPerQuestion,
+} from '../exam-content';
+import {
+  completeMockPlay,
+  expireMock,
+  finishMock,
+  initialExamProgress,
+  mockLessonIds,
+  mockQuestion,
+  registerMockPlay,
+  rehearsalQuestion,
+  refundMockPlay,
+  startMock,
+  submitMockAnswer,
+} from '../exam-model';
 import { answerLabel } from '../music-model';
 import { withAnswerComparison, type Question } from '../model';
 import type { ExamCourseId, ExamLevel, ExamProgress, MockResult } from '../exam-types';
@@ -11,99 +30,1016 @@ import { AudioPlayer } from './AudioPlayer';
 import { MusicAnswerEditor } from './MusicAnswerEditor';
 import { MusicFeedback } from './MusicFeedback';
 
-type Props = { engine: AudioEngine; locale: Locale; volume: number; onVolume: (v:number)=>void; progress?: ExamProgress; onChange: (update:(p:ExamProgress)=>ExamProgress)=>void; onPractice:(id:string)=>void };
-const levels: ExamLevel[]=[1,2,3];
-const levelTitles=[text('Temel', 'Foundation'),text('Gelişen', 'Developing'),text('Yoğun', 'Intensive')];
-const dateLabel=(at:number,locale:Locale)=>new Intl.DateTimeFormat(locale==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'short',year:'numeric'}).format(at);
+type Props = {
+  engine: AudioEngine;
+  locale: Locale;
+  volume: number;
+  onVolume: (v: number) => void;
+  progress?: ExamProgress;
+  onChange: (update: (p: ExamProgress) => ExamProgress) => void;
+  onPractice: (id: string) => void;
+};
+const levels: ExamLevel[] = [1, 2, 3];
+const levelTitles = [
+  text('Temel', 'Foundation'),
+  text('Gelişen', 'Developing'),
+  text('Yoğun', 'Intensive'),
+];
+const dateLabel = (at: number, locale: Locale) =>
+  new Intl.DateTimeFormat(locale === 'tr' ? 'tr-TR' : 'en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(at);
 
-export function ExamStudio(props:Props) {
-  const {engine,locale,onChange,onPractice}=props, p=props.progress??initialExamProgress();
-  const [tab,setTab]=useState<'scope'|'courses'|'mocks'>(p.active?'mocks':'scope');
-  const [courseId,setCourseId]=useState<ExamCourseId|null>(null), [level,setLevel]=useState<ExamLevel>(1);
-  const [reviewId,setReviewId]=useState<string|null>(null), [confirm,setConfirm]=useState(false);
-  const previousActive=useRef(p.active?.id);
-  const profile=getExamProfile(p.selectedProfile)!;
-  const t=(v:Text)=>tx(v,locale);
-  useEffect(()=>{if(previousActive.current&&!p.active&&tab==='mocks'){const result=p.results.find(r=>r.id===previousActive.current);if(result)setReviewId(result.id);}previousActive.current=p.active?.id;},[p.active?.id,p.results,tab]);
-  useEffect(()=>()=>engine.stop(),[engine]);
-  const navigate=(next:typeof tab)=>{engine.stop();setTab(next);setCourseId(null);setReviewId(null);setConfirm(false);};
-  const review=p.results.find(r=>r.id===reviewId);
-  const course=examCourses.find(c=>c.id===courseId);
-  return <section className="exam-studio" aria-label={t(text('Sınav atölyesi','Audition studio'))}>
-    {!profile.sources.length&&<p className="notice exam-source-status">{t(text('Ortak beceri hazırlığı: bu profilin kurum ve programa özel resmî sınav kapsamı henüz doğrulanmadı. Denemeler Freq çalışma formatıdır.', 'Common skill preparation: this profile has not yet been verified against an institution and programme’s official exam requirements. Mocks use the Freq practice format.'))}</p>}
-    {!!profile.sources.length&&<p className="notice exam-source-status">{t(profile.limits)}</p>}
-    <div className="exam-tabs" role="group" aria-label={t(text('Sınava hazırlık bölümleri','Audition preparation sections'))}>{(['scope','courses','mocks'] as const).map(id=><button key={id} aria-pressed={tab===id} onClick={()=>navigate(id)}>{t(id==='scope'?text('Kurum ve kapsam','Institution & scope'):id==='courses'?text('Hazırlık dersleri','Preparation lessons'):text('Denemeler','Mocks'))}{id==='mocks'&&p.active&&<span className="live-dot" aria-label={t(text('Devam eden deneme','Active mock'))}/>}</button>)}</div>
-    {tab==='scope'&&<><div className="exam-section-heading"><h2>{t(text('Hedefini tanı, çalışmanı seç.','Know your target, choose your practice.'))}</h2><p>{t(text('Kılavuzun yılı ve programı önemlidir. Aynı kurumda bile bölümlerin sınav kapsamı farklı olabilir.','The guide year and programme matter. Exam requirements can differ between departments at the same institution.'))}</p></div><label className="exam-select">{t(text('Hazırlık profili','Preparation profile'))}<select value={profile.id} onChange={e=>onChange(x=>({...x,selectedProfile:e.target.value}))}>{examProfiles.map(v=><option key={v.id} value={v.id}>{t(v.title)} · {t(v.program)}</option>)}</select></label><div className="exam-profile"><span className="eyebrow">{t(profile.program)}</span><h3>{t(profile.title)}</h3><p>{t(profile.summary)}</p><div className="exam-scope-list">{profile.scope.map((s,i)=><details key={i}><summary>{t(s.title)}</summary><p>{t(s.detail)}</p><div className="editor-actions">{s.courses.map(id=><button key={id} className="text-button" onClick={()=>{setCourseId(id);setTab('courses');}}>{t(examCourses.find(c=>c.id===id)!.title)}<ArrowRight size={15}/></button>)}</div></details>)}</div>{profile.sources.length>0&&<div className="exam-sources"><h4>{t(text('Resmî kaynaklar','Official sources'))}</h4>{profile.sources.map(s=><p key={s.url}><a href={s.url} target="_blank" rel="noreferrer">{s.title}</a><small>{s.year} · {t(text('Sayfa/bölüm','Page/section'))}: {s.pages} · {t(text('Kontrol','Checked'))}: {s.checked}</small></p>)}<p className="small-copy">{t(text('Başvuru tarihi, kontenjan ve güncel şartlar için kurumun yeni duyurusunu kontrol et. Buradaki profil belirtilen kılavuz sürümüne dayanır.','Check the institution’s new announcements for application dates, places and current requirements. This profile is based on the guide version shown.'))}</p></div>}</div><button className="button" onClick={()=>navigate('courses')}>{t(text('Derslere geç','Explore lessons'))}<ArrowRight size={17}/></button></>}
-    {tab==='courses'&&!course&&<><div className="exam-section-heading"><h2>{t(text('Önce öğren, sonra prova et.','Learn first, then rehearse.'))}</h2><p>{t(text('Her ders üç seviyede bir yöntem, ses/notasyon örneği ve odaklı pratik sunar.','Each lesson provides a method, an audio/notation example and focused practice at three levels.'))}</p></div><div className="exam-course-grid">{examCourses.filter(c=>profile.scope.some(s=>s.courses.includes(c.id))).map((c,i)=><button key={c.id} className="exam-course-card" onClick={()=>setCourseId(c.id)}><span className="eyebrow">0{i+1} · {t(text('3 seviye','3 levels'))}</span><strong>{t(c.title)}</strong><span>{t(c.intro)}</span><span className="text-button">{t(text('Dersi aç','Open lesson'))}<ArrowRight size={16}/></span></button>)}</div></>}
-    {tab==='courses'&&course&&<Rehearsal key={course.id} {...props} courseId={course.id} onBack={()=>{engine.stop();setCourseId(null);}}/>}
-    {tab==='mocks'&&p.active&&<MockRunner {...props} active={p.active} />}
-    {tab==='mocks'&&!p.active&&review&&<MockReview key={review.id} {...props} result={review} onBack={()=>{engine.stop();setReviewId(null);}}/>}
-    {tab==='mocks'&&!p.active&&!review&&<><div className="exam-section-heading"><h2>{t(text('Sınav temposunda işitme çalış.','Practise listening at exam pace.'))}</h2><p>{t(text('Deneme sırasında doğru yanıt gösterilmez. Bitince her soruyu yeniden dinleyebilir ve eksiklerini çalışabilirsin.','Answers stay hidden during the mock. Afterwards, replay each question and practise your weaker areas.'))}</p></div><h3>{t(profile.title)} · {t(text('Freq işitme uyarlaması','Freq aural adaptation'))}</h3><div className="exam-levels" role="group" aria-label={t(text('Deneme seviyesi','Mock level'))}>{levels.map(l=><button key={l} aria-pressed={level===l} onClick={()=>{setLevel(l);setConfirm(false);}}>{l} · {t(levelTitles[l-1])}</button>)}</div><div className="exam-rules"><span><Headphones size={18}/>{profile.lessons[level-1].length} {t(text('soru','questions'))}</span><span><Clock3 size={18}/>{profile.lessons[level-1].length*mockSecondsPerQuestion/60} {t(text('dakika','minutes'))}</span><span>{t(text('Soru başına en fazla 3 dinleme','Up to 3 hearings per question'))}</span></div><p className="small-copy">{t(text('Süre, soru sayısı ve dinleme sınırı Freq çalışma ayarlarıdır; kurumun yayımlamadığı kuralları varsaymaz. Süre, sekmeden çıksan veya sayfayı kapatsan da devam eder. Taslak yanıtlar kaydedilmez.','Duration, question count and replay limit are Freq practice settings; they do not assume unpublished institutional rules. The timer continues if you leave the tab or close the page. Draft answers are not saved.'))}</p>{!confirm?<button className="button" onClick={()=>setConfirm(true)}>{t(text('Denemeyi hazırla','Prepare mock'))}<ArrowRight size={17}/></button>:<div className="exam-confirm" role="region" aria-label={t(text('Deneme başlangıcı','Mock start'))}><p>{t(text('Kulaklığın ve sesin hazır mı? Başlat düğmesi süreyi başlatır.','Are your headphones and volume ready? Start begins the timer.'))}</p><button className="button" onClick={()=>{engine.stop();setConfirm(false);onChange(x=>({...x,active:startMock(profile.id,level)}));}}>{t(text('Süreyi başlat','Start timer'))}<Clock3 size={17}/></button></div>}{p.results.length>0&&<div className="exam-history"><h3>{t(text('Son denemeler','Recent mocks'))}</h3>{p.results.slice(-30).reverse().map(r=><button className="recent-row" key={r.id} onClick={()=>setReviewId(r.id)}><div><strong>{t(getExamProfile(r.profileId)!.title)} · {t(text('Seviye','Level'))} {r.level}</strong><span>{dateLabel(r.finishedAt,locale)} · {t(r.reason==='expired'?text('Süre doldu','Time expired'):r.reason==='ended'?text('Erken bitirildi','Ended early'):text('Tamamlandı','Completed'))}</span></div><span>{r.answers.filter(a=>a.correct).length}/{r.answers.length}<ArrowRight size={16}/></span></button>)}</div>}</>}
-    {tab==='courses'&&p.rehearsals.length>0&&<p className="small-copy">{t(text('Kaydedilen prova','Saved rehearsals'))}: {p.rehearsals.length} · {t(text('Öz değerlendirme kayıtları yedeğe dahil edilir; işitme puanına katılmaz.','Self-assessment records are included in your backup and kept separate from aural scores.'))}</p>}
-    <div className="exam-foundation"><h3>{t(text('Kısa hafıza pratikleri','Short memory practices'))}</h3><p>{t(text('Aşağıdaki beş soruluk pratikler süreli denemelerden bağımsızdır.','The five-question practices below are independent of timed mocks.'))}</p><button className="text-button" onClick={()=>onPractice('memory-1')}>{t(text('Temelden başla','Start with the basics'))}<ArrowRight size={16}/></button></div>
-  </section>;
-}
-
-function MockRunner({active,...props}:Props & {active: NonNullable<ExamProgress['active']>}) {
-  const {engine,locale,onChange,volume,onVolume}=props, index=active.answers.length;
-  const q=useMemo(()=>mockQuestion(active),[active.profileId,active.level,active.seed,index]);
-  const [status,setStatus]=useState<AudioStatus>(engine.status), [now,setNow]=useState(Date.now()), [endOpen,setEndOpen]=useState(false),[running,setRunning]=useState(false);
-  const busy=useRef(false), generation=useRef(0), heading=useRef<HTMLHeadingElement>(null);
-  const playerStarted=useRef(false),betweenSamples=useRef(false);
-  const t=(v:Text)=>tx(v,locale), count=mockLessonIds(active).length;
-  useEffect(()=>engine.subscribe(s=>{setStatus(s);if(s==='playing')playerStarted.current=true;if(s==='idle'&&busy.current&&playerStarted.current&&!betweenSamples.current){generation.current++;busy.current=false;setRunning(false);}}),[engine]);
-  useEffect(()=>{const timer=window.setInterval(()=>setNow(Date.now()),500);return()=>clearInterval(timer);},[]);
-  useEffect(()=>{generation.current++;busy.current=false;setRunning(false);engine.stop();heading.current?.focus();return()=>{generation.current++;engine.stop();};},[engine,active.id,index]);
-  useEffect(()=>{const hidden=()=>{if(document.hidden){generation.current++;busy.current=false;setRunning(false);engine.stop();}};document.addEventListener('visibilitychange',hidden);return()=>document.removeEventListener('visibilitychange',hidden);},[engine]);
-  const listen=async()=>{
-    if(busy.current||active.plays[index]>=mockListenLimit||Date.now()>=active.deadline)return;
-    busy.current=true;playerStarted.current=false;betweenSamples.current=false;setRunning(true);const token=++generation.current;
-    onChange(p=>registerMockPlay(p));
-    const done=()=>{if(token!==generation.current)return;busy.current=false;setRunning(false);onChange(p=>completeMockPlay(p,active.id,index));};
-    const played=await engine.play(q,'a',()=>{
-      if(token!==generation.current)return;
-      if(q.kind==='memory'){betweenSamples.current=true;window.setTimeout(()=>{if(token!==generation.current||document.hidden)return;void engine.play(q,'b',done).then(ok=>{betweenSamples.current=false;if(!ok&&token===generation.current){busy.current=false;setRunning(false);onChange(p=>refundMockPlay(p,active.id,index));}});},0);}
-      else done();
-    });
-    if(!played&&token===generation.current){busy.current=false;setRunning(false);onChange(p=>refundMockPlay(p,active.id,index));}
+export function ExamStudio(props: Props) {
+  const { engine, locale, onChange, onPractice } = props,
+    p = props.progress ?? initialExamProgress();
+  const [tab, setTab] = useState<'scope' | 'courses' | 'mocks'>(p.active ? 'mocks' : 'scope');
+  const [courseId, setCourseId] = useState<ExamCourseId | null>(null),
+    [level, setLevel] = useState<ExamLevel>(1);
+  const [reviewId, setReviewId] = useState<string | null>(null),
+    [confirm, setConfirm] = useState(false);
+  const previousActive = useRef(p.active?.id);
+  const profile = getExamProfile(p.selectedProfile)!;
+  const t = (v: Text) => tx(v, locale);
+  useEffect(() => {
+    if (previousActive.current && !p.active && tab === 'mocks') {
+      const result = p.results.find(r => r.id === previousActive.current);
+      if (result) setReviewId(result.id);
+    }
+    previousActive.current = p.active?.id;
+  }, [p.active?.id, p.results, tab]);
+  useEffect(() => () => engine.stop(), [engine]);
+  const navigate = (next: typeof tab) => {
+    engine.stop();
+    setTab(next);
+    setCourseId(null);
+    setReviewId(null);
+    setConfirm(false);
   };
-  const stop=()=>{generation.current++;busy.current=false;setRunning(false);engine.stop();};
-  const submit=(choice:string|null)=>{stop();onChange(p=>submitMockAnswer(p,choice));};
-  const enabled=active.heard[index]&&!running&&!endOpen;
-  const prompt=q.music?.prompt??(q.kind==='memory'?text('İki melodi aynı mı?','Are the two melodies the same?'):q.kind==='interval'?text('Duyduğun aralık hangisi?','Which interval did you hear?'):text('Duyduğun akorun niteliği ne?','What is the chord quality?'));
-  const seconds=Math.max(0,Math.ceil((active.deadline-now)/1000));
-  return <div className="exam-mock" data-testid="exam-mock"><div className="question-progress"><span>{t(text('Soru','Question'))} {index+1}/{count}</span><span className="exam-timer" role="timer" aria-label={t(text('Kalan süre','Time remaining'))}>{Math.floor(seconds/60)}:{String(seconds%60).padStart(2,'0')}</span></div><h2 ref={heading} tabIndex={-1}>{t(prompt)}</h2><p>{t(getLesson(mockLessonIds(active)[index]).listen)}</p><div className="exam-listen"><button className="button secondary" disabled={running||active.plays[index]>=mockListenLimit} onClick={()=>void listen()}><Play size={17}/>{t(text('Soruyu dinle','Listen to question'))}</button><button className="text-button" disabled={!running} onClick={stop}><Square size={16}/>{t(text('Durdur','Stop'))}</button><span data-testid="exam-listen-count">{active.plays[index]}/{mockListenLimit} · {t(text('başlatılan dinleme','hearings started'))}</span></div><label className="exam-volume">{t(text('Ses seviyesi','Volume'))}<input type="range" min="0.05" max="0.8" step="0.01" value={volume} onChange={e=>onVolume(Number(e.target.value))}/></label><p className="small-copy">{t(text('Durdurduğun dinleme de sınırdan düşer. Yanıt vermek için en az bir dinlemeyi tamamla.','Stopped hearings count towards the limit. Complete at least one hearing to submit an answer.'))}</p>{status==='error'&&<p className="notice" role="alert">{t(text('Ses başlatılamadı. Bu deneme dinleme hakkından düşülmedi; tekrar dene.','Audio could not start. This attempt did not use a hearing; try again.'))}</p>}{!active.heard[index]&&<p className="listen-first">{t(text('Önce soruyu sonuna kadar dinle.','Listen to the entire question first.'))}</p>}{q.music&&q.music.response!=='choice'?<MusicAnswerEditor key={`${active.id}-${index}`} engine={engine} question={q} locale={locale} enabled={enabled} onSubmit={submit} preview={false}/>:<div className="answer-options">{q.options.map(o=><button key={o.id} className="answer-option" disabled={!enabled} onClick={()=>submit(o.id)}>{t(o.label)}</button>)}</div>}<div className="exam-mock-actions"><button className="text-button" onClick={()=>submit(null)}>{t(text('Boş bırak ve ilerle','Skip question'))}<ArrowRight size={16}/></button><button className="text-button" onClick={()=>{stop();setEndOpen(true);}}>{t(text('Denemeyi bitir','End mock'))}</button></div>{endOpen&&<div className="exam-confirm" role="region" aria-label={t(text('Erken bitirme','End early'))}><p>{t(text('Kalan sorular boş olarak kaydedilecek. Denemeyi bitirelim mi?','Remaining questions will be saved as skipped. End this mock?'))}</p><div className="editor-actions"><button className="button secondary" onClick={()=>setEndOpen(false)}>{t(text('Devam et','Continue'))}</button><button className="button" onClick={()=>onChange(p=>finishMock(p,'ended'))}>{t(text('Bitir ve incele','Finish & review'))}</button></div></div>}</div>;
+  const review = p.results.find(r => r.id === reviewId);
+  const course = examCourses.find(c => c.id === courseId);
+  return (
+    <section className="exam-studio" aria-label={t(text('Sınav atölyesi', 'Audition studio'))}>
+      {!profile.sources.length && (
+        <p className="notice exam-source-status">
+          {t(
+            text(
+              'Ortak beceri hazırlığı: bu profilin kurum ve programa özel resmî sınav kapsamı henüz doğrulanmadı. Denemeler Freq çalışma formatıdır.',
+              'Common skill preparation: this profile has not yet been verified against an institution and programme’s official exam requirements. Mocks use the Freq practice format.',
+            ),
+          )}
+        </p>
+      )}
+      {!!profile.sources.length && <p className="notice exam-source-status">{t(profile.limits)}</p>}
+      <div
+        className="exam-tabs"
+        role="group"
+        aria-label={t(text('Sınava hazırlık bölümleri', 'Audition preparation sections'))}
+      >
+        {(['scope', 'courses', 'mocks'] as const).map(id => (
+          <button key={id} aria-pressed={tab === id} onClick={() => navigate(id)}>
+            {t(
+              id === 'scope'
+                ? text('Kurum ve kapsam', 'Institution & scope')
+                : id === 'courses'
+                  ? text('Hazırlık dersleri', 'Preparation lessons')
+                  : text('Denemeler', 'Mocks'),
+            )}
+            {id === 'mocks' && p.active && (
+              <span className="live-dot" aria-label={t(text('Devam eden deneme', 'Active mock'))} />
+            )}
+          </button>
+        ))}
+      </div>
+      {tab === 'scope' && (
+        <>
+          <div className="exam-section-heading">
+            <h2>
+              {t(text('Hedefini tanı, çalışmanı seç.', 'Know your target, choose your practice.'))}
+            </h2>
+            <p>
+              {t(
+                text(
+                  'Kılavuzun yılı ve programı önemlidir. Aynı kurumda bile bölümlerin sınav kapsamı farklı olabilir.',
+                  'The guide year and programme matter. Exam requirements can differ between departments at the same institution.',
+                ),
+              )}
+            </p>
+          </div>
+          <label className="exam-select">
+            {t(text('Hazırlık profili', 'Preparation profile'))}
+            <select
+              value={profile.id}
+              onChange={e => onChange(x => ({ ...x, selectedProfile: e.target.value }))}
+            >
+              {examProfiles.map(v => (
+                <option key={v.id} value={v.id}>
+                  {t(v.title)} · {t(v.program)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="exam-profile">
+            <span className="eyebrow">{t(profile.program)}</span>
+            <h3>{t(profile.title)}</h3>
+            <p>{t(profile.summary)}</p>
+            <div className="exam-scope-list">
+              {profile.scope.map((s, i) => (
+                <details key={i}>
+                  <summary>{t(s.title)}</summary>
+                  <p>{t(s.detail)}</p>
+                  <div className="editor-actions">
+                    {s.courses.map(id => (
+                      <button
+                        key={id}
+                        className="text-button"
+                        onClick={() => {
+                          setCourseId(id);
+                          setTab('courses');
+                        }}
+                      >
+                        {t(examCourses.find(c => c.id === id)!.title)}
+                        <ArrowRight size={15} />
+                      </button>
+                    ))}
+                  </div>
+                </details>
+              ))}
+            </div>
+            {profile.sources.length > 0 && (
+              <div className="exam-sources">
+                <h4>{t(text('Resmî kaynaklar', 'Official sources'))}</h4>
+                {profile.sources.map(s => (
+                  <p key={s.url}>
+                    <a href={s.url} target="_blank" rel="noreferrer">
+                      {s.title}
+                    </a>
+                    <small>
+                      {s.year} · {t(text('Sayfa/bölüm', 'Page/section'))}: {s.pages} ·{' '}
+                      {t(text('Kontrol', 'Checked'))}: {s.checked}
+                    </small>
+                  </p>
+                ))}
+                <p className="small-copy">
+                  {t(
+                    text(
+                      'Başvuru tarihi, kontenjan ve güncel şartlar için kurumun yeni duyurusunu kontrol et. Buradaki profil belirtilen kılavuz sürümüne dayanır.',
+                      'Check the institution’s new announcements for application dates, places and current requirements. This profile is based on the guide version shown.',
+                    ),
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
+          <button className="button" onClick={() => navigate('courses')}>
+            {t(text('Derslere geç', 'Explore lessons'))}
+            <ArrowRight size={17} />
+          </button>
+        </>
+      )}
+      {tab === 'courses' && !course && (
+        <>
+          <div className="exam-section-heading">
+            <h2>{t(text('Önce öğren, sonra prova et.', 'Learn first, then rehearse.'))}</h2>
+            <p>
+              {t(
+                text(
+                  'Her ders üç seviyede bir yöntem, ses/notasyon örneği ve odaklı pratik sunar.',
+                  'Each lesson provides a method, an audio/notation example and focused practice at three levels.',
+                ),
+              )}
+            </p>
+          </div>
+          <div className="exam-course-grid">
+            {examCourses
+              .filter(c => profile.scope.some(s => s.courses.includes(c.id)))
+              .map((c, i) => (
+                <button key={c.id} className="exam-course-card" onClick={() => setCourseId(c.id)}>
+                  <span className="eyebrow">
+                    0{i + 1} · {t(text('3 seviye', '3 levels'))}
+                  </span>
+                  <strong>{t(c.title)}</strong>
+                  <span>{t(c.intro)}</span>
+                  <span className="text-button">
+                    {t(text('Dersi aç', 'Open lesson'))}
+                    <ArrowRight size={16} />
+                  </span>
+                </button>
+              ))}
+          </div>
+        </>
+      )}
+      {tab === 'courses' && course && (
+        <Rehearsal
+          key={course.id}
+          {...props}
+          courseId={course.id}
+          onBack={() => {
+            engine.stop();
+            setCourseId(null);
+          }}
+        />
+      )}
+      {tab === 'mocks' && p.active && <MockRunner {...props} active={p.active} />}
+      {tab === 'mocks' && !p.active && review && (
+        <MockReview
+          key={review.id}
+          {...props}
+          result={review}
+          onBack={() => {
+            engine.stop();
+            setReviewId(null);
+          }}
+        />
+      )}
+      {tab === 'mocks' && !p.active && !review && (
+        <>
+          <div className="exam-section-heading">
+            <h2>{t(text('Sınav temposunda işitme çalış.', 'Practise listening at exam pace.'))}</h2>
+            <p>
+              {t(
+                text(
+                  'Deneme sırasında doğru yanıt gösterilmez. Bitince her soruyu yeniden dinleyebilir ve eksiklerini çalışabilirsin.',
+                  'Answers stay hidden during the mock. Afterwards, replay each question and practise your weaker areas.',
+                ),
+              )}
+            </p>
+          </div>
+          <h3>
+            {t(profile.title)} · {t(text('Freq işitme uyarlaması', 'Freq aural adaptation'))}
+          </h3>
+          <div
+            className="exam-levels"
+            role="group"
+            aria-label={t(text('Deneme seviyesi', 'Mock level'))}
+          >
+            {levels.map(l => (
+              <button
+                key={l}
+                aria-pressed={level === l}
+                onClick={() => {
+                  setLevel(l);
+                  setConfirm(false);
+                }}
+              >
+                {l} · {t(levelTitles[l - 1])}
+              </button>
+            ))}
+          </div>
+          <div className="exam-rules">
+            <span>
+              <Headphones size={18} />
+              {profile.lessons[level - 1].length} {t(text('soru', 'questions'))}
+            </span>
+            <span>
+              <Clock3 size={18} />
+              {(profile.lessons[level - 1].length * mockSecondsPerQuestion) / 60}{' '}
+              {t(text('dakika', 'minutes'))}
+            </span>
+            <span>
+              {t(text('Soru başına en fazla 3 dinleme', 'Up to 3 hearings per question'))}
+            </span>
+          </div>
+          <p className="small-copy">
+            {t(
+              text(
+                'Süre, soru sayısı ve dinleme sınırı Freq çalışma ayarlarıdır; kurumun yayımlamadığı kuralları varsaymaz. Süre, sekmeden çıksan veya sayfayı kapatsan da devam eder. Taslak yanıtlar kaydedilmez.',
+                'Duration, question count and replay limit are Freq practice settings; they do not assume unpublished institutional rules. The timer continues if you leave the tab or close the page. Draft answers are not saved.',
+              ),
+            )}
+          </p>
+          {!confirm ? (
+            <button className="button" onClick={() => setConfirm(true)}>
+              {t(text('Denemeyi hazırla', 'Prepare mock'))}
+              <ArrowRight size={17} />
+            </button>
+          ) : (
+            <div
+              className="exam-confirm"
+              role="region"
+              aria-label={t(text('Deneme başlangıcı', 'Mock start'))}
+            >
+              <p>
+                {t(
+                  text(
+                    'Kulaklığın ve sesin hazır mı? Başlat düğmesi süreyi başlatır.',
+                    'Are your headphones and volume ready? Start begins the timer.',
+                  ),
+                )}
+              </p>
+              <button
+                className="button"
+                onClick={() => {
+                  engine.stop();
+                  setConfirm(false);
+                  onChange(x => ({ ...x, active: startMock(profile.id, level) }));
+                }}
+              >
+                {t(text('Süreyi başlat', 'Start timer'))}
+                <Clock3 size={17} />
+              </button>
+            </div>
+          )}
+          {p.results.length > 0 && (
+            <div className="exam-history">
+              <h3>{t(text('Son denemeler', 'Recent mocks'))}</h3>
+              {p.results
+                .slice(-30)
+                .reverse()
+                .map(r => (
+                  <button className="recent-row" key={r.id} onClick={() => setReviewId(r.id)}>
+                    <div>
+                      <strong>
+                        {t(getExamProfile(r.profileId)!.title)} · {t(text('Seviye', 'Level'))}{' '}
+                        {r.level}
+                      </strong>
+                      <span>
+                        {dateLabel(r.finishedAt, locale)} ·{' '}
+                        {t(
+                          r.reason === 'expired'
+                            ? text('Süre doldu', 'Time expired')
+                            : r.reason === 'ended'
+                              ? text('Erken bitirildi', 'Ended early')
+                              : text('Tamamlandı', 'Completed'),
+                        )}
+                      </span>
+                    </div>
+                    <span>
+                      {r.answers.filter(a => a.correct).length}/{r.answers.length}
+                      <ArrowRight size={16} />
+                    </span>
+                  </button>
+                ))}
+            </div>
+          )}
+        </>
+      )}
+      {tab === 'courses' && p.rehearsals.length > 0 && (
+        <p className="small-copy">
+          {t(text('Kaydedilen prova', 'Saved rehearsals'))}: {p.rehearsals.length} ·{' '}
+          {t(
+            text(
+              'Öz değerlendirme kayıtları yedeğe dahil edilir; işitme puanına katılmaz.',
+              'Self-assessment records are included in your backup and kept separate from aural scores.',
+            ),
+          )}
+        </p>
+      )}
+      <div className="exam-foundation">
+        <h3>{t(text('Kısa hafıza pratikleri', 'Short memory practices'))}</h3>
+        <p>
+          {t(
+            text(
+              'Aşağıdaki beş soruluk pratikler süreli denemelerden bağımsızdır.',
+              'The five-question practices below are independent of timed mocks.',
+            ),
+          )}
+        </p>
+        <button className="text-button" onClick={() => onPractice('memory-1')}>
+          {t(text('Temelden başla', 'Start with the basics'))}
+          <ArrowRight size={16} />
+        </button>
+      </div>
+    </section>
+  );
 }
 
-function MockReview({result,onBack,...props}:Props & {result:MockResult;onBack:()=>void}) {
-  const {locale,onPractice,engine}=props, [index,setIndex]=useState(0), t=(v:Text)=>tx(v,locale);
-  const q=mockQuestion(result,index), a=result.answers[index], comparison=a.choice?withAnswerComparison(q,a.choice):q;
-  const correct=result.answers.filter(v=>v.correct).length, skipped=result.answers.filter(v=>v.choice===null).length;
-  const weak=[...new Set(mockLessonIds(result).filter((_,i)=>!result.answers[i].correct))];
-  return <div className="exam-review"><button className="text-button" onClick={onBack}><ArrowLeft size={16}/>{t(text('Denemelere dön','Back to mocks'))}</button><h2>{t(text('Denemeni birlikte inceleyelim.','Let’s review your mock.'))}</h2><div className="exam-result-score"><strong>{correct}/{result.answers.length}</strong><span>{skipped} {t(text('boş','skipped'))} · {t(text('Freq işitme doğruluğu','Freq aural accuracy'))}</span></div><p className="small-copy">{t(text('Bu sonuç kabul puanı veya başarı tahmini değildir. Jüri görevleri ve kurumun resmî puan ağırlıkları bu sayıya katılmaz.','This result is not an admissions score or a prediction. Jury tasks and official institutional weightings are not included.'))}</p>{weak.length>0&&<div className="exam-focus"><h3>{t(text('Sıradaki çalışman','Your next practice'))}</h3><div className="editor-actions">{weak.map(id=><button key={id} className="button secondary" onClick={()=>{engine.stop();onPractice(id);}}>{t(getLesson(id).title)}<ArrowRight size={16}/></button>)}</div></div>}<label className="exam-select">{t(text('İncelenecek soru','Question to review'))}<select value={index} onChange={e=>{engine.stop();setIndex(Number(e.target.value));}}>{result.answers.map((v,i)=><option key={i} value={i}>{i+1} · {t(skillNames[mockQuestion(result,i).kind])} · {t(v.choice===null?text('Boş','Skipped'):v.correct?text('Doğru','Correct'):text('Tekrar çalış','Review'))}</option>)}</select></label><p>{t(text('Doğru yanıt','Correct answer'))}: <strong>{answerLabel(q,q.correct,locale)}</strong></p><p>{t(text('Senin yanıtın','Your answer'))}: <strong>{a.choice===null?t(text('Boş','Skipped')):answerLabel(q,a.choice,locale)}</strong></p><AudioPlayer key={`${result.id}-${index}`} engine={engine} question={comparison} locale={locale} volume={props.volume} onVolume={props.onVolume} reviewed/>{q.music&&a.choice&&<MusicFeedback question={q} choice={a.choice} locale={locale}/>}<p>{t(q.explanation)}</p></div>;
+function MockRunner({ active, ...props }: Props & { active: NonNullable<ExamProgress['active']> }) {
+  const { engine, locale, onChange, volume, onVolume } = props,
+    index = active.answers.length;
+  const q = useMemo(
+    () => mockQuestion(active),
+    [active.profileId, active.level, active.seed, index],
+  );
+  const [status, setStatus] = useState<AudioStatus>(engine.status),
+    [now, setNow] = useState(Date.now()),
+    [endOpen, setEndOpen] = useState(false),
+    [running, setRunning] = useState(false);
+  const busy = useRef(false),
+    generation = useRef(0),
+    heading = useRef<HTMLHeadingElement>(null);
+  const playerStarted = useRef(false),
+    betweenSamples = useRef(false);
+  const t = (v: Text) => tx(v, locale),
+    count = mockLessonIds(active).length;
+  useEffect(
+    () =>
+      engine.subscribe(s => {
+        setStatus(s);
+        if (s === 'playing') playerStarted.current = true;
+        if (s === 'idle' && busy.current && playerStarted.current && !betweenSamples.current) {
+          generation.current++;
+          busy.current = false;
+          setRunning(false);
+        }
+      }),
+    [engine],
+  );
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(timer);
+  }, []);
+  useEffect(() => {
+    generation.current++;
+    busy.current = false;
+    setRunning(false);
+    engine.stop();
+    heading.current?.focus();
+    return () => {
+      generation.current++;
+      engine.stop();
+    };
+  }, [engine, active.id, index]);
+  useEffect(() => {
+    const hidden = () => {
+      if (document.hidden) {
+        generation.current++;
+        busy.current = false;
+        setRunning(false);
+        engine.stop();
+      }
+    };
+    document.addEventListener('visibilitychange', hidden);
+    return () => document.removeEventListener('visibilitychange', hidden);
+  }, [engine]);
+  const listen = async () => {
+    if (busy.current || active.plays[index] >= mockListenLimit || Date.now() >= active.deadline)
+      return;
+    busy.current = true;
+    playerStarted.current = false;
+    betweenSamples.current = false;
+    setRunning(true);
+    const token = ++generation.current;
+    onChange(p => registerMockPlay(p));
+    const done = () => {
+      if (token !== generation.current) return;
+      busy.current = false;
+      setRunning(false);
+      onChange(p => completeMockPlay(p, active.id, index));
+    };
+    const played = await engine.play(q, 'a', () => {
+      if (token !== generation.current) return;
+      if (q.kind === 'memory') {
+        betweenSamples.current = true;
+        window.setTimeout(() => {
+          if (token !== generation.current || document.hidden) return;
+          void engine.play(q, 'b', done).then(ok => {
+            betweenSamples.current = false;
+            if (!ok && token === generation.current) {
+              busy.current = false;
+              setRunning(false);
+              onChange(p => refundMockPlay(p, active.id, index));
+            }
+          });
+        }, 0);
+      } else done();
+    });
+    if (!played && token === generation.current) {
+      busy.current = false;
+      setRunning(false);
+      onChange(p => refundMockPlay(p, active.id, index));
+    }
+  };
+  const stop = () => {
+    generation.current++;
+    busy.current = false;
+    setRunning(false);
+    engine.stop();
+  };
+  const submit = (choice: string | null) => {
+    stop();
+    onChange(p => submitMockAnswer(p, choice));
+  };
+  const enabled = active.heard[index] && !running && !endOpen;
+  const prompt =
+    q.music?.prompt ??
+    (q.kind === 'memory'
+      ? text('İki melodi aynı mı?', 'Are the two melodies the same?')
+      : q.kind === 'interval'
+        ? text('Duyduğun aralık hangisi?', 'Which interval did you hear?')
+        : text('Duyduğun akorun niteliği ne?', 'What is the chord quality?'));
+  const seconds = Math.max(0, Math.ceil((active.deadline - now) / 1000));
+  return (
+    <div className="exam-mock" data-testid="exam-mock">
+      <div className="question-progress">
+        <span>
+          {t(text('Soru', 'Question'))} {index + 1}/{count}
+        </span>
+        <span
+          className="exam-timer"
+          role="timer"
+          aria-label={t(text('Kalan süre', 'Time remaining'))}
+        >
+          {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}
+        </span>
+      </div>
+      <h2 ref={heading} tabIndex={-1}>
+        {t(prompt)}
+      </h2>
+      <p>{t(getLesson(mockLessonIds(active)[index]).listen)}</p>
+      <div className="exam-listen">
+        <button
+          className="button secondary"
+          disabled={running || active.plays[index] >= mockListenLimit}
+          onClick={() => void listen()}
+        >
+          <Play size={17} />
+          {t(text('Soruyu dinle', 'Listen to question'))}
+        </button>
+        <button className="text-button" disabled={!running} onClick={stop}>
+          <Square size={16} />
+          {t(text('Durdur', 'Stop'))}
+        </button>
+        <span data-testid="exam-listen-count">
+          {active.plays[index]}/{mockListenLimit} ·{' '}
+          {t(text('başlatılan dinleme', 'hearings started'))}
+        </span>
+      </div>
+      <label className="exam-volume">
+        {t(text('Ses seviyesi', 'Volume'))}
+        <input
+          type="range"
+          min="0.05"
+          max="0.8"
+          step="0.01"
+          value={volume}
+          onChange={e => onVolume(Number(e.target.value))}
+        />
+      </label>
+      <p className="small-copy">
+        {t(
+          text(
+            'Durdurduğun dinleme de sınırdan düşer. Yanıt vermek için en az bir dinlemeyi tamamla.',
+            'Stopped hearings count towards the limit. Complete at least one hearing to submit an answer.',
+          ),
+        )}
+      </p>
+      {status === 'error' && (
+        <p className="notice" role="alert">
+          {t(
+            text(
+              'Ses başlatılamadı. Bu deneme dinleme hakkından düşülmedi; tekrar dene.',
+              'Audio could not start. This attempt did not use a hearing; try again.',
+            ),
+          )}
+        </p>
+      )}
+      {!active.heard[index] && (
+        <p className="listen-first">
+          {t(text('Önce soruyu sonuna kadar dinle.', 'Listen to the entire question first.'))}
+        </p>
+      )}
+      {q.music && q.music.response !== 'choice' ? (
+        <MusicAnswerEditor
+          key={`${active.id}-${index}`}
+          engine={engine}
+          question={q}
+          locale={locale}
+          enabled={enabled}
+          onSubmit={submit}
+          preview={false}
+        />
+      ) : (
+        <div className="answer-options">
+          {q.options.map(o => (
+            <button
+              key={o.id}
+              className="answer-option"
+              disabled={!enabled}
+              onClick={() => submit(o.id)}
+            >
+              {t(o.label)}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="exam-mock-actions">
+        <button className="text-button" onClick={() => submit(null)}>
+          {t(text('Boş bırak ve ilerle', 'Skip question'))}
+          <ArrowRight size={16} />
+        </button>
+        <button
+          className="text-button"
+          onClick={() => {
+            stop();
+            setEndOpen(true);
+          }}
+        >
+          {t(text('Denemeyi bitir', 'End mock'))}
+        </button>
+      </div>
+      {endOpen && (
+        <div
+          className="exam-confirm"
+          role="region"
+          aria-label={t(text('Erken bitirme', 'End early'))}
+        >
+          <p>
+            {t(
+              text(
+                'Kalan sorular boş olarak kaydedilecek. Denemeyi bitirelim mi?',
+                'Remaining questions will be saved as skipped. End this mock?',
+              ),
+            )}
+          </p>
+          <div className="editor-actions">
+            <button className="button secondary" onClick={() => setEndOpen(false)}>
+              {t(text('Devam et', 'Continue'))}
+            </button>
+            <button className="button" onClick={() => onChange(p => finishMock(p, 'ended'))}>
+              {t(text('Bitir ve incele', 'Finish & review'))}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function Rehearsal({courseId,onBack,...props}:Props & {courseId:ExamCourseId;onBack:()=>void}) {
-  const {engine,locale,onPractice,onChange}=props, course=examCourses.find(c=>c.id===courseId)!;
-  const [level,setLevel]=useState<ExamLevel>(1),[seed,setSeed]=useState(2026),[checks,setChecks]=useState([false,false,false]),[note,setNote]=useState(''),[saved,setSaved]=useState(false);
-  const q=useMemo(()=>rehearsalQuestion(courseId,level,seed),[courseId,level,seed]);
-  const t=(v:Text)=>tx(v,locale), records=(props.progress?.rehearsals??[]).filter(r=>r.courseId===courseId).slice(-3).reverse();
-  const reset=()=>{engine.stop();setChecks([false,false,false]);setNote('');setSaved(false);};
-  return <div className="exam-lesson"><button className="text-button" onClick={onBack}><ArrowLeft size={16}/>{t(text('Tüm dersler','All lessons'))}</button><h2>{t(course.title)}</h2><p className="lead">{t(course.intro)}</p><div className="exam-levels" role="group" aria-label={t(text('Ders seviyesi','Lesson level'))}>{levels.map(l=><button key={l} aria-pressed={level===l} onClick={()=>{reset();setLevel(l);}}>{l} · {t(levelTitles[l-1])}</button>)}</div><p className="exam-level-focus">{t(courseLevelFocus[courseId][level-1])}</p><ol className="exam-method">{course.steps.map((s,i)=><li key={i}>{t(s)}</li>)}</ol>{courseId==='sight-reading'&&<StaffExample question={q} locale={locale}/>}{courseId!=='performance'&&courseId!=='dictation'&&<><p>{t(text('Örneği dinle ve yönergeye göre söyle/alkışla. Bu alıştırma otomatik puanlanmaz; mikrofon kullanılmaz.','Listen and sing/clap following the instructions. This exercise is not automatically scored and uses no microphone.'))}</p><AudioPlayer engine={engine} question={q} locale={locale} volume={props.volume} onVolume={props.onVolume}/><button className="text-button" onClick={()=>{reset();setSeed(v=>v+1);}}>{t(text('Yeni örnek','New example'))}<ArrowRight size={15}/></button></>}<div className="exam-practice-links"><h3>{t(text('Geri bildirimli işitme pratiği','Aural practice with feedback'))}</h3><div className="editor-actions">{course.practices[level-1].map(id=><button key={id} className="button secondary" onClick={()=>{engine.stop();onPractice(id);}}>{t(getLesson(id).title)}<ArrowRight size={16}/></button>)}</div></div><fieldset className="exam-checks"><legend>{t(text('Prova sonrası öz değerlendirme','Self-assessment after rehearsal'))}</legend>{course.checks.map((c,i)=><label key={i}><input type="checkbox" checked={checks[i]} disabled={saved} onChange={e=>setChecks(v=>v.map((x,j)=>j===i?e.target.checked:x))}/>{t(c)}</label>)}</fieldset><label className="exam-note">{t(text('Çalışma notun (isteğe bağlı)','Practice note (optional)'))}<textarea value={note} maxLength={500} disabled={saved} onChange={e=>setNote(e.target.value)} placeholder={t(text('Bir sonraki provada neye odaklanacaksın?','What will you focus on next time?'))}/></label><button className="button" disabled={saved} onClick={()=>{onChange(p=>({...p,rehearsals:[...p.rehearsals,{id:crypto.randomUUID(),courseId,level,seed,checks:[...checks],note,at:Date.now()}]}));setSaved(true);}}><Check size={17}/>{t(saved?text('Prova kaydedildi','Rehearsal saved'):text('Öz değerlendirmeyi kaydet','Save self-assessment'))}</button><p className="small-copy">{t(text('Kontrol listesi kendi gözlemin içindir. Vokal entonasyon, solfej ve icra için öğretmen değerlendirmesi gerekir.','The checklist records your observations. Vocal intonation, solfège and performance require teacher assessment.'))}</p>{records.length>0&&<div className="exam-rehearsal-history"><h3>{t(text('Son prova notların','Your recent rehearsal notes'))}</h3>{records.map(r=><div key={r.id}><strong>{dateLabel(r.at,locale)} · {t(text('Seviye','Level'))} {r.level} · {r.checks.filter(Boolean).length}/3</strong>{r.note&&<p>{r.note}</p>}</div>)}</div>}</div>;
+function MockReview({
+  result,
+  onBack,
+  ...props
+}: Props & { result: MockResult; onBack: () => void }) {
+  const { locale, onPractice, engine } = props,
+    [index, setIndex] = useState(0),
+    t = (v: Text) => tx(v, locale);
+  const q = mockQuestion(result, index),
+    a = result.answers[index],
+    comparison = a.choice ? withAnswerComparison(q, a.choice) : q;
+  const correct = result.answers.filter(v => v.correct).length,
+    skipped = result.answers.filter(v => v.choice === null).length;
+  const weak = [...new Set(mockLessonIds(result).filter((_, i) => !result.answers[i].correct))];
+  return (
+    <div className="exam-review">
+      <button className="text-button" onClick={onBack}>
+        <ArrowLeft size={16} />
+        {t(text('Denemelere dön', 'Back to mocks'))}
+      </button>
+      <h2>{t(text('Denemeni birlikte inceleyelim.', 'Let’s review your mock.'))}</h2>
+      <div className="exam-result-score">
+        <strong>
+          {correct}/{result.answers.length}
+        </strong>
+        <span>
+          {skipped} {t(text('boş', 'skipped'))} ·{' '}
+          {t(text('Freq işitme doğruluğu', 'Freq aural accuracy'))}
+        </span>
+      </div>
+      <p className="small-copy">
+        {t(
+          text(
+            'Bu sonuç kabul puanı veya başarı tahmini değildir. Jüri görevleri ve kurumun resmî puan ağırlıkları bu sayıya katılmaz.',
+            'This result is not an admissions score or a prediction. Jury tasks and official institutional weightings are not included.',
+          ),
+        )}
+      </p>
+      {weak.length > 0 && (
+        <div className="exam-focus">
+          <h3>{t(text('Sıradaki çalışman', 'Your next practice'))}</h3>
+          <div className="editor-actions">
+            {weak.map(id => (
+              <button
+                key={id}
+                className="button secondary"
+                onClick={() => {
+                  engine.stop();
+                  onPractice(id);
+                }}
+              >
+                {t(getLesson(id).title)}
+                <ArrowRight size={16} />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      <label className="exam-select">
+        {t(text('İncelenecek soru', 'Question to review'))}
+        <select
+          value={index}
+          onChange={e => {
+            engine.stop();
+            setIndex(Number(e.target.value));
+          }}
+        >
+          {result.answers.map((v, i) => (
+            <option key={i} value={i}>
+              {i + 1} · {t(skillNames[mockQuestion(result, i).kind])} ·{' '}
+              {t(
+                v.choice === null
+                  ? text('Boş', 'Skipped')
+                  : v.correct
+                    ? text('Doğru', 'Correct')
+                    : text('Tekrar çalış', 'Review'),
+              )}
+            </option>
+          ))}
+        </select>
+      </label>
+      <p>
+        {t(text('Doğru yanıt', 'Correct answer'))}:{' '}
+        <strong>{answerLabel(q, q.correct, locale)}</strong>
+      </p>
+      <p>
+        {t(text('Senin yanıtın', 'Your answer'))}:{' '}
+        <strong>
+          {a.choice === null ? t(text('Boş', 'Skipped')) : answerLabel(q, a.choice, locale)}
+        </strong>
+      </p>
+      <AudioPlayer
+        key={`${result.id}-${index}`}
+        engine={engine}
+        question={comparison}
+        locale={locale}
+        volume={props.volume}
+        onVolume={props.onVolume}
+        reviewed
+      />
+      {q.music && a.choice && <MusicFeedback question={q} choice={a.choice} locale={locale} />}
+      <p>{t(q.explanation)}</p>
+    </div>
+  );
 }
 
-function StaffExample({question,locale}:{question:Question;locale:Locale}) {
-  const notes=question.notesA, diatonic:Record<number,number>={0:0,2:1,4:2,5:3,7:4,9:5,11:6};
-  const names=locale==='tr'?['Do','','Re','','Mi','Fa','','Sol','','La','','Si']:['C','','D','','E','F','','G','','A','','B'];
-  const bars=Math.ceil(notes.length/4), label=tx(text('Sol anahtarı, Do majör, 4/4. Her nota bir dörtlük.','Treble clef, C major, 4/4. Every note is a quarter note.'),locale);
-  return <div className="exam-staff"><div className="exam-staff-lines">{Array.from({length:bars},(_,bar)=><svg key={bar} viewBox="0 0 250 140" role="img" aria-label={`${label} ${tx(text('Ölçü','Bar'),locale)} ${bar+1}.`}>
-    {[50,60,70,80,90].map(y=><line key={y} x1="8" x2="241" y1={y} y2={y} stroke="currentColor" strokeWidth="1"/>)}
-    <text x="12" y="87" fontSize="57">𝄞</text><text x="58" y="67" fontSize="20">4</text><text x="58" y="88" fontSize="20">4</text>
-    {Array.from({length:4},(_,part)=>{
-      const midi=notes[bar*4+part], x=92+part*36;
-      if(!midi)return <text key={part} x={x-5} y="81" fontSize="26">𝄽</text>;
-      const step=diatonic[midi%12]+Math.floor((midi-60)/12)*7-2,y=90-step*5;
-      return <g key={part}><ellipse cx={x} cy={y} rx="6" ry="4" transform={`rotate(-15 ${x} ${y})`} fill="currentColor"/><line x1={x+5} x2={x+5} y1={y} y2={y-29} stroke="currentColor" strokeWidth="1.4"/>{y>=100&&Array.from({length:Math.floor((y-100)/10)+1},(_,j)=><line key={j} x1={x-9} x2={x+9} y1={100+j*10} y2={100+j*10} stroke="currentColor"/>)}<text x={x} y="127" textAnchor="middle" fontSize="13">{names[midi%12]}</text></g>;
-    })}<line x1="239" x2="239" y1="50" y2="90" stroke="currentColor"/>
-  </svg>)}</div><p className="small-copy">{label}</p><p className="sr-only">{notes.map(n=>names[n%12]+Math.floor(n/12-1)).join(', ')}</p></div>;
+function Rehearsal({
+  courseId,
+  onBack,
+  ...props
+}: Props & { courseId: ExamCourseId; onBack: () => void }) {
+  const { engine, locale, onPractice, onChange } = props,
+    course = examCourses.find(c => c.id === courseId)!;
+  const [level, setLevel] = useState<ExamLevel>(1),
+    [seed, setSeed] = useState(2026),
+    [checks, setChecks] = useState([false, false, false]),
+    [note, setNote] = useState(''),
+    [saved, setSaved] = useState(false);
+  const q = useMemo(() => rehearsalQuestion(courseId, level, seed), [courseId, level, seed]);
+  const t = (v: Text) => tx(v, locale),
+    records = (props.progress?.rehearsals ?? [])
+      .filter(r => r.courseId === courseId)
+      .slice(-3)
+      .reverse();
+  const reset = () => {
+    engine.stop();
+    setChecks([false, false, false]);
+    setNote('');
+    setSaved(false);
+  };
+  return (
+    <div className="exam-lesson">
+      <button className="text-button" onClick={onBack}>
+        <ArrowLeft size={16} />
+        {t(text('Tüm dersler', 'All lessons'))}
+      </button>
+      <h2>{t(course.title)}</h2>
+      <p className="lead">{t(course.intro)}</p>
+      <div
+        className="exam-levels"
+        role="group"
+        aria-label={t(text('Ders seviyesi', 'Lesson level'))}
+      >
+        {levels.map(l => (
+          <button
+            key={l}
+            aria-pressed={level === l}
+            onClick={() => {
+              reset();
+              setLevel(l);
+            }}
+          >
+            {l} · {t(levelTitles[l - 1])}
+          </button>
+        ))}
+      </div>
+      <p className="exam-level-focus">{t(courseLevelFocus[courseId][level - 1])}</p>
+      <ol className="exam-method">
+        {course.steps.map((s, i) => (
+          <li key={i}>{t(s)}</li>
+        ))}
+      </ol>
+      {courseId === 'sight-reading' && <StaffExample question={q} locale={locale} />}
+      {courseId !== 'performance' && courseId !== 'dictation' && (
+        <>
+          <p>
+            {t(
+              text(
+                'Örneği dinle ve yönergeye göre söyle/alkışla. Bu alıştırma otomatik puanlanmaz; mikrofon kullanılmaz.',
+                'Listen and sing/clap following the instructions. This exercise is not automatically scored and uses no microphone.',
+              ),
+            )}
+          </p>
+          <AudioPlayer
+            engine={engine}
+            question={q}
+            locale={locale}
+            volume={props.volume}
+            onVolume={props.onVolume}
+          />
+          <button
+            className="text-button"
+            onClick={() => {
+              reset();
+              setSeed(v => v + 1);
+            }}
+          >
+            {t(text('Yeni örnek', 'New example'))}
+            <ArrowRight size={15} />
+          </button>
+        </>
+      )}
+      <div className="exam-practice-links">
+        <h3>{t(text('Geri bildirimli işitme pratiği', 'Aural practice with feedback'))}</h3>
+        <div className="editor-actions">
+          {course.practices[level - 1].map(id => (
+            <button
+              key={id}
+              className="button secondary"
+              onClick={() => {
+                engine.stop();
+                onPractice(id);
+              }}
+            >
+              {t(getLesson(id).title)}
+              <ArrowRight size={16} />
+            </button>
+          ))}
+        </div>
+      </div>
+      <fieldset className="exam-checks">
+        <legend>
+          {t(text('Prova sonrası öz değerlendirme', 'Self-assessment after rehearsal'))}
+        </legend>
+        {course.checks.map((c, i) => (
+          <label key={i}>
+            <input
+              type="checkbox"
+              checked={checks[i]}
+              disabled={saved}
+              onChange={e => setChecks(v => v.map((x, j) => (j === i ? e.target.checked : x)))}
+            />
+            {t(c)}
+          </label>
+        ))}
+      </fieldset>
+      <label className="exam-note">
+        {t(text('Çalışma notun (isteğe bağlı)', 'Practice note (optional)'))}
+        <textarea
+          value={note}
+          maxLength={500}
+          disabled={saved}
+          onChange={e => setNote(e.target.value)}
+          placeholder={t(
+            text('Bir sonraki provada neye odaklanacaksın?', 'What will you focus on next time?'),
+          )}
+        />
+      </label>
+      <button
+        className="button"
+        disabled={saved}
+        onClick={() => {
+          onChange(p => ({
+            ...p,
+            rehearsals: [
+              ...p.rehearsals,
+              {
+                id: crypto.randomUUID(),
+                courseId,
+                level,
+                seed,
+                checks: [...checks],
+                note,
+                at: Date.now(),
+              },
+            ],
+          }));
+          setSaved(true);
+        }}
+      >
+        <Check size={17} />
+        {t(
+          saved
+            ? text('Prova kaydedildi', 'Rehearsal saved')
+            : text('Öz değerlendirmeyi kaydet', 'Save self-assessment'),
+        )}
+      </button>
+      <p className="small-copy">
+        {t(
+          text(
+            'Kontrol listesi kendi gözlemin içindir. Vokal entonasyon, solfej ve icra için öğretmen değerlendirmesi gerekir.',
+            'The checklist records your observations. Vocal intonation, solfège and performance require teacher assessment.',
+          ),
+        )}
+      </p>
+      {records.length > 0 && (
+        <div className="exam-rehearsal-history">
+          <h3>{t(text('Son prova notların', 'Your recent rehearsal notes'))}</h3>
+          {records.map(r => (
+            <div key={r.id}>
+              <strong>
+                {dateLabel(r.at, locale)} · {t(text('Seviye', 'Level'))} {r.level} ·{' '}
+                {r.checks.filter(Boolean).length}/3
+              </strong>
+              {r.note && <p>{r.note}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StaffExample({ question, locale }: { question: Question; locale: Locale }) {
+  const notes = question.notesA,
+    diatonic: Record<number, number> = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6 };
+  const names =
+    locale === 'tr'
+      ? ['Do', '', 'Re', '', 'Mi', 'Fa', '', 'Sol', '', 'La', '', 'Si']
+      : ['C', '', 'D', '', 'E', 'F', '', 'G', '', 'A', '', 'B'];
+  const bars = Math.ceil(notes.length / 4),
+    label = tx(
+      text(
+        'Sol anahtarı, Do majör, 4/4. Her nota bir dörtlük.',
+        'Treble clef, C major, 4/4. Every note is a quarter note.',
+      ),
+      locale,
+    );
+  return (
+    <div className="exam-staff">
+      <div className="exam-staff-lines">
+        {Array.from({ length: bars }, (_, bar) => (
+          <svg
+            key={bar}
+            viewBox="0 0 250 140"
+            role="img"
+            aria-label={`${label} ${tx(text('Ölçü', 'Bar'), locale)} ${bar + 1}.`}
+          >
+            {[50, 60, 70, 80, 90].map(y => (
+              <line key={y} x1="8" x2="241" y1={y} y2={y} stroke="currentColor" strokeWidth="1" />
+            ))}
+            <text x="12" y="87" fontSize="57">
+              𝄞
+            </text>
+            <text x="58" y="67" fontSize="20">
+              4
+            </text>
+            <text x="58" y="88" fontSize="20">
+              4
+            </text>
+            {Array.from({ length: 4 }, (_, part) => {
+              const midi = notes[bar * 4 + part],
+                x = 92 + part * 36;
+              if (!midi)
+                return (
+                  <text key={part} x={x - 5} y="81" fontSize="26">
+                    𝄽
+                  </text>
+                );
+              const step = diatonic[midi % 12] + Math.floor((midi - 60) / 12) * 7 - 2,
+                y = 90 - step * 5;
+              return (
+                <g key={part}>
+                  <ellipse
+                    cx={x}
+                    cy={y}
+                    rx="6"
+                    ry="4"
+                    transform={`rotate(-15 ${x} ${y})`}
+                    fill="currentColor"
+                  />
+                  <line
+                    x1={x + 5}
+                    x2={x + 5}
+                    y1={y}
+                    y2={y - 29}
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                  />
+                  {y >= 100 &&
+                    Array.from({ length: Math.floor((y - 100) / 10) + 1 }, (_, j) => (
+                      <line
+                        key={j}
+                        x1={x - 9}
+                        x2={x + 9}
+                        y1={100 + j * 10}
+                        y2={100 + j * 10}
+                        stroke="currentColor"
+                      />
+                    ))}
+                  <text x={x} y="127" textAnchor="middle" fontSize="13">
+                    {names[midi % 12]}
+                  </text>
+                </g>
+              );
+            })}
+            <line x1="239" x2="239" y1="50" y2="90" stroke="currentColor" />
+          </svg>
+        ))}
+      </div>
+      <p className="small-copy">{label}</p>
+      <p className="sr-only">{notes.map(n => names[n % 12] + Math.floor(n / 12 - 1)).join(', ')}</p>
+    </div>
+  );
 }

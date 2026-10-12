@@ -1,5 +1,26 @@
 # Doğrulama kayıtları
 
+## 0.11 önizleme — araştırmaya dayalı eleştiri ve düzeltmeler
+
+12 Ekim 2026 (Europe/Istanbul), macOS, Node.js 24.11.0, kurulu Google Chrome 155. Bu makinede Poppler kurulu değildir; PDF içeriğini `pdfinfo` ve `pdftotext` ile okuyan kontroller çalışamadı ve aşağıda ayrı sayıldı. [Eleştiri ve düzeltmeler](kalite-denetimi-0.11.md).
+
+| Kontrol | Sonuç |
+| --- | --- |
+| Birim testleri | **364 / 370 geçti**, 14 dosya. Kalan 6 testin tamamı `report-pdf.test.ts` içinde, `pdftotext` bulunamadığı için |
+| Tarayıcı testleri | **147 / 154 geçti**, iki worker, 5,8 dakika. Kalan 7 testin tamamı `report.spec.ts` içinde, PDF indirildikten sonraki `pdfinfo` adımında. Aynı 7 test 0.9 kodunda da bu makinede aynı adımda düşüyor |
+| TypeScript, biçim ve build | `tsc -b`, `prettier --check` ve `npm run build` geçti |
+| Yeni EQ aşamaları | Raf/filtre, bant genişliği ve eşleştirme soruları; her biçimin frekans yanıtı (kesen filtre köşede −3 dB, raf köşede yarı kazanç) birim testinde |
+| Eşleştirme | Gerçek tarayıcıda: ayar değişince C döngüdeki yerinden devam ediyor; hedef adlandırılmıyor; doğru ayar C'yi kaybettirmiyor; yalnızca tam eşleşme doğru |
+| Adil sorular | Altı kaynağın spektrum tablosu gerçek seslerden yeniden ölçülüp karşılaştırılıyor; hiçbir kaynakta eşik altı bant sorulmuyor (6 kaynak × 11 aşama × 300 tohum) |
+| Seviye eşitleme | BS.1770 referansı: tam ölçekli 997 Hz sinüs 44,1 ve 48 kHz'de −3,01 LKFS. Tarayıcıda A/B/C yükseklik farkı 0,001 dB'nin altında; ses yüksekliği dersinin kasıtlı farkları korunuyor |
+| Kişisel seçim | Yalnızca 1 kHz ve altını duyan örnek öğrencide üst bantların payı 0,39'dan 0,51'e çıkıyor; sekiz bandın hepsi sorulmaya devam ediyor |
+| Arayüz | 11 pikselin altında yazı yok; 320 ve 375 piksel genişlikte yatay taşma yok; otomatik WCAG 2 A/AA ve 2.1 AA kontrolleri geçti |
+| Kullanım | Geri ve ileri tuşları ekranlar arasında çalışıyor, yarım pratik korunuyor; başlat düğmesi telefonda kaydırmadan görünüyor |
+| Çevrimdışı önbellek | 21 dosya, sürüm `4fe860f74af5`. Çevrimdışı PDF indirme, kullanılmayan yardımcılar önbellekten çıkarıldıktan sonra da indirme adımına kadar geçiyor |
+| Bağımlılıklar | `npm audit`: bilinen açık **0** |
+
+Sesin nasıl duyulduğu, zorluk basamaklarının doğru olup olmadığı ve gerçek telefonlardaki davranış bu kontrollerin kapsamında değildir.
+
 ## 0.9 önizleme — gelişim ekranı ve gerçek PDF raporu
 
 12 Ekim 2026 (Europe/Istanbul), Node.js 24.19.0, sistem Chromium'u ve Poppler ile. Son uygulama kaynakları, testler ve üretim çıktısı tarayıcı turunda sabit tutuldu; 115 dosyanın hash'i tur sonunda yeniden kontrol edildi. [Kullanım ve sınırlar](gelisim-raporu.md), [araştırma](research/gelisim-raporu-arastirmasi.md).

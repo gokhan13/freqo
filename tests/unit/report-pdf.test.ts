@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { skillLessons } from '../../src/personal-model';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -8,9 +9,14 @@ import { initialProgress } from '../../src/model';
 import { buildProgressReport, type ProgressReport } from '../../src/report-model';
 import { createReportPdf } from '../../src/report-pdf';
 import { resourcesForSkill, studyWeek } from '../../src/report-presentation';
+// The EQ ladder's second and third stages; their ids are names, not numbers.
+const EQ2 = skillLessons('eq')[1].id,
+  EQ3 = skillLessons('eq')[2].id;
 
 const NOW = Date.parse('2026-10-12T20:30:00Z');
-const fontBytes = new Uint8Array(readFileSync(new URL('../../public/fonts/DejaVuSans.ttf', import.meta.url)));
+const fontBytes = new Uint8Array(
+  readFileSync(new URL('../../public/fonts/DejaVuSans.ttf', import.meta.url)),
+);
 const directories: string[] = [];
 
 afterEach(() => {
@@ -23,7 +29,8 @@ function inspect(bytes: Uint8Array) {
   directories.push(directory);
   const file = join(directory, 'report.pdf');
   writeFileSync(file, bytes);
-  const extract = (args: string[]) => execFileSync('pdftotext', [...args, file, '-'], { encoding: 'utf8' });
+  const extract = (args: string[]) =>
+    execFileSync('pdftotext', [...args, file, '-'], { encoding: 'utf8' });
   return {
     text: extract(['-layout']),
     bbox: extract(['-bbox']),
@@ -33,32 +40,143 @@ function inspect(bytes: Uint8Array) {
 }
 
 function fixture(): ProgressReport {
-  const report = buildProgressReport(initialProgress(), { now: NOW, path: 'all', period: '7d', timeZone: 'Europe/Istanbul' });
-  report.summary = { practiceCount: 20, practiceCorrect: 14, practiceAccuracy: 70, completedSessions: 4, partialSessions: 1, assessedSkills: 1, supportedSkills: report.skills.length, independentLogicalCount: 17, distinctSounds: 12, legacyCount: 3, activeDays: 2, skippedPersonalResponses: 2 };
+  const report = buildProgressReport(initialProgress(), {
+    now: NOW,
+    path: 'all',
+    period: '7d',
+    timeZone: 'Europe/Istanbul',
+  });
+  report.summary = {
+    practiceCount: 20,
+    practiceCorrect: 14,
+    practiceAccuracy: 70,
+    completedSessions: 4,
+    partialSessions: 1,
+    assessedSkills: 1,
+    supportedSkills: report.skills.length,
+    independentLogicalCount: 17,
+    distinctSounds: 12,
+    legacyCount: 3,
+    activeDays: 2,
+    skippedPersonalResponses: 2,
+  };
   report.review = { count: 4, correct: 3, accuracy: 75, dueCount: 2, openCount: 5 };
-  report.placement = { count: 6, correct: 4, accuracy: 67, completedSessions: 1, partialSessions: 1, skippedCount: 1 };
+  report.placement = {
+    count: 6,
+    correct: 4,
+    accuracy: 67,
+    completedSessions: 1,
+    partialSessions: 1,
+    skippedCount: 1,
+  };
   report.exam = {
-    results: [{ id: 'pdf-mock', profileId: 'common', level: 1, finishedAt: NOW - 60_000, reason: 'completed', answered: 8, skipped: 2, correct: 5, total: 10, accuracy: 63 }],
-    completedCount: 1, endedCount: 0, expiredCount: 0, questionCount: 8, correct: 5, accuracy: 63,
-    selfAssessment: { count: 2, checked: 7, totalChecks: 10 }, active: true,
+    results: [
+      {
+        id: 'pdf-mock',
+        profileId: 'common',
+        level: 1,
+        finishedAt: NOW - 60_000,
+        reason: 'completed',
+        answered: 8,
+        skipped: 2,
+        correct: 5,
+        total: 10,
+        accuracy: 63,
+      },
+    ],
+    completedCount: 1,
+    endedCount: 0,
+    expiredCount: 0,
+    questionCount: 8,
+    correct: 5,
+    accuracy: 63,
+    selfAssessment: { count: 2, checked: 7, totalChecks: 10 },
+    active: true,
   };
   const eq = report.skills.find(row => row.skill === 'eq')!;
-  Object.assign(eq, { lessonId: 'eq-2', level: 2, practiceCount: 20, correct: 14, accuracy: 70, independentLogicalCount: 17, distinctSounds: 12, legacyCount: 3, sessionCount: 4, reviewCount: 4, reviewCorrect: 3, reviewAccuracy: 75, dueCount: 2, openCount: 5, firstSuggestedLevel: 1, currentSuggestedLevel: 2 });
-  eq.trend = { status: 'available', reason: text('Aynı aşama, kaynak ve yolda küçük örneklem.', 'A small sample at the same stage, source and path.'), lessonId: 'eq-2', source: 'studio', path: 'mix', previousCount: 10, recentCount: 10, previousAccuracy: 50, recentAccuracy: 90, deltaPoints: 40 };
-  report.priorities = [{ skill: 'eq', lessonId: 'eq-2', severity: 'focus', evidence: text('Çığ, ılık, İŞİTME, ölçü ve şüphe: çğıİöşü ÇĞÖŞÜ. 20 yanıt var.', '20 answers support a cautious listening suggestion.'), nextGoal: text('İki oturumda 10 yeni soru; 2 zamanı gelen tekrar.', '10 fresh questions across two sessions; 2 due reviews.'), goal: { freshQuestions: 10, sessions: 2, dueReviews: 2 } }, ...report.priorities.filter(priority => priority.skill !== 'eq').slice(0, 2)];
-  report.daily = [{ date: '2026-10-12', practiceCount: 20, correct: 14, reviewCount: 4, reviewCorrect: 3, placementCount: 6, skippedCount: 2, completedSessions: 4, partialSessions: 1, mockCount: 1, selfAssessmentCount: 2 }];
+  Object.assign(eq, {
+    lessonId: EQ2,
+    level: 2,
+    practiceCount: 20,
+    correct: 14,
+    accuracy: 70,
+    independentLogicalCount: 17,
+    distinctSounds: 12,
+    legacyCount: 3,
+    sessionCount: 4,
+    reviewCount: 4,
+    reviewCorrect: 3,
+    reviewAccuracy: 75,
+    dueCount: 2,
+    openCount: 5,
+    firstSuggestedLevel: 1,
+    currentSuggestedLevel: 2,
+  });
+  eq.trend = {
+    status: 'available',
+    reason: text(
+      'Aynı aşama, kaynak ve yolda küçük örneklem.',
+      'A small sample at the same stage, source and path.',
+    ),
+    lessonId: EQ2,
+    source: 'studio',
+    path: 'mix',
+    previousCount: 10,
+    recentCount: 10,
+    previousAccuracy: 50,
+    recentAccuracy: 90,
+    deltaPoints: 40,
+  };
+  report.priorities = [
+    {
+      skill: 'eq',
+      lessonId: EQ2,
+      severity: 'focus',
+      evidence: text(
+        'Çığ, ılık, İŞİTME, ölçü ve şüphe: çğıİöşü ÇĞÖŞÜ. 20 yanıt var.',
+        '20 answers support a cautious listening suggestion.',
+      ),
+      nextGoal: text(
+        'İki oturumda 10 yeni soru; 2 zamanı gelen tekrar.',
+        '10 fresh questions across two sessions; 2 due reviews.',
+      ),
+      goal: { freshQuestions: 10, sessions: 2, dueReviews: 2 },
+    },
+    ...report.priorities.filter(priority => priority.skill !== 'eq').slice(0, 2),
+  ];
+  report.daily = [
+    {
+      date: '2026-10-12',
+      practiceCount: 20,
+      correct: 14,
+      reviewCount: 4,
+      reviewCorrect: 3,
+      placementCount: 6,
+      skippedCount: 2,
+      completedSessions: 4,
+      partialSessions: 1,
+      mockCount: 1,
+      selfAssessmentCount: 2,
+    },
+  ];
   return report;
 }
 
 function freeze<T>(value: T): T {
-  if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); }
+  if (value && typeof value === 'object') {
+    Object.values(value).forEach(freeze);
+    Object.freeze(value);
+  }
   return value;
 }
 
 describe('downloadable Unicode report PDF', () => {
   it('embeds selectable Turkish Unicode, accurate dated counts, every skill and separate measurements without mutating data', async () => {
-    const report = freeze(fixture()), before = JSON.stringify(report);
-    const fetchSpy = vi.fn(() => { throw new Error('PDF must not send learner records.'); });
+    const report = freeze(fixture()),
+      before = JSON.stringify(report);
+    const fetchSpy = vi.fn(() => {
+      throw new Error('PDF must not send learner records.');
+    });
     vi.stubGlobal('fetch', fetchSpy);
     const pdf = await createReportPdf(report, 'tr', { fontBytes });
     const exported = inspect(pdf.bytes);
@@ -83,7 +201,8 @@ describe('downloadable Unicode report PDF', () => {
     expect(exported.text).toMatch(/Farklı soru: 17 · Farklı duyulan örnek: 12 · Eski yanıt: 3/);
     expect(exported.text).toContain('50% (n=10) → 90% (n=10); +40 yüzde puan');
     expect(exported.text).toContain('Elektronik groove');
-    for (const row of report.skills) expect(exported.text).toContain(tx(skillNames[row.skill], 'tr'));
+    for (const row of report.skills)
+      expect(exported.text).toContain(tx(skillNames[row.skill], 'tr'));
     expect(exported.text).toContain('Hata tekrarları');
     expect(exported.text).toMatch(/Doğru\/yanıt: 3\/4 · 75%/);
     expect(exported.text).toContain('Başlangıç değerlendirmesi');
@@ -128,9 +247,26 @@ describe('downloadable Unicode report PDF', () => {
 
   it('keeps the Turkish rhythm video before the English book in both English and Turkish PDFs', async () => {
     const report = fixture();
-    report.priorities = [{ ...report.priorities[0], skill: 'rhythm', lessonId: 'rhythm-1', evidence: text('Ritim için yeni kayıtlı örnekler topla.', 'Gather fresh saved rhythm examples.'), nextGoal: text('İki kısa oturumda yeni ritimler dene.', 'Try fresh rhythms across two short sessions.') }];
+    report.priorities = [
+      {
+        ...report.priorities[0],
+        skill: 'rhythm',
+        lessonId: 'rhythm-1',
+        evidence: text(
+          'Ritim için yeni kayıtlı örnekler topla.',
+          'Gather fresh saved rhythm examples.',
+        ),
+        nextGoal: text(
+          'İki kısa oturumda yeni ritimler dene.',
+          'Try fresh rhythms across two short sessions.',
+        ),
+      },
+    ];
     const resources = resourcesForSkill('rhythm');
-    expect(resources.map(resource => resource.id)).toEqual(['ankara-note-values', 'open-music-theory']);
+    expect(resources.map(resource => resource.id)).toEqual([
+      'ankara-note-values',
+      'open-music-theory',
+    ]);
     const [turkishVideo, englishBook] = resources;
     for (const locale of ['en', 'tr'] as const) {
       const exported = inspect((await createReportPdf(report, locale, { fontBytes })).bytes);
@@ -146,15 +282,28 @@ describe('downloadable Unicode report PDF', () => {
 
   it('keeps long English text and unbroken tokens within A4 margins across page breaks, and limits history output', async () => {
     const report = fixture();
-    report.priorities[0].evidence = text('Uzun açıklama', `${'Detailed listening evidence should remain readable across page boundaries. '.repeat(65)} ${'UNBROKENTOKEN'.repeat(30)}`);
-    report.skills[0].trend.reason = text('Uzun açıklama', 'Matched stage, source and route remain necessary for every comparison. '.repeat(70));
-    report.daily = Array.from({ length: 30 }, (_, index) => ({ ...report.daily[0], date: `2026-09-${String(index + 1).padStart(2, '0')}` }));
+    report.priorities[0].evidence = text(
+      'Uzun açıklama',
+      `${'Detailed listening evidence should remain readable across page boundaries. '.repeat(65)} ${'UNBROKENTOKEN'.repeat(30)}`,
+    );
+    report.skills[0].trend.reason = text(
+      'Uzun açıklama',
+      'Matched stage, source and route remain necessary for every comparison. '.repeat(70),
+    );
+    report.daily = Array.from({ length: 30 }, (_, index) => ({
+      ...report.daily[0],
+      date: `2026-09-${String(index + 1).padStart(2, '0')}`,
+    }));
     const exported = inspect((await createReportPdf(freeze(report), 'en', { fontBytes })).bytes);
     expect(exported.text).toContain('Resource references');
     expect(exported.text).toContain('2026-09-30');
     expect(exported.text).toContain('2026-09-17');
     expect(exported.text).not.toContain('2026-09-16');
-    const words = [...exported.bbox.matchAll(/<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)"/gu)];
+    const words = [
+      ...exported.bbox.matchAll(
+        /<word xMin="([\d.]+)" yMin="([\d.]+)" xMax="([\d.]+)" yMax="([\d.]+)"/gu,
+      ),
+    ];
     expect(words.length).toBeGreaterThan(1000);
     // Poppler extracts positioned glyphs, so these checks catch actual clipping/overflow.
     for (const word of words) {
@@ -169,10 +318,14 @@ describe('downloadable Unicode report PDF', () => {
 
   it('loads only the local font and retries network or incomplete-font failures instead of producing partial PDFs', async () => {
     // Isolate the retry-safe cache from PDFs above, which deliberately inject bytes.
-    const fetchSpy = vi.fn()
+    const fetchSpy = vi
+      .fn()
       .mockRejectedValueOnce(new Error('offline before precache'))
       .mockResolvedValueOnce({ ok: false, status: 503 })
-      .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer })
+      .mockResolvedValueOnce({
+        ok: true,
+        arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer,
+      })
       .mockResolvedValue({ ok: true, arrayBuffer: async () => Uint8Array.from(fontBytes).buffer });
     vi.stubGlobal('fetch', fetchSpy);
     const report = buildProgressReport(initialProgress(), { now: NOW, path: 'mix' });
@@ -192,35 +345,52 @@ describe('downloadable Unicode report PDF', () => {
   it('rejects truncated injected fonts without fetching or returning a download', async () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal('fetch', fetchSpy);
-    await expect(createReportPdf(fixture(), 'tr', { fontBytes: fontBytes.slice(0, 2000) })).rejects.toThrow('incomplete');
+    await expect(
+      createReportPdf(fixture(), 'tr', { fontBytes: fontBytes.slice(0, 2000) }),
+    ).rejects.toThrow('incomplete');
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it('rejects missing font tables and corruption before jsPDF can swallow a font-output failure', async () => {
-    const withoutPost = Uint8Array.from(fontBytes), view = new DataView(withoutPost.buffer);
+    const withoutPost = Uint8Array.from(fontBytes),
+      view = new DataView(withoutPost.buffer);
     for (let i = 0; i < view.getUint16(4); i++) {
       const at = 12 + i * 16;
-      if (String.fromCharCode(...withoutPost.subarray(at, at + 4)) === 'post') withoutPost.set([110, 111, 112, 101], at);
+      if (String.fromCharCode(...withoutPost.subarray(at, at + 4)) === 'post')
+        withoutPost.set([110, 111, 112, 101], at);
     }
-    await expect(createReportPdf(fixture(), 'tr', { fontBytes: withoutPost })).rejects.toThrow('post table');
+    await expect(createReportPdf(fixture(), 'tr', { fontBytes: withoutPost })).rejects.toThrow(
+      'post table',
+    );
     const corrupted = Uint8Array.from(fontBytes);
     corrupted[corrupted.length - 1] ^= 1;
-    await expect(createReportPdf(fixture(), 'tr', { fontBytes: corrupted })).rejects.toThrow('integrity check');
+    await expect(createReportPdf(fixture(), 'tr', { fontBytes: corrupted })).rejects.toThrow(
+      'integrity check',
+    );
   });
 
   it('prints a supplied current-tab saving notice on the cover in the selected language without changing the snapshot', async () => {
-    const report = freeze(fixture()), before = JSON.stringify(report);
-    const recordNotice = freeze(text(
-      'Bu PDF geçerli sekmedeki anlık kayıtlardan oluşturuldu. Depolama kotası dolduğu için son yanıtlar henüz cihazın kalıcı kaydına yazılamadı.',
-      'This PDF uses the current tab snapshot. Storage quota is full, so recent answers have not yet been written to the device’s saved records.',
-    ));
+    const report = freeze(fixture()),
+      before = JSON.stringify(report);
+    const recordNotice = freeze(
+      text(
+        'Bu PDF geçerli sekmedeki anlık kayıtlardan oluşturuldu. Depolama kotası dolduğu için son yanıtlar henüz cihazın kalıcı kaydına yazılamadı.',
+        'This PDF uses the current tab snapshot. Storage quota is full, so recent answers have not yet been written to the device’s saved records.',
+      ),
+    );
     for (const locale of ['tr', 'en'] as const) {
-      const exported = inspect((await createReportPdf(report, locale, { fontBytes, recordNotice })).bytes);
+      const exported = inspect(
+        (await createReportPdf(report, locale, { fontBytes, recordNotice })).bytes,
+      );
       const cover = exported.text.split('\f')[0].replace(/\s+/gu, ' ');
       expect(cover).toContain(locale === 'tr' ? 'Kayıt durumu' : 'Record status');
       expect(cover).toContain(tx(recordNotice, locale));
-      expect(cover.indexOf(tx(recordNotice, locale))).toBeLessThan(cover.indexOf(locale === 'tr' ? 'Oluşturulma:' : 'Generated:'));
-      expect(cover).toContain(locale === 'tr' ? 'Doğru pratik yanıtı: 14' : 'Correct practice answers: 14');
+      expect(cover.indexOf(tx(recordNotice, locale))).toBeLessThan(
+        cover.indexOf(locale === 'tr' ? 'Oluşturulma:' : 'Generated:'),
+      );
+      expect(cover).toContain(
+        locale === 'tr' ? 'Doğru pratik yanıtı: 14' : 'Correct practice answers: 14',
+      );
     }
     expect(JSON.stringify(report)).toBe(before);
   }, 15_000);
