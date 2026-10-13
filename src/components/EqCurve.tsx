@@ -24,6 +24,56 @@ const response = (move: EqMove) =>
     return `${((i / 139) * WIDTH).toFixed(2)},${(65 - db * 4.4).toFixed(2)}`;
   }).join(' ');
 
+/** The response of one free EQ setting, for the lab. */
+export function EqMoveCurve({ move, locale }: { move: EqMove; locale: Locale }) {
+  return (
+    <div className="eq-curve">
+      <svg
+        viewBox={`0 0 ${WIDTH} 130`}
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={tx(
+          text(
+            `EQ eğrisi: ${formatHz(move.frequency)} çevresinde ayarın`,
+            `EQ curve: your setting around ${formatHz(move.frequency)}`,
+          ),
+          locale,
+        )}
+      >
+        {[25, 65, 105].map(y => (
+          <line key={y} x1="0" y1={y} x2={WIDTH} y2={y} stroke="currentColor" strokeOpacity=".12" />
+        ))}
+        {TICKS.map(hz => (
+          <line
+            key={hz}
+            x1={x(hz)}
+            y1="0"
+            x2={x(hz)}
+            y2="130"
+            stroke="currentColor"
+            strokeOpacity=".12"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+        <polyline
+          points={response(move)}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth="2.3"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div className="eq-curve-axis" aria-hidden="true">
+        {TICKS.map(hz => (
+          <span key={hz} style={{ left: `${(x(hz) / WIDTH) * 100}%` }}>
+            {formatHz(hz)}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /** The target move, and after a wrong answer the learner's own move as a dashed line. */
 export function EqCurve({ question, locale }: { question: Question; locale: Locale }) {
   const move = eqTargetMove(question);

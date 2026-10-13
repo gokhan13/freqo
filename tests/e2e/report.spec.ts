@@ -3,7 +3,14 @@ import AxeBuilder from '@axe-core/playwright';
 import { spawnSync } from 'node:child_process';
 import { readFile } from 'node:fs/promises';
 import { createBackup, readBackup } from '../../src/backup';
-import { getLesson, usesLoop, type EqSource } from '../../src/content';
+import {
+  getLesson,
+  paths,
+  skillNames,
+  usesLoop,
+  type EqSource,
+  type SkillId,
+} from '../../src/content';
 import { finishMock, initialExamProgress, startMock } from '../../src/exam-model';
 import {
   advanceQuestion,
@@ -17,6 +24,7 @@ import {
   advancePersonal,
   answerPersonal,
   refQuestion,
+  skillLessons,
   startPersonal,
 } from '../../src/personal-model';
 import { buildProgressReport } from '../../src/report-model';
@@ -217,7 +225,11 @@ test('empty progress report is truthful, bilingual, accessible and usable at 320
   page,
 }, testInfo) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Gelişimini incele', exact: true }).click();
+  // A first visit shows one step, not a statistics card; the report is under Skills.
+  await expect(page.getByTestId('first-step')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Gelişimini incele', exact: true })).toHaveCount(0);
+  await page.locator('.sidebar').getByRole('button', { name: 'Becerilerim', exact: true }).click();
+  await page.getByRole('button', { name: 'Gelişim raporunu aç', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Gelişim raporun', exact: true })).toBeVisible();
   for (const width of [320, 390])
     for (const locale of ['tr', 'en'] as const) {
@@ -401,6 +413,10 @@ test('skill guides expose Turkish-first relevant resources and label English fal
   await page.goto('/');
   await page.locator('.sidebar').getByRole('button', { name: 'Becerilerim', exact: true }).click();
   const before = await readProgress(page);
+  // Only the active path's skills are open; the others are one tap away.
+  await expect(page.getByTestId('skills-mix')).toHaveAttribute('open', '');
+  await expect(page.getByTestId('skills-music')).not.toHaveAttribute('open', '');
+  await page.getByTestId('skills-music').locator('summary').first().click();
   const rhythm = page
     .locator('.skill-card')
     .filter({ has: page.getByRole('heading', { name: 'Ritim', exact: true }) });
@@ -427,7 +443,7 @@ test('skill guides expose Turkish-first relevant resources and label English fal
   expect(await readProgress(page)).toEqual(before);
 });
 
-test('personal-plan links use the selected study route, and all-path reports retain the chosen route', async ({
+test('personal-plan links use the selected study route, and under all paths open the plan the suggestion belongs to', async ({
   page,
 }) => {
   const { progress } = fixture();
@@ -451,15 +467,18 @@ test('personal-plan links use the selected study route, and all-path reports ret
   expect(await readProgress(page)).toEqual({ ...before, path: 'exam' });
   await openReport(page);
   await page.getByRole('combobox', { name: 'Rapor yolu', exact: true }).selectOption('all');
-  await page
-    .locator('.report-priority')
-    .first()
-    .getByRole('button', { name: 'Kişisel plana git', exact: true })
+  // Under "all paths" a suggestion belongs to its own path, whatever path is active. Its
+  // button says which plan it opens, and opens that one.
+  const first = page.locator('.report-priority').first(),
+    name = await first.locator('h3').innerText(),
+    skill = (Object.keys(skillNames) as SkillId[]).find(id => skillNames[id].tr === name)!,
+    own = skillLessons(skill)[0].path;
+  expect(own).not.toBe('exam');
+  await first
+    .getByRole('button', { name: `Kişisel plana git · ${paths[own].short.tr}`, exact: true })
     .click();
-  await expect(page.getByRole('combobox', { name: 'Çalışma yolun', exact: true })).toHaveValue(
-    'exam',
-  );
-  expect(await readProgress(page)).toEqual({ ...before, path: 'exam' });
+  await expect(page.getByRole('combobox', { name: 'Çalışma yolun', exact: true })).toHaveValue(own);
+  expect(await readProgress(page)).toEqual({ ...before, path: own });
 });
 
 test('suggested lesson respects its current stage and asks before replacing saved manual work', async ({
@@ -534,7 +553,11 @@ for (const path of ['/', '/freq/'])
       .toMatch(new RegExp(`${path.replaceAll('/', '\\/')}sw\\.js$`));
     await context.setOffline(true);
     await page.reload();
-    await page.getByRole('button', { name: 'Gelişimini incele', exact: true }).click();
+    await page
+      .locator('.sidebar')
+      .getByRole('button', { name: 'Becerilerim', exact: true })
+      .click();
+    await page.getByRole('button', { name: 'Gelişim raporunu aç', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Gelişim raporun', exact: true })).toBeVisible();
     const pdf = await downloadPdf(page);
     expect(pdf.text).toContain('Henüz normal pratik yanıtı yok.');

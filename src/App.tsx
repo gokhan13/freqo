@@ -1,5 +1,8 @@
 import { SkillStudyGuide } from './components/SkillStudyGuide';
 import { useProgressStorage } from './useProgressStorage';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { setShortcuts, shortcutsOn } from './shortcuts';
+import { applyUpdate, useOffline } from './offline';
 import { PersonalCard, PersonalStudio } from './components/PersonalStudio';
 import { personalPlan, studyEvidence, skillEstimate, skillLessons } from './personal-model';
 import { MusicHistory } from './components/MusicHistory';
@@ -76,14 +79,20 @@ import {
 } from './model';
 import { AudioEngine, type Variant } from './audio';
 import { AudioPlayer } from './components/AudioPlayer';
-import { BackupError, createBackup, MAX_BACKUP_BYTES, mergeProgress, readBackup } from './backup';
+import {
+  BackupError,
+  createBackup,
+  MAX_BACKUP_BYTES,
+  mergeProgress,
+  readBackupDetailed,
+} from './backup';
 import { SourcePicker } from './components/SourcePicker';
 import { ListeningFeedback } from './components/ListeningFeedback';
 import { LessonList } from './components/LessonList';
 import { needsStereo } from './advanced-content';
 import { MixFeedback } from './components/MixFeedback';
 import { StereoCheck } from './components/StereoCheck';
-import { MixLab } from './components/MixLab';
+import { MixLab, labEffectFor } from './components/MixLab';
 import { KnownExamples } from './components/KnownExamples';
 import { EqCurve } from './components/EqCurve';
 import { EqInsights } from './components/EqInsights';
@@ -91,9 +100,31 @@ import { EqExamples } from './components/EqExamples';
 import { AnswerOptions, hasNumberShortcuts } from './components/AnswerOptions';
 import { eqNearMiss, eqUsesMatching } from './eq-model';
 
+// Below this many answers a percentage says more than the answers can.
+const SCORE_MINIMUM = 5;
 const ProgressReport = lazy(() =>
   import('./components/ProgressReport').then(module => ({ default: module.ProgressReport })),
 );
+// A module that failed to download stays failed for as long as the page lives, so trying the
+// report again means reloading. This note brings the learner straight back to it.
+const REOPEN_KEY = 'freq.reopen-report';
+function reopensReport() {
+  try {
+    const asked = sessionStorage.getItem(REOPEN_KEY) !== null;
+    sessionStorage.removeItem(REOPEN_KEY);
+    return asked;
+  } catch {
+    return false;
+  }
+}
+function retryReport() {
+  try {
+    sessionStorage.setItem(REOPEN_KEY, '1');
+  } catch {
+    /* The reload still happens; the report is then two taps away. */
+  }
+  window.location.reload();
+}
 
 type Page =
   | 'today'
@@ -242,17 +273,32 @@ function Modal({
 }
 
 export function App() {
-  const { progress, setProgress, storageError, storageProblem, acceptRecovery, clearHistory } =
-    useProgressStorage();
+  const {
+    progress,
+    setProgress,
+    storageError,
+    storageProblem,
+    acceptRecovery,
+    clearHistory,
+    updateNotice,
+    dismissNotice,
+    archives,
+    deleteArchives,
+  } = useProgressStorage();
+  const [archiveDelete, setArchiveDelete] = useState(false);
+  // The lab opens on the tool a report suggestion points at; otherwise on its default.
+  const [labTool, setLabTool] = useState<ReturnType<typeof labEffectFor>>();
   const [storageDecision, setStorageDecision] = useState<'reload' | 'recover' | null>(null);
   const [page, setPage] = useState<Page>(() =>
-    progress.exam?.active
-      ? 'path'
-      : progress.personal?.active
-        ? 'personal'
-        : progress.session
-          ? 'practice'
-          : 'today',
+    reopensReport()
+      ? 'report'
+      : progress.exam?.active
+        ? 'path'
+        : progress.personal?.active
+          ? 'personal'
+          : progress.session
+            ? 'practice'
+            : 'today',
   );
   const [selectedPath, setSelectedPath] = useState<PathId>(
     progress.exam?.active ? 'exam' : progress.path,
@@ -261,6 +307,7 @@ export function App() {
   const [pendingLesson, setPendingLesson] = useState<string | null>(null);
   const [pendingBackup, setPendingBackup] = useState<{
     progress: Progress;
+    retired: number;
     filename: string;
   } | null>(null);
   const [importing, setImporting] = useState(false);
@@ -289,6 +336,9 @@ export function App() {
   const feedbackRef = useRef<HTMLDivElement>(null);
   const locale = progress.locale;
   const t = (value: Text) => tx(value, locale);
+  const offline = useOffline();
+  const shortcuts = progress.shortcuts !== false;
+  setShortcuts(shortcuts);
   const session = progress.session;
   const lesson = session ? getLesson(session.lessonId) : null;
   const question = useMemo(
@@ -315,7 +365,11 @@ export function App() {
   const modalOpen = resetOpen || !!pendingLesson || !!pendingBackup || !!storageDecision;
   const requiredHeard: Variant[] = question && usesPair(question.kind) ? ['a', 'b'] : ['a'];
   const canAnswer = requiredHeard.every(v => heard.includes(v));
-  const recommended = useMemo(() => personalPlan(progress).lesson, [progress]);
+  // History only: a volume or language change must not recompute the plan.
+  const recommended = useMemo(
+    () => personalPlan(progress).lesson,
+    [progress.attempts, progress.personal, progress.path],
+  );
 
   useEffect(() => {
     document.documentElement.lang = locale;
@@ -420,6 +474,7 @@ export function App() {
       return;
     const onKey = (e: KeyboardEvent) => {
       if (
+        !shortcutsOn() ||
         (e.target as HTMLElement).closest('input,button,select,textarea') ||
         e.ctrlKey ||
         e.metaKey ||
@@ -473,6 +528,14 @@ export function App() {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+  // Each archived record downloads as it was stored, so it can be restored like any backup.
+  const downloadArchives = () =>
+    archives.forEach(({ key, raw }, index) =>
+      setTimeout(
+        () => downloadRaw(raw, `freq-arsiv-${key.replace(/^freq\./, '')}.json`),
+        index * 300,
+      ),
+    );
   const backupErrorText = (error: unknown) =>
     error instanceof BackupError
       ? {
@@ -480,7 +543,6 @@ export function App() {
           future: ui.importFuture,
           large: ui.importLarge,
           conflict: ui.importConflict,
-          retired: ui.importRetired,
         }[error.code]
       : ui.importInvalid;
   const importBackup = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -492,9 +554,9 @@ export function App() {
     setBackupNotice(null);
     try {
       if (file.size > MAX_BACKUP_BYTES) throw new BackupError('large');
-      const incoming = readBackup(await file.text());
-      mergeProgress(progress, incoming);
-      setPendingBackup({ progress: incoming, filename: file.name });
+      const incoming = readBackupDetailed(await file.text());
+      mergeProgress(progress, incoming.progress, { keepCurrentSessions: true });
+      setPendingBackup({ ...incoming, filename: file.name });
     } catch (error) {
       setBackupNotice(backupErrorText(error));
     } finally {
@@ -504,7 +566,9 @@ export function App() {
   const restoreBackup = () => {
     if (!pendingBackup) return;
     try {
-      const merged = mergeProgress(progress, pendingBackup.progress);
+      const merged = mergeProgress(progress, pendingBackup.progress, {
+        keepCurrentSessions: true,
+      });
       engine.stop();
       setProgress(merged);
       setPendingBackup(null);
@@ -515,7 +579,7 @@ export function App() {
       setBackupNotice(backupErrorText(error));
     }
   };
-  const evidence = useMemo(() => studyEvidence(progress), [progress]);
+  const evidence = useMemo(() => studyEvidence(progress), [progress.attempts, progress.personal]);
   const completedQuestions = evidence.length;
   const independent = evidence.filter(e => !e.review);
   const reviews = evidence.filter(e => e.review);
@@ -526,6 +590,13 @@ export function App() {
     progress.results.length +
     (progress.personal?.results.filter(r => r.mode !== 'placement' && r.status === 'completed')
       .length ?? 0);
+  // Nothing recorded and nothing under way: the first screen offers one step, not six.
+  const newcomer =
+    !completedQuestions &&
+    !session &&
+    !progress.personal?.active &&
+    !progress.personal?.results.length &&
+    !progress.exam?.results.length;
   const nav = [
     { page: 'today' as const, icon: House, label: ui.today },
     { page: 'paths' as const, icon: Layers3, label: ui.paths },
@@ -572,6 +643,9 @@ export function App() {
               key={p}
               onClick={() => navigate(p)}
               aria-current={activeNav === p ? 'page' : undefined}
+              // The text label is hidden on narrow sidebars; the name must not go with it.
+              aria-label={t(label)}
+              title={t(label)}
               className={`nav-item ${activeNav === p ? 'active' : ''}`}
             >
               <Icon size={20} />
@@ -605,10 +679,25 @@ export function App() {
             )}
           </span>
           <div className="topbar-right">
-            <span className="local-badge">
-              <span />
-              {t(text('Kişisel dinleme alanı', 'Personal listening space'))}
-            </span>
+            {offline.state === 'update' ? (
+              <button
+                className="local-badge is-update"
+                data-testid="update-ready"
+                onClick={() => navigate('profile')}
+              >
+                <span />
+                {t(text('Yeni sürüm hazır', 'New version ready'))}
+              </button>
+            ) : (
+              <span className={`local-badge ${offline.online ? '' : 'is-offline'}`}>
+                <span />
+                {t(
+                  offline.online
+                    ? text('Kişisel dinleme alanı', 'Personal listening space')
+                    : text('Çevrimdışı çalışıyorsun', 'Working offline'),
+                )}
+              </span>
+            )}
             <div className="language-switch" role="group" aria-label={t(ui.language)}>
               {(['tr', 'en'] as Locale[]).map(l => (
                 <button
@@ -641,15 +730,20 @@ export function App() {
             <div className="notice storage-notice" role="alert">
               <p>
                 {t(
-                  storageProblem.kind === 'invalid'
+                  storageProblem.kind === 'update'
                     ? text(
-                        'Kaydedilmiş verinin bir bölümü okunamadı. Orijinal kayıt korunuyor; kurtarılabilen verilerle devam edebilirsin. Yeni yanıtlar bu sekmede kalır, henüz diske yazılmaz.',
-                        'Part of the saved data could not be read. The original is preserved; you can work with the recoverable records. New answers remain in this tab and are not saved to disk yet.',
+                        'Bu güncelleme bazı dersleri yeniden kurdu; o derslere verilmiş eski yanıtların geçmişten ayrılması gerekiyor. Kaydın eski hali tarayıcıda arşivlenemedi (alan dolu). Önce orijinal kaydı indir; sonra devam et. O zamana kadar yeni yanıtlar yalnızca bu sekmede kalır.',
+                        'This update rebuilt some lessons; old answers to them have to leave your history. The record as it was could not be archived in the browser (storage is full). Download the original record first, then continue. Until then new answers stay in this tab only.',
                       )
-                    : text(
-                        'Başka bir sekmedeki kayıtla çakışma var. Otomatik kayıt durduruldu; bu sekmedeki yanıtlar ve diskteki kayıt korunuyor. Kapatmadan önce bu sekmenin verisini indir.',
-                        'Records conflict with another tab. Automatic saving has stopped; this tab’s answers and the saved copy are preserved. Download this tab’s data before closing.',
-                      ),
+                    : storageProblem.kind === 'invalid'
+                      ? text(
+                          'Kaydedilmiş verinin bir bölümü okunamadı. Orijinal kayıt korunuyor; kurtarılabilen verilerle devam edebilirsin. Yeni yanıtlar bu sekmede kalır, henüz diske yazılmaz.',
+                          'Part of the saved data could not be read. The original is preserved; you can work with the recoverable records. New answers remain in this tab and are not saved to disk yet.',
+                        )
+                      : text(
+                          'Başka bir sekmedeki kayıtla çakışma var. Otomatik kayıt durduruldu; bu sekmedeki yanıtlar ve diskteki kayıt korunuyor. Kapatmadan önce bu sekmenin verisini indir.',
+                          'Records conflict with another tab. Automatic saving has stopped; this tab’s answers and the saved copy are preserved. Download this tab’s data before closing.',
+                        ),
                 )}
               </p>
               <div className="storage-actions">
@@ -667,14 +761,51 @@ export function App() {
                 <button
                   className="text-button"
                   onClick={() =>
-                    setStorageDecision(storageProblem.kind === 'invalid' ? 'recover' : 'reload')
+                    setStorageDecision(storageProblem.kind === 'conflict' ? 'reload' : 'recover')
                   }
                 >
                   {t(
-                    storageProblem.kind === 'invalid'
-                      ? text('Kurtarılan veriyi kullan', 'Use recovered records')
-                      : text('Kaydedilmiş sürümü aç', 'Open saved copy'),
+                    storageProblem.kind === 'update'
+                      ? text('Güncel geçmişle devam et', 'Continue with the current history')
+                      : storageProblem.kind === 'invalid'
+                        ? text('Kurtarılan veriyi kullan', 'Use recovered records')
+                        : text('Kaydedilmiş sürümü aç', 'Open saved copy'),
                   )}
+                </button>
+              </div>
+            </div>
+          )}
+          {updateNotice && !storageProblem && (
+            <div className="notice update-notice" role="status" data-testid="update-notice">
+              <p>
+                {t(
+                  updateNotice.retired
+                    ? text(
+                        `Güncelleme bazı miks derslerini yeniden kurdu. Bu derslere verilmiş ${updateNotice.retired} eski yanıt artık aynı sesi anlatmadığı için geçmişine alınmadı. Diğer bütün çalışmaların ve tercihlerin yerinde.`,
+                        `An update rebuilt some mixing lessons. ${updateNotice.retired} old answers to those lessons no longer describe the same sound, so they were not carried into your history. All your other work and your preferences are in place.`,
+                      )
+                    : text(
+                        'Önceki sürümdeki çalışmaların ve tercihlerin bu sürüme taşındı.',
+                        'Your work and preferences from the previous version were carried over.',
+                      ),
+                )}{' '}
+                {archives.length > 0 &&
+                  t(
+                    text(
+                      'Eski kaydın tamamı bu tarayıcıda arşivde duruyor; Profil’den indirebilirsin.',
+                      'The complete earlier record is kept in this browser as an archive; you can download it from Profile.',
+                    ),
+                  )}
+              </p>
+              <div className="storage-actions">
+                {archives.length > 0 && (
+                  <button className="button secondary" onClick={downloadArchives}>
+                    <Download size={16} />
+                    {t(text('Eski kaydı indir', 'Download the earlier record'))}
+                  </button>
+                )}
+                <button className="text-button" onClick={dismissNotice}>
+                  {t(text('Anladım', 'Got it'))}
                 </button>
               </div>
             </div>
@@ -719,90 +850,131 @@ export function App() {
                 </div>
                 <FrequencyArt label={t(text('DİKKATLE DİNLE', 'LISTEN CLOSELY'))} />
               </section>
-              <PersonalCard
-                progress={progress}
-                locale={locale}
-                onOpen={() => navigate('personal')}
-              />
-              <section className="dashboard-grid">
-                <div className="next-card">
-                  <div className="card-heading">
-                    <span className="eyebrow">
-                      {session
-                        ? t(text('YARIM KALAN PRATİĞİN', 'YOUR UNFINISHED PRACTICE'))
-                        : t(text('DERS VE AÇIKLAMALI ÖRNEKLER', 'LESSON AND GUIDED EXAMPLES'))}
-                    </span>
-                    <Tag>
-                      {t(ui.levels)}{' '}
-                      {session ? getLesson(session.lessonId).level : recommended.level}
-                    </Tag>
+              {newcomer ? (
+                // First visit: one thing to do. The rest of the app is a tap away, not in the way.
+                <section className="first-step" data-testid="first-step">
+                  <div>
+                    <span className="eyebrow">{t(text('İLK ADIM', 'FIRST STEP'))}</span>
+                    <h2>{t(recommended.title)}</h2>
+                    <p>
+                      {t(
+                        text(
+                          'Kulaklığını tak. Ders önce açıklamalı bir örnek dinletir, sonra beş soru sorar; yaklaşık üç dakika sürer.',
+                          'Put your headphones on. The lesson plays a guided example first, then asks five questions; it takes about three minutes.',
+                        ),
+                      )}
+                    </p>
                   </div>
-                  <div className="next-body">
-                    <span className="next-icon">
-                      <AudioLines size={36} strokeWidth={1.5} />
-                    </span>
-                    <div>
-                      <h2>{t(session ? getLesson(session.lessonId).title : recommended.title)}</h2>
-                      <p>
-                        {t(
-                          session
-                            ? getLesson(session.lessonId).description
-                            : recommended.description,
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="next-footer">
-                    <div className="lesson-meta">
-                      <span>
-                        <Headphones size={15} />
-                        {t(ui.minutes)}
-                      </span>
-                      <span>•</span>
-                      <span>{t(ui.questions)}</span>
-                    </div>
-                    <button
-                      className="button"
-                      onClick={() => start(session?.lessonId ?? recommended.id)}
-                    >
-                      {t(session ? ui.resume : ui.start)}
+                  <div className="first-step-actions">
+                    <button className="button" onClick={() => start(recommended.id)}>
+                      {t(ui.start)}
                       <ArrowRight size={18} />
                     </button>
+                    <p className="small-copy">
+                      {t(
+                        text(
+                          'Deneyimliysen kısa bir değerlendirme başlangıç aşamanı bulur:',
+                          'If you have experience, a short placement finds your starting stage:',
+                        ),
+                      )}{' '}
+                      <button className="text-button" onClick={() => navigate('personal')}>
+                        {t(text('Kişisel planı aç', 'Open personal plan'))}
+                      </button>
+                    </p>
                   </div>
-                </div>
-                <div className="stats-card">
-                  <span className="eyebrow">
-                    {t(text('KÜÇÜK ADIMLAR, GERÇEK PRATİK', 'SMALL STEPS, REAL PRACTICE'))}
-                  </span>
-                  <div className="stat-row">
-                    <span>{t(ui.sessions)}</span>
-                    <strong>{completedSessions.toString().padStart(2, '0')}</strong>
+                </section>
+              ) : (
+                <PersonalCard
+                  progress={progress}
+                  locale={locale}
+                  onOpen={() => navigate('personal')}
+                />
+              )}
+              {!newcomer && (
+                <section className="dashboard-grid">
+                  <div className="next-card">
+                    <div className="card-heading">
+                      <span className="eyebrow">
+                        {session
+                          ? t(text('YARIM KALAN PRATİĞİN', 'YOUR UNFINISHED PRACTICE'))
+                          : t(text('DERS VE AÇIKLAMALI ÖRNEKLER', 'LESSON AND GUIDED EXAMPLES'))}
+                      </span>
+                      <Tag>
+                        {t(ui.levels)}{' '}
+                        {session ? getLesson(session.lessonId).level : recommended.level}
+                      </Tag>
+                    </div>
+                    <div className="next-body">
+                      <span className="next-icon">
+                        <AudioLines size={36} strokeWidth={1.5} />
+                      </span>
+                      <div>
+                        <h2>
+                          {t(session ? getLesson(session.lessonId).title : recommended.title)}
+                        </h2>
+                        <p>
+                          {t(
+                            session
+                              ? getLesson(session.lessonId).description
+                              : recommended.description,
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="next-footer">
+                      <div className="lesson-meta">
+                        <span>
+                          <Headphones size={15} />
+                          {t(ui.minutes)}
+                        </span>
+                        <span>•</span>
+                        <span>{t(ui.questions)}</span>
+                      </div>
+                      <button
+                        className="button"
+                        onClick={() => start(session?.lessonId ?? recommended.id)}
+                      >
+                        {t(session ? ui.resume : ui.start)}
+                        <ArrowRight size={18} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="stat-row">
-                    <span>{t(ui.total)}</span>
-                    <strong>{completedQuestions.toString().padStart(2, '0')}</strong>
+                  <div className="stats-card">
+                    <span className="eyebrow">
+                      {t(text('KÜÇÜK ADIMLAR, GERÇEK PRATİK', 'SMALL STEPS, REAL PRACTICE'))}
+                    </span>
+                    <div className="stat-row">
+                      <span>{t(ui.sessions)}</span>
+                      <strong>{completedSessions.toString().padStart(2, '0')}</strong>
+                    </div>
+                    <div className="stat-row">
+                      <span>{t(ui.total)}</span>
+                      <strong>{completedQuestions.toString().padStart(2, '0')}</strong>
+                    </div>
+                    <div className="stat-row">
+                      <span>
+                        {t(text('Tekrar hariç doğru yanıt', 'Accuracy excluding reviews'))}
+                      </span>
+                      <strong>{totalAccuracy === null ? '—' : `${totalAccuracy}%`}</strong>
+                    </div>
+                    <p className="small-copy">
+                      {independent.length} {t(text('normal pratik yanıtı', 'practice answers'))} ·{' '}
+                      {reviews.length} {t(text('hata tekrarı', 'error reviews'))}
+                    </p>
+                    <button className="text-button" onClick={() => navigate('skills')}>
+                      {t(text('Becerilerine göz at', 'See your skills'))}
+                      <ArrowUpRightIcon />
+                    </button>
+                    <button
+                      className="text-button home-report-link"
+                      onClick={() => navigate('report')}
+                    >
+                      {t(text('Gelişimini incele', 'Review your progress'))}
+                      <ArrowRight size={16} />
+                    </button>
                   </div>
-                  <div className="stat-row">
-                    <span>{t(text('Tekrar hariç doğru yanıt', 'Accuracy excluding reviews'))}</span>
-                    <strong>{totalAccuracy === null ? '—' : `${totalAccuracy}%`}</strong>
-                  </div>
-                  <p className="small-copy">
-                    {independent.length} {t(text('normal pratik yanıtı', 'practice answers'))} ·{' '}
-                    {reviews.length} {t(text('hata tekrarı', 'error reviews'))}
-                  </p>
-                  <button className="text-button" onClick={() => navigate('skills')}>
-                    {t(text('Becerilerine göz at', 'See your skills'))}
-                    <ArrowUpRightIcon />
-                  </button>
-                  <button
-                    className="text-button home-report-link"
-                    onClick={() => navigate('report')}
-                  >
-                    {t(text('Gelişimini incele', 'Review your progress'))}
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
-              </section>
+                </section>
+              )}
               <section className="paths-section">
                 <div className="section-heading">
                   <h2>
@@ -939,7 +1111,13 @@ export function App() {
                       )}
                     </p>
                   </div>
-                  <button className="button" onClick={() => navigate('lab')}>
+                  <button
+                    className="button"
+                    onClick={() => {
+                      setLabTool(undefined);
+                      navigate('lab');
+                    }}
+                  >
                     {t(text('Laboratuvarı aç', 'Open the lab'))}
                     <ArrowRight size={18} />
                   </button>
@@ -981,41 +1159,72 @@ export function App() {
               onPath={path => setProgress(p => ({ ...p, path }))}
             />
           )}
-          {page === 'lab' && <MixLab {...playerProps} onBack={() => goPath('mix')} />}
+          {page === 'lab' && (
+            <MixLab {...playerProps} initial={labTool} onBack={() => goPath('mix')} />
+          )}
           {page === 'report' && (
-            <Suspense
-              fallback={
-                <p className="notice" role="status">
-                  {t(text('Gelişim raporun yükleniyor…', 'Loading your progress report…'))}
-                </p>
-              }
+            <ErrorBoundary
+              fallback={() => (
+                <div className="notice report-failed" role="alert" data-testid="report-failed">
+                  <p>
+                    <strong>
+                      {t(text('Rapor açılamadı.', 'The report could not be opened.'))}
+                    </strong>{' '}
+                    {t(
+                      text(
+                        'Büyük olasılıkla bağlantı kesildi ya da uygulama güncellendi. İlerlemen yerinde duruyor; uygulamanın geri kalanı çalışıyor. Yeniden denemek sayfayı yeniler ve seni rapora geri getirir.',
+                        'The connection probably dropped, or the app was updated. Your progress is untouched and the rest of the app works. Trying again reloads the page and brings you back to the report.',
+                      ),
+                    )}
+                  </p>
+                  <div className="notice-actions">
+                    <button className="button secondary" onClick={retryReport}>
+                      {t(text('Yeniden dene', 'Try again'))}
+                    </button>
+                    <button className="text-button" onClick={() => navigate('skills')}>
+                      {t(text('Becerilerime dön', 'Back to my skills'))}
+                    </button>
+                  </div>
+                </div>
+              )}
             >
-              <ProgressReport
-                progress={progress}
-                locale={locale}
-                recordNotice={
-                  storageProblem
-                    ? text(
-                        'Bu rapor bu sekmedeki okunabilir verilere dayanır. Kayıt sorunu çözülene kadar yeni yanıtlar diske yazılmıyor; ilerleme yedeğini de indir.',
-                        'This report uses readable records in this tab. New answers are not saved to disk until the record problem is resolved; download your progress backup too.',
-                      )
-                    : storageError
-                      ? text(
-                          'Bu rapor bu sekmedeki verilere dayanır. Tarayıcı yeni kayıtları saklayamıyor; sayfayı kapatmadan ilerleme yedeğini de indir.',
-                          'This report uses this tab’s records. The browser cannot save new data; download your progress backup before closing the page.',
-                        )
-                      : undefined
+              <Suspense
+                fallback={
+                  <p className="notice" role="status">
+                    {t(text('Gelişim raporun yükleniyor…', 'Loading your progress report…'))}
+                  </p>
                 }
-                onBack={() => navigate('skills')}
-                onPractice={start}
-                onPersonal={path => {
-                  if (path !== 'all') setProgress(p => ({ ...p, path }));
-                  navigate('personal');
-                }}
-                onLab={() => navigate('lab')}
-                onExam={() => goPath('exam')}
-              />
-            </Suspense>
+              >
+                <ProgressReport
+                  progress={progress}
+                  locale={locale}
+                  recordNotice={
+                    storageProblem
+                      ? text(
+                          'Bu rapor bu sekmedeki okunabilir verilere dayanır. Kayıt sorunu çözülene kadar yeni yanıtlar diske yazılmıyor; ilerleme yedeğini de indir.',
+                          'This report uses readable records in this tab. New answers are not saved to disk until the record problem is resolved; download your progress backup too.',
+                        )
+                      : storageError
+                        ? text(
+                            'Bu rapor bu sekmedeki verilere dayanır. Tarayıcı yeni kayıtları saklayamıyor; sayfayı kapatmadan ilerleme yedeğini de indir.',
+                            'This report uses this tab’s records. The browser cannot save new data; download your progress backup before closing the page.',
+                          )
+                        : undefined
+                  }
+                  onBack={() => navigate('skills')}
+                  onPractice={start}
+                  onPersonal={path => {
+                    if (path !== 'all') setProgress(p => ({ ...p, path }));
+                    navigate('personal');
+                  }}
+                  onLab={skill => {
+                    setLabTool(labEffectFor(skill));
+                    navigate('lab');
+                  }}
+                  onExam={() => goPath('exam')}
+                />
+              </Suspense>
+            </ErrorBoundary>
           )}
           {page === 'skills' && (
             <>
@@ -1047,49 +1256,70 @@ export function App() {
                 </button>
               </section>
               {[progress.path, ...pathIds.filter(p => p !== progress.path)].map(group => (
-                <section className="skill-group" key={group} aria-labelledby={`skills-${group}`}>
-                  <h2 className="skill-group-title" id={`skills-${group}`}>
-                    <PathIcon path={group} size={18} />
-                    {t(paths[group].title)}
-                  </h2>
+                <details
+                  className="skill-group"
+                  key={group}
+                  open={group === progress.path}
+                  data-testid={`skills-${group}`}
+                >
+                  <summary>
+                    <h2 className="skill-group-title">
+                      <PathIcon path={group} size={18} />
+                      {t(paths[group].title)}
+                    </h2>
+                    <span className="skill-group-count">
+                      {skillIds.filter(skill => skillPath(skill) === group).length}{' '}
+                      {t(text('beceri', 'skills'))}
+                      <span className="section-chevron" aria-hidden="true">
+                        ⌄
+                      </span>
+                    </span>
+                  </summary>
                   <div className="skill-grid">
                     {skillIds
                       .filter(skill => skillPath(skill) === group)
                       .map(skill => {
-                        const records = independent
-                          .filter(e => getLesson(e.lessonId).skill === skill)
-                          .slice(-20);
-                        const estimate = skillEstimate(progress, skill, evidence);
+                        const all = independent.filter(e => getLesson(e.lessonId).skill === skill);
+                        const estimate = skillEstimate(progress, skill, evidence),
+                          ladder = skillLessons(skill),
+                          suggested = ladder.find(l => l.level === estimate.level)!;
                         const reviewCount = reviews.filter(
                           e => getLesson(e.lessonId).skill === skill,
                         ).length;
+                        // One stage, like the report: answers to other stages are different
+                        // tasks and would make the figure mean nothing in particular.
+                        const records = all.filter(e => e.lessonId === suggested.id).slice(-20),
+                          right = records.filter(e => e.correct).length;
                         const stats = {
                           count: records.length,
-                          accuracy: records.length
-                            ? Math.round(
-                                (records.filter(e => e.correct).length / records.length) * 100,
-                              )
-                            : null,
+                          accuracy:
+                            records.length >= SCORE_MINIMUM
+                              ? Math.round((right / records.length) * 100)
+                              : null,
                         };
                         return (
                           <section className="skill-card" key={skill}>
                             <div className="skill-card-top">
                               <AudioLines size={21} />
                               <span>
-                                {stats.count > 0
-                                  ? `${stats.count} ${t(text('yanıt', 'answers'))}`
+                                {all.length > 0
+                                  ? `${all.length} ${t(text('yanıt', 'answers'))}`
                                   : t(ui.notYet)}
                               </span>
                             </div>
                             <h2>{t(skillNames[skill])}</h2>
                             <p className="skill-stage">
-                              {skillLessons(skill).length === 1
+                              {ladder.length === 1
                                 ? t(text('Tek pratik aşaması', 'One practice stage'))
-                                : `${t(ui.levels)} ${estimate.level}`}{' '}
-                              · {t(text('öneri', 'suggestion'))}
+                                : `${t(text('Önerilen aşama', 'Suggested stage'))} ${estimate.level} / ${ladder.length} · ${t(suggested.title)}`}
                             </p>
                             <strong className="skill-score">
                               {stats.accuracy === null ? '—' : `${stats.accuracy}%`}
+                              {stats.accuracy !== null && (
+                                <small>
+                                  {right}/{stats.count}
+                                </small>
+                              )}
                             </strong>
                             <div
                               className="skill-bar"
@@ -1104,21 +1334,34 @@ export function App() {
                             >
                               <span style={{ width: `${stats.accuracy ?? 0}%` }} />
                             </div>
-                            <p className="small-copy">
+                            <p className="small-copy" data-testid={`skill-basis-${skill}`}>
                               {t(
-                                text(
-                                  'Tekrar hariç son 20 yanıt',
-                                  'Last 20 answers excluding reviews',
-                                ),
+                                stats.count === 0
+                                  ? text(
+                                      'Önerilen aşamada henüz yanıt yok.',
+                                      'No answers at the suggested stage yet.',
+                                    )
+                                  : stats.accuracy === null
+                                    ? text(
+                                        `Önerilen aşamada ${stats.count} yanıt var; yüzde için en az ${SCORE_MINIMUM} gerekir.`,
+                                        `${stats.count} answers at the suggested stage; a percentage needs at least ${SCORE_MINIMUM}.`,
+                                      )
+                                    : text(
+                                        `Yalnızca önerilen aşama, tekrar hariç son ${stats.count} yanıt.`,
+                                        `Suggested stage only, the last ${stats.count} answers excluding reviews.`,
+                                      ),
                               )}{' '}
-                              · {reviewCount} {t(text('hata tekrarı', 'error reviews'))}
+                              {reviewCount} {t(text('hata tekrarı', 'error reviews'))}.
+                              {skill === 'eq' &&
+                                ' ' +
+                                  t(
+                                    text(
+                                      'Aşama, ders sırasındaki yerindir; EQ kulağının tek bir ölçüsü değildir. Parçaları için EQ profiline bak.',
+                                      'The stage is your place in the lesson order, not a single measure of your EQ hearing. See the EQ profile for its parts.',
+                                    ),
+                                  )}
                             </p>
-                            <button
-                              className="text-button"
-                              onClick={() =>
-                                start(skillLessons(skill).find(l => l.level === estimate.level)!.id)
-                              }
-                            >
+                            <button className="text-button" onClick={() => start(suggested.id)}>
                               {t(text('Bu beceriyi çalış', 'Practise this skill'))}
                               <ArrowRight size={16} />
                             </button>
@@ -1128,7 +1371,7 @@ export function App() {
                         );
                       })}
                   </div>
-                </section>
+                </details>
               ))}
               {!completedQuestions && <p className="empty-state">{t(ui.noData)}</p>}
               {progress.results.length > 0 && (
@@ -1209,6 +1452,44 @@ export function App() {
                   <AudioPlayer {...playerProps} question={makeQuestion('eq-1', 101, 0)} />
                   <p className="small-copy">{t(ui.headphoneSub)}</p>
                 </section>
+                <section className="setting-card">
+                  <h2>{t(text('Klavye kısayolları', 'Keyboard shortcuts'))}</h2>
+                  <p>
+                    {t(
+                      text(
+                        'Pratikte tek tuşla çalışır: A, B, C sesi seçer; boşluk dinletir ve durdurur; rakamlar yanıt verir. Sesle yazdırma kullanıyorsan ya da tuşlara yanlışlıkla basıyorsan kapat.',
+                        'Single keys work during practice: A, B, C choose the sound; space plays and stops; digits answer. Turn them off if you use speech input or press keys by accident.',
+                      ),
+                    )}
+                  </p>
+                  <div className="setting-options">
+                    {[true, false].map(on => (
+                      <button
+                        key={String(on)}
+                        data-testid={`shortcuts-${on ? 'on' : 'off'}`}
+                        className={shortcuts === on ? 'selected' : ''}
+                        aria-pressed={shortcuts === on}
+                        onClick={() =>
+                          setProgress(p => {
+                            const { shortcuts: _, ...rest } = p;
+                            return on ? rest : { ...rest, shortcuts: false };
+                          })
+                        }
+                      >
+                        {t(on ? text('Açık', 'On') : text('Kapalı', 'Off'))}
+                        {shortcuts === on && <Check size={17} />}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="small-copy">
+                    {t(
+                      text(
+                        'Kapalıyken de her şey Tab, Enter ve ok tuşlarıyla kullanılabilir.',
+                        'With them off, everything still works with Tab, Enter and the arrow keys.',
+                      ),
+                    )}
+                  </p>
+                </section>
                 <section className="setting-card recording-credits">
                   <h2>{t(text('Akustik kayıtların kaynağı', 'Acoustic recording credits'))}</h2>
                   <p>
@@ -1237,6 +1518,46 @@ export function App() {
                   <h2>{t(ui.install)}</h2>
                   <p>{t(ui.installCopy)}</p>
                   <Tag>{t(text('Web · iPhone · Android', 'Web · iPhone · Android'))}</Tag>
+                  <p className="offline-state" role="status" data-testid="offline-state">
+                    <strong>
+                      {t(
+                        offline.online
+                          ? text('Bağlantı var.', 'You are online.')
+                          : text('Şu an çevrimdışısın.', 'You are offline right now.'),
+                      )}
+                    </strong>{' '}
+                    {t(
+                      offline.state === 'ready'
+                        ? text(
+                            'Uygulama bu cihaza indirildi; bağlantı olmadan da açılır.',
+                            'The app is stored on this device and opens without a connection.',
+                          )
+                        : offline.state === 'installing'
+                          ? text(
+                              'Çevrimdışı kullanım için dosyalar indiriliyor…',
+                              'Downloading the files for offline use…',
+                            )
+                          : offline.state === 'update'
+                            ? text(
+                                'Yeni bir sürüm indirildi. Açık bütün Freq sekmeleri kapanınca kendiliğinden geçer; istersen şimdi geç.',
+                                'A new version has been downloaded. It takes over once every open Freq tab is closed, or you can switch now.',
+                              )
+                            : offline.state === 'failed'
+                              ? text(
+                                  'Çevrimdışı kopya kurulamadı. Uygulama bağlantı varken çalışır; sayfayı yenileyerek yeniden deneyebilirsin.',
+                                  'The offline copy could not be installed. The app works while you are online; reload the page to try again.',
+                                )
+                              : text(
+                                  'Bu tarayıcıda çevrimdışı kopya yok; uygulama bağlantı varken çalışır.',
+                                  'This browser has no offline copy; the app works while you are online.',
+                                ),
+                    )}
+                  </p>
+                  {offline.state === 'update' && (
+                    <button className="button secondary" onClick={applyUpdate}>
+                      {t(text('Yeni sürüme şimdi geç', 'Switch to the new version now'))}
+                    </button>
+                  )}
                   <p className="small-copy">
                     {t(
                       text(
@@ -1276,6 +1597,31 @@ export function App() {
                       {t(ui.reset)}
                     </button>
                   </div>
+                  {archives.length > 0 && (
+                    <div className="archive-box" data-testid="archives">
+                      <p>
+                        {t(
+                          text(
+                            `Bu tarayıcıda önceki sürümlerden ${archives.length} arşiv kaydı duruyor. Güncel ilerlemenin parçası değildir; "İlerlemeyi sıfırla" bunlara dokunmaz.`,
+                            `This browser holds ${archives.length} archived record(s) from earlier versions. They are not part of current progress; “Reset progress” does not touch them.`,
+                          ),
+                        )}
+                      </p>
+                      <div className="data-actions">
+                        <button className="button secondary" onClick={downloadArchives}>
+                          <Download size={17} />
+                          {t(text('Arşivi indir', 'Download archive'))}
+                        </button>
+                        <button
+                          className="text-button danger"
+                          onClick={() => setArchiveDelete(true)}
+                        >
+                          <Trash2 size={16} />
+                          {t(text('Arşivi sil', 'Delete archive'))}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {backupNotice && (
                     <p className="backup-notice" role="status">
                       {t(
@@ -1499,6 +1845,8 @@ export function App() {
                     ))
                   ) : (
                     <AnswerOptions
+                      // A new question starts from a clean control: nothing chosen, no C.
+                      key={`${session?.id}:${session?.index}`}
                       question={question}
                       locale={locale}
                       choice={answered?.choice}
@@ -1560,7 +1908,7 @@ export function App() {
                       </button>
                     </div>
                   )}
-                  <p className="keyboard-note">
+                  <p className="keyboard-note" hidden={!shortcuts}>
                     {t(
                       question.music?.response === 'choice'
                         ? text(
@@ -1637,6 +1985,7 @@ export function App() {
             className={activeNav === p ? 'active' : ''}
             onClick={() => navigate(p)}
             aria-current={activeNav === p ? 'page' : undefined}
+            aria-label={t(label)}
           >
             <Icon size={21} />
             <span>{t(label)}</span>
@@ -1647,15 +1996,20 @@ export function App() {
         <Modal
           title={t(text('Kaydı koruyarak devam et', 'Continue while protecting your records'))}
           copy={t(
-            storageDecision === 'recover'
+            storageProblem?.kind === 'update'
               ? text(
-                  'Okunamayan bölümler kurtarılan kopyada bulunmaz. Önce orijinal kaydı ve bu sekmenin verisini indir. Devam edersen kurtarılan kopya diske yazılır.',
-                  'Unreadable sections are absent from the recovered copy. Download the original and this tab’s records first. Continuing writes the recovered copy to disk.',
+                  'Devam edersen yeniden kurulan derslerin eski yanıtları kayıttan ayrılır ve güncel geçmiş diske yazılır. Eski kaydın bu tarayıcıda kopyası kalmaz; önce orijinal kaydı indir.',
+                  'Continuing removes the old answers to rebuilt lessons from the record and writes the current history to disk. No copy of the earlier record stays in this browser; download the original first.',
                 )
-              : text(
-                  'Sayfa yeniden açılır; bu sekmede henüz kaydedilmemiş yanıtlar kapatılır. Önce bu sekmenin verisini indir.',
-                  'The page will reload and close this tab’s unsaved answers. Download this tab’s records first.',
-                ),
+              : storageDecision === 'recover'
+                ? text(
+                    'Okunamayan bölümler kurtarılan kopyada bulunmaz. Önce orijinal kaydı ve bu sekmenin verisini indir. Devam edersen kurtarılan kopya diske yazılır.',
+                    'Unreadable sections are absent from the recovered copy. Download the original and this tab’s records first. Continuing writes the recovered copy to disk.',
+                  )
+                : text(
+                    'Sayfa yeniden açılır; bu sekmede henüz kaydedilmemiş yanıtlar kapatılır. Önce bu sekmenin verisini indir.',
+                    'The page will reload and close this tab’s unsaved answers. Download this tab’s records first.',
+                  ),
           )}
           cancel={t(ui.cancel)}
           action={t(text('Devam et', 'Continue'))}
@@ -1685,6 +2039,41 @@ export function App() {
           <button className="text-button" onClick={download}>
             <Download size={16} />
             {t(ui.export)}
+          </button>
+          {archives.length > 0 && (
+            <p className="small-copy">
+              {t(
+                text(
+                  'Bu yedek güncel ilerlemeni içerir. Önceki sürümlerin arşivi ayrıdır; sıfırlama ona dokunmaz.',
+                  'This backup holds your current progress. The archive of earlier versions is separate; a reset does not touch it.',
+                ),
+              )}
+            </p>
+          )}
+        </Modal>
+      )}
+      {archiveDelete && (
+        <Modal
+          title={t(
+            text('Eski sürüm arşivi silinsin mi?', 'Delete the archive of earlier versions?'),
+          )}
+          copy={t(
+            text(
+              'Arşiv, güncellemelerden önceki kayıtlarının bu tarayıcıdaki tek kopyasıdır. Silmeden önce indir; silinen arşiv geri getirilemez.',
+              'The archive is the only copy in this browser of your records from before the updates. Download it first; a deleted archive cannot be brought back.',
+            ),
+          )}
+          cancel={t(ui.cancel)}
+          action={t(ui.delete)}
+          onCancel={() => setArchiveDelete(false)}
+          onAction={() => {
+            deleteArchives();
+            setArchiveDelete(false);
+          }}
+        >
+          <button className="text-button" onClick={downloadArchives}>
+            <Download size={16} />
+            {t(text('Arşivi indir', 'Download archive'))}
           </button>
         </Modal>
       )}
@@ -1759,6 +2148,34 @@ export function App() {
                       ),
                     )}
                   </>
+                )}
+              </span>
+            )}
+            {pendingBackup.retired > 0 && (
+              <span data-testid="import-retired">
+                {t(
+                  text(
+                    `Bu yedekteki ${pendingBackup.retired} yanıt, sonradan yeniden kurulan derslere verilmiş. Artık aynı sesi anlatmadıkları için içe alınmayacak; geri kalanı alınır.`,
+                    `${pendingBackup.retired} answers in this backup were given to lessons that have since been rebuilt. They no longer describe the same sound and will not be imported; the rest will.`,
+                  ),
+                )}
+              </span>
+            )}
+            {((pendingBackup.progress.session &&
+              progress.session &&
+              pendingBackup.progress.session.id !== progress.session.id) ||
+              (pendingBackup.progress.personal?.active &&
+                progress.personal?.active &&
+                pendingBackup.progress.personal.active.id !== progress.personal.active.id) ||
+              (pendingBackup.progress.exam?.active &&
+                progress.exam?.active &&
+                pendingBackup.progress.exam.active.id !== progress.exam.active.id)) && (
+              <span data-testid="import-session-note">
+                {t(
+                  text(
+                    'Bu cihazda yarım bir çalışman var; o korunur. Yedekteki yarım çalışma kapatılır, verilmiş yanıtları geçmişe eklenir.',
+                    'You have unfinished work on this device; it is kept. The backup’s unfinished work is closed and its answers are added to your history.',
+                  ),
                 )}
               </span>
             )}

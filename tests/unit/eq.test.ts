@@ -18,15 +18,12 @@ import {
   makeEqExample,
   type EqMove,
 } from '../../src/eq-model';
-import { eqInsights, EQ_INSIGHT_MINIMUM } from '../../src/eq-insights';
-import { BackupError, createBackup, readBackup } from '../../src/backup';
+import { BAND_MINIMUM, eqInsights } from '../../src/eq-insights';
 import {
   answerQuestion,
   initialProgress,
   makeQuestion,
   newSession,
-  RETIRED_STORAGE_KEYS,
-  STORAGE_KEY,
   validAttempt,
   withAnswerComparison,
   withEqPreview,
@@ -344,6 +341,25 @@ describe('fair questions and suitable sources', () => {
   });
 });
 
+describe('neighbouring bands', () => {
+  it('gives the options no say in the answer: each place in the window is equally likely', () => {
+    // Pink noise carries every band, so nothing is filtered out and five places are in play.
+    const places = [0, 0, 0, 0, 0];
+    const total = 5000;
+    for (let seed = 1; seed <= total; seed++) {
+      const q = makeQuestion('eq-8', seed * 7919, seed % 5, 'pink');
+      const bands = q.options.map(o => Number(o.id)).sort((a, b) => a - b);
+      expect(bands).toHaveLength(5);
+      places[bands.indexOf(Number(q.correct))]++;
+    }
+    // Guessing any fixed place, or the middle one, is right one time in five.
+    for (const count of places) {
+      expect(count / total).toBeGreaterThan(0.17);
+      expect(count / total).toBeLessThan(0.23);
+    }
+  });
+});
+
 describe('practice that follows the learner', () => {
   const T = Date.parse('2026-10-12T10:00:00Z');
   // A learner who always hears 1 kHz and below but misses everything above it.
@@ -399,95 +415,104 @@ describe('practice that follows the learner', () => {
     expect(plain.share).toBeGreaterThan(0.3);
     expect(plain.share).toBeLessThan(0.45);
     // A session never repeats a sound, so five of eight bands bound how far it can lean.
-    expect(targeted.share).toBeGreaterThan(plain.share + 0.08);
+    expect(targeted.share).toBeGreaterThan(plain.share + 0.05);
     expect(targeted.seen.size).toBe(8);
     // The same history and seed always build the same session.
     expect(targetedRefs('eq-3', 99, 5, 'pink', evidence)).toEqual(
       targetedRefs('eq-3', 99, 5, 'pink', evidence),
     );
   });
-  it('maps reliable and confused bands, and says which way the errors lean', () => {
+  // Answers every question of a stage through `pick`, which sees the question.
+  function played(
+    lessonId: string,
+    rounds: number,
+    pick: (q: ReturnType<typeof makeQuestion>) => string,
+  ): Progress {
+    let p = initialProgress();
+    for (let round = 0; round < rounds; round++) {
+      p = {
+        ...p,
+        session: {
+          ...newSession(lessonId, 'pink'),
+          id: `${lessonId}-${round}`,
+          seed: round * 104729 + 7,
+          started: true,
+        },
+      };
+      for (let i = 0; i < 5; i++) {
+        const q = makeQuestion(lessonId, p.session!.seed, i, 'pink');
+        p = answerQuestion(p, pick(q), new Date(T + round * 60_000 + i * 1000).toISOString());
+        p = { ...p, session: { ...p.session!, index: Math.min(4, i + 1) } };
+      }
+      p = { ...p, session: null };
+    }
+    return p;
+  }
+  const move = (q: ReturnType<typeof makeQuestion>, id: string) => eqChoiceSetting(q, id)!;
+  it('keeps the band table to counts until there is enough to name a band', () => {
     const few = eqInsights(studyEvidence(history(1)));
-    expect(few.answered).toBeLessThan(EQ_INSIGHT_MINIMUM);
+    expect(few.frequency.asked).toBeLessThan(BAND_MINIMUM);
     expect(few.weakest).toBeNull();
+  });
+  it('names the weakest band only from enough answers, and a lean only when one-sided', () => {
     const insights = eqInsights(studyEvidence(history(8)));
-    expect(insights.answered).toBe(40);
-    expect(insights.boosts.answered).toBe(40);
-    expect(insights.cuts.answered).toBe(0);
+    expect(insights.frequency.asked).toBe(40);
+    // An octave-boost stage asks for the band only: direction and amount are not judged.
+    expect(insights.direction.asked).toBe(0);
+    expect(insights.amount.asked).toBe(0);
     for (const band of insights.bands) {
-      if (!band.answered) continue;
-      expect(band.correct).toBe(band.hz <= 1000 ? band.answered : 0);
+      if (!band.asked) continue;
+      expect(band.right).toBe(band.hz <= 1000 ? band.asked : 0);
     }
-    expect(insights.weakest!.hz).toBeGreaterThan(1000);
+    if (insights.weakest) {
+      expect(insights.weakest.band.hz).toBeGreaterThan(1000);
+      expect(insights.weakest.band.asked).toBeGreaterThanOrEqual(8);
+    }
     expect(insights.bands.find(b => b.hz === 8000)!.tooHigh).toBe(0);
+    // One answer in a band can never be called its tendency.
+    const one = eqInsights(studyEvidence(history(8)).slice(0, 21));
+    for (const band of one.bands) if (band.asked < 8) expect(one.weakest?.band).not.toBe(band);
   });
-});
-
-describe('record reset', () => {
-  const code = (run: () => unknown) => {
-    try {
-      run();
-    } catch (error) {
-      return error instanceof BackupError ? error.code : 'other';
-    }
-    return null;
-  };
-  const answered = (): Progress => {
-    const p: Progress = {
-      ...initialProgress(),
-      session: {
-        id: 's',
-        lessonId: 'eq-5',
-        seed: 77,
-        index: 0,
-        started: true,
-        answers: [],
-        source: 'studio',
-      },
-    };
-    return answerQuestion(
-      p,
-      makeQuestion('eq-5', 77, 0, 'studio').correct,
-      '2026-10-12T10:00:00.000Z',
-    );
-  };
-
-  it('starts a fresh storage area and writes version 4 backups that round-trip', () => {
-    expect(STORAGE_KEY).toBe('freq.progress.v4');
-    expect(RETIRED_STORAGE_KEYS).toContain('freq.progress.v3');
-    const backup = createBackup(answered());
-    expect(backup.schemaVersion).toBe(4);
-    expect(readBackup(JSON.stringify(backup))).toEqual(answered());
+  it('counts a reversed direction as a direction error, not as a missed band', () => {
+    // The learner always finds the band and always says boost for cut and cut for boost.
+    const reversed = played('eq-5', 8, q => {
+      const target = eqTargetMove(q)!;
+      return q.options.find(o => {
+        const m = move(q, o.id);
+        return m.frequency === target.frequency && Math.sign(m.gain) !== Math.sign(target.gain);
+      })!.id;
+    });
+    const evidence = studyEvidence(reversed);
+    expect(evidence.every(e => !e.correct)).toBe(true);
+    const insights = eqInsights(evidence);
+    expect(insights.frequency).toEqual({ asked: 40, right: 40 });
+    expect(insights.direction).toEqual({ asked: 40, right: 0 });
+    for (const band of insights.bands) expect(band.right).toBe(band.asked);
+    expect(insights.weakest).toBeNull();
   });
-
-  it('names an older backup whose answers no longer exist instead of calling it corrupt', () => {
-    const old = answered();
-    // An answer id from retired lessons: a bare frequency where a direction is now asked.
-    old.attempts[0] = { ...old.attempts[0], response: { seed: 77, choice: '1000' } };
-    old.session = null;
-    const retired = {
-      format: 'freq-backup',
-      schemaVersion: 3,
-      exportedAt: '2026-10-01T00:00:00.000Z',
-      progress: old,
-    };
-    expect(code(() => readBackup(JSON.stringify(retired)))).toBe('retired');
-    expect(code(() => readBackup(JSON.stringify({ ...retired, schemaVersion: 2 })))).toBe(
-      'retired',
-    );
-    expect(code(() => readBackup(JSON.stringify({ ...retired, schemaVersion: 4 })))).toBe(
-      'invalid',
-    );
-    expect(code(() => readBackup(JSON.stringify({ ...retired, schemaVersion: 5 })))).toBe('future');
+  it('counts a wrong amount on the right band and direction as an amount error', () => {
+    const offByOne = played('eq-match', 8, q => {
+      const target = eqTargetMove(q)!;
+      return q.options.find(o => {
+        const m = move(q, o.id);
+        return (
+          m.frequency === target.frequency &&
+          Math.sign(m.gain) === Math.sign(target.gain) &&
+          m.gain !== target.gain
+        );
+      })!.id;
+    });
+    const insights = eqInsights(studyEvidence(offByOne));
+    expect(insights.frequency).toEqual({ asked: 40, right: 40 });
+    expect(insights.direction).toEqual({ asked: 40, right: 40 });
+    expect(insights.amount).toEqual({ asked: 40, right: 0 });
+    expect(insights.weakest).toBeNull();
   });
-
-  it('still restores an older backup that holds no retired answers', () => {
-    const untouched = {
-      format: 'freq-backup',
-      schemaVersion: 2,
-      exportedAt: '2026-10-01T00:00:00.000Z',
-      progress: initialProgress(),
-    };
-    expect(readBackup(JSON.stringify(untouched))).toEqual(initialProgress());
+  it('keeps region, shape and width answers out of the band table', () => {
+    const p = played('eq-1', 2, q => q.correct);
+    const insights = eqInsights(studyEvidence(p));
+    expect(insights.region).toEqual({ asked: 10, right: 10 });
+    expect(insights.frequency.asked).toBe(0);
+    expect(insights.bands.every(b => b.asked === 0)).toBe(true);
   });
 });

@@ -353,6 +353,73 @@ describe('honest progress report snapshots', () => {
     },
   );
 
+  it('does not read a harder question mix in personal practice as a decline', () => {
+    // Three answers of one stage on pink noise; the learner always misses the first of them.
+    const byAnswer = new Map<string, QuestionRef[]>();
+    for (let seed = 0; seed < 4000 && byAnswer.size < 8; seed++) {
+      const ref: QuestionRef = { lessonId: EQ3, seed, index: 0, source: 'pink' },
+        answer = refQuestion(ref).correct;
+      byAnswer.set(answer, [...(byAnswer.get(answer) ?? []), ref]);
+    }
+    for (let seed = 4000; seed < 9000; seed++) {
+      const ref: QuestionRef = { lessonId: EQ3, seed, index: 0, source: 'pink' };
+      byAnswer.get(refQuestion(ref).correct)!.push(ref);
+    }
+    const [missed, heard, alsoHeard] = [...byAnswer.values()];
+    const session = (id: string, at: number, items: QuestionRef[]) =>
+      personal(
+        id,
+        items,
+        items.map(ref => !missed.includes(ref)),
+        at,
+      );
+    const history = (recentMissed: number, recentOthers: [QuestionRef[], QuestionRef[]]) => ({
+      ...initialProgress(),
+      personal: {
+        version: 1 as const,
+        active: null,
+        results: [
+          // Before: a plain mix, 4 of the missed answer in 10.
+          session('p1', NOW - 5000, [...missed.slice(0, 2), ...heard.slice(0, 2), alsoHeard[0]]),
+          session('p2', NOW - 4000, [...missed.slice(2, 4), heard[2], ...alsoHeard.slice(1, 3)]),
+          // Now: the plan leans on the missed answer.
+          session('r1', NOW - 3000, [
+            ...missed.slice(4, 4 + Math.ceil(recentMissed / 2)),
+            ...recentOthers[0],
+          ]),
+          session('r2', NOW - 2000, [
+            ...missed.slice(10, 10 + Math.floor(recentMissed / 2)),
+            ...recentOthers[1],
+          ]),
+        ],
+      },
+    });
+    const leaning = buildProgressReport(history(8, [[heard[5]], [alsoHeard[5]]]), {
+      now: NOW,
+    }).skills.find(s => s.skill === 'eq')!.trend;
+    // Raw counts would read 60% then 20%; the learner has not changed.
+    expect(leaning).toMatchObject({
+      status: 'available',
+      recentCount: 10,
+      previousCount: 10,
+      recentAccuracy: leaning.previousAccuracy,
+      deltaPoints: 0,
+    });
+    expect(leaning.reason.en).toContain('weight the answers asked in both windows equally');
+    // With too little in common the report says so and gives no figure.
+    const [, , , fourth, fifth] = [...byAnswer.values()];
+    const apart = buildProgressReport(history(2, [fourth.slice(0, 4), fifth.slice(0, 4)]), {
+      now: NOW,
+    }).skills.find(s => s.skill === 'eq')!.trend;
+    expect(apart).toMatchObject({
+      status: 'insufficient',
+      recentAccuracy: null,
+      previousAccuracy: null,
+      deltaPoints: null,
+    });
+    expect(apart.reason.en).toContain('do not overlap enough');
+  });
+
   it('requires separate sessions in each trend window', () => {
     const result = personal('one-session', refs('degree-1', 20), Array(20).fill(true), NOW - 100);
     const report = buildProgressReport(

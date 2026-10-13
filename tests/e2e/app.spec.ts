@@ -471,7 +471,7 @@ test('pink noise serves tone and level lessons only; a missing band is named ins
   });
 });
 
-test('the band map shows which bands are heard reliably, and no text is smaller than 11px', async ({
+test('the EQ profile counts each part of an answer on its own, claims nothing from a few answers, and no text is smaller than 11px', async ({
   page,
 }) => {
   // Hears 1 kHz and below, misses everything above.
@@ -522,10 +522,19 @@ test('the band map shows which bands are heard reliably, and no text is smaller 
   await expect(page.locator('.skill-group').first().locator('.skill-card')).toHaveCount(9);
   const map = page.getByTestId('eq-insights');
   await map.locator('summary').click();
-  await expect(map.locator('tbody tr')).toHaveCount(8);
-  await expect(map).toContainText('Yükseltmelerde');
-  await expect(map.locator('.is-weakest')).toHaveCount(1);
-  await expect(map).toContainText('bandında zorlanıyorsun');
+  // This stage asks for the band only, so the band is the only part with a line.
+  const right = p.attempts.filter(a => a.correct).length;
+  await expect(map.getByTestId('eq-parts').locator('tbody tr')).toHaveCount(1);
+  await expect(map.getByTestId('eq-parts')).toContainText(`Frekans`);
+  await expect(map.getByTestId('eq-parts')).toContainText(`${right}/20`);
+  // Twenty answers spread over the bands leave no band with enough of its own: no band is
+  // called weak, and a band with a handful of answers gets no percentage.
+  await expect(map.getByTestId('eq-bands')).toContainText('henüz az yanıt');
+  await expect(map.getByTestId('eq-reading')).toContainText('belirgin bir fark yok');
+  await expect(map).not.toContainText('genellikle');
+  await expect(map).not.toContainText('zorlanıyorsun');
+  // The card speaks for the suggested stage only, and says so.
+  await expect(page.getByTestId('skill-basis-eq')).toContainText('ders sırasındaki yerindir');
   expect(await smallest()).toBeGreaterThanOrEqual(11);
 });
 
@@ -856,7 +865,7 @@ test('invalid and conflicting backups keep records unchanged', async ({ page }) 
   const conflict = structuredClone(original);
   conflict.attempts[0].at = '2026-10-08T20:00:00.001Z';
   await uploadBackup(page, createBackup(conflict));
-  await expect(page.getByText(/çelişen kayıtlar/)).toBeVisible();
+  await expect(page.getByText(/çelişen iki sürüm/)).toBeVisible();
   expect((await progress(page)).attempts).toEqual(original.attempts);
 });
 
@@ -876,7 +885,7 @@ test('the downloaded backup restores exact records and a saved question through 
   const raw = await readFile((await download.path())!, 'utf8');
   expect(JSON.parse(raw)).toMatchObject({
     format: 'freq-backup',
-    schemaVersion: 4,
+    schemaVersion: 5,
     progress: before,
   });
   await page.getByRole('button', { name: 'İlerlemeyi sıfırla', exact: true }).click();
@@ -897,15 +906,18 @@ test('unsupported and oversized backup files give actionable errors without chan
   await page.goto('/');
   await openProfile(page);
   const before = await progress(page);
-  await uploadBackup(page, { format: 'freq-backup', schemaVersion: 5 });
+  await uploadBackup(page, { format: 'freq-backup', schemaVersion: 6 });
   await expect(page.getByText(/daha yeni bir Freq sürümüyle/)).toBeVisible();
-  // An older preview's backup answers questions that were rebuilt since.
+  // An older preview's backup answers questions that were rebuilt since. Those answers are
+  // set aside and counted for the learner; the backup itself is not refused. A backup of that
+  // age carries no content map: its format version says what its answers were given to.
+  const { content: _, ...asWrittenThen } = initialProgress();
   await uploadBackup(page, {
     format: 'freq-backup',
     schemaVersion: 3,
     exportedAt: '2026-10-01T00:00:00.000Z',
     progress: {
-      ...initialProgress(),
+      ...asWrittenThen,
       attempts: [
         {
           sessionId: 'before-0.10',
@@ -918,7 +930,8 @@ test('unsupported and oversized backup files give actionable errors without chan
       ],
     },
   });
-  await expect(page.getByText(/daha eski bir Freq önizlemesinden/)).toBeVisible();
+  await expect(page.getByTestId('import-retired')).toContainText('Bu yedekteki 1 yanıt');
+  await page.getByRole('button', { name: 'Vazgeç', exact: true }).click();
   await page.locator('input[type="file"]').setInputFiles({
     name: 'large.json',
     mimeType: 'application/json',

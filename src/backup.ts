@@ -1,9 +1,11 @@
 import { getLesson, usesLoop } from './content';
-import { initialExamProgress, readExamProgress } from './exam-model';
+import { finishMock, initialExamProgress, readExamProgress } from './exam-model';
 import type { ExamProgress } from './exam-types';
 import { readPersonalProgress } from './personal-validation';
 import { initialPersonalProgress, refIdentity } from './personal-model';
 import type { PersonalProgress, PersonalSession } from './personal-types';
+import { LEGACY_CONTENT, type ContentMap } from './content-revision';
+import { retireStale } from './retire';
 import {
   isEqSource,
   parseProgress,
@@ -14,8 +16,9 @@ import {
   type Result,
 } from './model';
 
-export const MAX_BACKUP_BYTES = 16 * 1024 * 1024;
-export type BackupErrorCode = 'invalid' | 'future' | 'large' | 'conflict' | 'retired';
+// Browsers keep about 5 MiB per site in localStorage; a larger backup could not be saved.
+export const MAX_BACKUP_BYTES = 5 * 1024 * 1024;
+export type BackupErrorCode = 'invalid' | 'future' | 'large' | 'conflict';
 export class BackupError extends Error {
   constructor(public code: BackupErrorCode) {
     super(`Freq backup: ${code}`);
@@ -23,9 +26,17 @@ export class BackupError extends Error {
 }
 const object = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object' && !Array.isArray(v);
+export const BACKUP_SCHEMA = 5;
+/** What a backup without a content map was answered against, by its envelope version. */
+const writtenBy = (schema: unknown): ContentMap =>
+  schema === 3
+    ? LEGACY_CONTENT['0.10']
+    : schema === 4
+      ? LEGACY_CONTENT['0.11']
+      : LEGACY_CONTENT['0.9'];
 export const createBackup = (progress: Progress) => ({
   format: 'freq-backup',
-  schemaVersion: 4,
+  schemaVersion: BACKUP_SCHEMA,
   exportedAt: new Date().toISOString(),
   progress,
 });
@@ -122,7 +133,18 @@ function checkConsistency(p: Progress) {
   }
 }
 
-function readCurrentBackup(raw: string): Progress {
+export type BackupRead = {
+  progress: Progress;
+  /** Answers to lessons rebuilt since the record was written; they are not carried over. */
+  retired: number;
+};
+/**
+ * Strict: a malformed file never silently becomes empty progress. Answers to rebuilt lessons
+ * are set aside before validation, because an old answer can validate against a new sound.
+ * `written` overrides what a record without a content map is assumed to answer; storage
+ * passes the content of the key it read, an imported bare file is assumed to be the oldest.
+ */
+export function readBackupDetailed(raw: string, written?: ContentMap): BackupRead {
   if (new TextEncoder().encode(raw).byteLength > MAX_BACKUP_BYTES) throw new BackupError('large');
   let root: unknown;
   try {
@@ -131,20 +153,23 @@ function readCurrentBackup(raw: string): Progress {
     throw new BackupError('invalid');
   }
   if (!object(root)) throw new BackupError('invalid');
-  let value: unknown = root;
+  let stored: unknown = root,
+    assumed = written ?? LEGACY_CONTENT['0.9'];
   if (root.format === 'freq-backup') {
-    if (typeof root.schemaVersion === 'number' && root.schemaVersion > 4)
+    if (typeof root.schemaVersion === 'number' && root.schemaVersion > BACKUP_SCHEMA)
       throw new BackupError('future');
     if (
-      ![1, 2, 3, 4].includes(root.schemaVersion as number) ||
+      ![1, 2, 3, 4, 5].includes(root.schemaVersion as number) ||
       typeof root.exportedAt !== 'string' ||
       !Number.isFinite(Date.parse(root.exportedAt))
     )
       throw new BackupError('invalid');
-    value = root.progress;
+    stored = root.progress;
+    assumed = written ?? writtenBy(root.schemaVersion);
   } else if ('format' in root) throw new BackupError('invalid');
-  if (!object(value)) throw new BackupError('invalid');
-  if (typeof value.version === 'number' && value.version > 1) throw new BackupError('future');
+  if (!object(stored)) throw new BackupError('invalid');
+  if (typeof stored.version === 'number' && stored.version > 1) throw new BackupError('future');
+  const { value, retired } = retireStale(stored, assumed);
   if (
     value.version !== 1 ||
     !['tr', 'en'].includes(value.locale as string) ||
@@ -169,38 +194,14 @@ function readCurrentBackup(raw: string): Progress {
   p.attempts = unique(p.attempts, attemptKey, sameAttempt);
   p.results = unique(p.results, r => r.id, sameResult);
   checkConsistency(p);
-  return p;
+  return { progress: p, retired };
 }
-
-/** Strict imports never silently turn a malformed file into empty progress. */
-export function readBackup(raw: string): Progress {
-  try {
-    return readCurrentBackup(raw);
-  } catch (error) {
-    // Backups from before 0.11 hold answers to mixing questions that no longer exist.
-    if (error instanceof BackupError && error.code === 'invalid' && isRetiredBackup(raw))
-      throw new BackupError('retired');
-    throw error;
-  }
-}
-function isRetiredBackup(raw: string) {
-  try {
-    const root: unknown = JSON.parse(raw);
-    return (
-      object(root) &&
-      root.format === 'freq-backup' &&
-      [1, 2, 3].includes(root.schemaVersion as number) &&
-      object(root.progress) &&
-      Array.isArray(root.progress.attempts)
-    );
-  } catch {
-    return false;
-  }
-}
+export const readBackup = (raw: string, written?: ContentMap): Progress =>
+  readBackupDetailed(raw, written).progress;
 
 /** Recover only internally consistent records; the original stays untouched until review. */
-export function recoverProgress(raw: string): Progress {
-  const p = parseProgress(raw);
+export function recoverProgress(raw: string, written?: ContentMap): Progress {
+  const p = parseProgress(raw, written);
   const nonconflicting = <T>(
     records: T[],
     key: (r: T) => string,
@@ -239,8 +240,19 @@ export function recoverProgress(raw: string): Progress {
   return readBackup(JSON.stringify(p));
 }
 
-/** Merge without replacing current preferences or an unfinished local session. */
-export function mergeProgress(current: Progress, incoming: Progress): Progress {
+/**
+ * Merge without replacing current preferences or an unfinished local session.
+ *
+ * Two different unfinished sessions cannot both be resumed. Between two tabs that is a
+ * conflict to resolve by hand. A restore passes `keepCurrentSessions`: the session on this
+ * device stays, and the backup's unfinished one is closed with its answers kept in history,
+ * so the rest of the backup is not held hostage by it.
+ */
+export function mergeProgress(
+  current: Progress,
+  incoming: Progress,
+  { keepCurrentSessions = false } = {},
+): Progress {
   const attempts = unique(
     [...current.attempts, ...incoming.attempts],
     attemptKey,
@@ -253,8 +265,10 @@ export function mergeProgress(current: Progress, incoming: Progress): Progress {
   let session = [current.session, incoming.session].find(s => s && !completed.has(s.id)) ?? null;
   const a = current.session,
     b = incoming.session;
-  if (a && b && a.id !== b.id && !completed.has(a.id) && !completed.has(b.id))
-    throw new BackupError('conflict');
+  if (a && b && a.id !== b.id && !completed.has(a.id) && !completed.has(b.id)) {
+    if (!keepCurrentSessions) throw new BackupError('conflict');
+    session = a;
+  }
   if (session && a && b && a.id === b.id) {
     if (
       a.lessonId !== b.lessonId ||
@@ -282,6 +296,7 @@ export function mergeProgress(current: Progress, incoming: Progress): Progress {
           exam: mergeExamProgress(
             current.exam ?? initialExamProgress(),
             incoming.exam ?? initialExamProgress(),
+            keepCurrentSessions,
           ),
         }
       : {}),
@@ -290,6 +305,7 @@ export function mergeProgress(current: Progress, incoming: Progress): Progress {
           personal: mergePersonalProgress(
             current.personal ?? initialPersonalProgress(),
             incoming.personal ?? initialPersonalProgress(),
+            keepCurrentSessions,
           ),
         }
       : {}),
@@ -319,8 +335,12 @@ function compatiblePersonal(a: PersonalSession, b: PersonalSession) {
       throw new BackupError('conflict');
   }
 }
-function mergePersonalProgress(a: PersonalProgress, b: PersonalProgress): PersonalProgress {
-  const results = unique(
+function mergePersonalProgress(
+  a: PersonalProgress,
+  b: PersonalProgress,
+  keepCurrent: boolean,
+): PersonalProgress {
+  let results = unique(
     [...a.results, ...b.results],
     r => r.id,
     (x, y) => JSON.stringify(x) === JSON.stringify(y),
@@ -334,9 +354,15 @@ function mergePersonalProgress(a: PersonalProgress, b: PersonalProgress): Person
       );
   const x = a.active && !finished.has(a.active.id) ? a.active : null,
     y = b.active && !finished.has(b.active.id) ? b.active : null;
-  if (x && y && x.id !== y.id) throw new BackupError('conflict');
   let active = x ?? y;
-  if (x && y) {
+  if (x && y && x.id !== y.id) {
+    if (!keepCurrent) throw new BackupError('conflict');
+    // The incoming session ends where it stopped; its answers stay in the history.
+    results = [
+      ...results,
+      { ...y, finishedAt: y.answers.at(-1)?.at ?? y.startedAt, status: 'ended' as const },
+    ];
+  } else if (x && y) {
     compatiblePersonal(x, y);
     active =
       y.answers.length > x.answers.length ||
@@ -353,8 +379,8 @@ function mergePersonalProgress(a: PersonalProgress, b: PersonalProgress): Person
   return merged;
 }
 
-function mergeExamProgress(a: ExamProgress, b: ExamProgress): ExamProgress {
-  const results = unique(
+function mergeExamProgress(a: ExamProgress, b: ExamProgress, keepCurrent: boolean): ExamProgress {
+  let results = unique(
     [...a.results, ...b.results],
     r => r.id,
     (x, y) => JSON.stringify(x) === JSON.stringify(y),
@@ -364,15 +390,21 @@ function mergeExamProgress(a: ExamProgress, b: ExamProgress): ExamProgress {
     r => r.id,
     (x, y) => JSON.stringify(x) === JSON.stringify(y),
   );
-  const completed = new Set(results.map(r => r.id));
+  let completed = new Set(results.map(r => r.id));
   if (
     a.active &&
     b.active &&
     a.active.id !== b.active.id &&
     !completed.has(a.active.id) &&
     !completed.has(b.active.id)
-  )
-    throw new BackupError('conflict');
+  ) {
+    if (!keepCurrent) throw new BackupError('conflict');
+    // The incoming mock is closed as it stands (or as expired, if its deadline has passed).
+    const closed = finishMock({ ...initialExamProgress(), active: b.active }, 'ended');
+    results = [...results, ...closed.results];
+    completed = new Set(results.map(r => r.id));
+    b = { ...b, active: null };
+  }
   let active = [a.active, b.active].find(s => s && !completed.has(s.id)) ?? null;
   if (a.active && b.active && a.active.id === b.active.id && !completed.has(a.active.id)) {
     const x = a.active,

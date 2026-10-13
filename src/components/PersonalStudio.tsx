@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { shortcutsOn } from '../shortcuts';
 import {
   ArrowLeft,
   ArrowRight,
@@ -239,6 +240,7 @@ export function PersonalStudio({
       return;
     const key = (e: KeyboardEvent) => {
       if (
+        !shortcutsOn() ||
         e.repeat ||
         e.ctrlKey ||
         e.metaKey ||
@@ -380,6 +382,8 @@ export function PersonalStudio({
             ))
           ) : (
             <AnswerOptions
+              // A new question starts from a clean control: nothing chosen, no C.
+              key={`${active.id}:${active.index}`}
               question={q}
               locale={locale}
               choice={answer?.choice}

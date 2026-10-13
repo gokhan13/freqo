@@ -262,14 +262,27 @@ export function makeEqQuestion(
     const move = peak(frequency, gain, WIDTHS[width]);
     return build(stage, seed, source, move, stageOptions(stage), width);
   }
-  const frequency = pick(audibleBands(source, stage.bands, stage.q));
   if (stage.kind === 'neighbours') {
-    // Five adjacent bands; the target is not always in the middle.
-    const at = stage.bands.indexOf(frequency);
-    const start = Math.max(0, Math.min(stage.bands.length - 5, at - Math.floor(rng() * 5)));
-    const options = stageOptions(stage, stage.bands.slice(start, start + 5));
-    return build(stage, seed, source, peak(frequency, gain), options, String(frequency));
+    // The window of five adjacent bands is drawn first, then the target inside it. Drawing
+    // the target first and clamping the window made the edge bands likelier answers
+    // whenever an edge window appeared: the options alone gave a hint.
+    const fair = new Set(audibleBands(source, stage.bands, stage.q));
+    const starts = Array.from({ length: stage.bands.length - 4 }, (_, i) => i).filter(i =>
+      stage.bands.slice(i, i + 5).some(hz => fair.has(hz)),
+    );
+    const start = pick(starts);
+    const window = stage.bands.slice(start, start + 5);
+    const target = pick(window.filter(hz => fair.has(hz)));
+    return build(
+      stage,
+      seed,
+      source,
+      peak(target, gain),
+      stageOptions(stage, window),
+      String(target),
+    );
   }
+  const frequency = pick(audibleBands(source, stage.bands, stage.q));
   const correct =
     stage.kind === 'direction'
       ? directionId(frequency, gain)
@@ -436,7 +449,7 @@ export function eqNearMiss(question: Question, choice: string): Text | null {
  * Magnitude response of a move in dB at one frequency: the biquads Web Audio applies
  * (Audio EQ Cookbook; shelves use slope 1, cut filters take their Q as a plain ratio here).
  */
-export function eqMagnitudeDb(move: EqMove, hz: number, rate = 48000): number {
+export function eqCoefficients(move: EqMove, rate = 48000): { b: number[]; a: number[] } {
   const A = 10 ** (move.gain / 40),
     w0 = (2 * Math.PI * move.frequency) / rate,
     cos = Math.cos(w0),
@@ -465,6 +478,10 @@ export function eqMagnitudeDb(move: EqMove, hz: number, rate = 48000): number {
     b = [(1 - s * cos) / 2, s * (1 - s * cos), (1 - s * cos) / 2];
     a = [1 + alpha, -2 * cos, 1 - alpha];
   }
+  return { b, a };
+}
+export function eqMagnitudeDb(move: EqMove, hz: number, rate = 48000): number {
+  const { b, a } = eqCoefficients(move, rate);
   const w = (2 * Math.PI * hz) / rate;
   const magnitude = (c: number[]) =>
     Math.hypot(

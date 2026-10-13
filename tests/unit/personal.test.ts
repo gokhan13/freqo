@@ -15,6 +15,8 @@ import {
   personalPlan,
   personalSkills,
   placementItems,
+  placementProbes,
+  requiredCorrect,
   refIdentity,
   refQuestion,
   reviewCards,
@@ -28,7 +30,9 @@ import { readPersonalProgress } from '../../src/personal-validation';
 import { createBackup, mergeProgress, readBackup } from '../../src/backup';
 // The EQ ladder's second and third stages; their ids are names, not numbers.
 const EQ2 = skillLessons('eq')[1].id,
-  EQ3 = skillLessons('eq')[2].id;
+  EQ3 = skillLessons('eq')[2].id,
+  // Where a mixing assessment answered correctly throughout places the learner on the EQ ladder.
+  EQ_PLACED = placementProbes('eq', true)[1];
 const T = Date.parse('2026-10-10T10:00:00Z'),
   DAY = 86_400_000;
 const load = (p: Progress) => readBackup(JSON.stringify(createBackup(p)));
@@ -104,7 +108,9 @@ describe('starting assessment', () => {
       expect(p.personal!.results).toHaveLength(1);
       expect(p.attempts).toHaveLength(0);
       expect(studyEvidence(p)).toHaveLength(0);
-      expect(skillEstimate(p, path === 'mix' ? 'eq' : 'degree').level).toBe(2);
+      expect(skillEstimate(p, path === 'mix' ? 'eq' : 'degree').level).toBe(
+        path === 'mix' ? EQ_PLACED.level : 2,
+      );
       expect(skillEstimate(p, 'chord').level).toBe(3);
     },
   );
@@ -113,8 +119,15 @@ describe('starting assessment', () => {
       initial = p.personal!.active!.items;
     const yes = answerPersonal(p, refQuestion(initial[0]).correct, T + 1),
       skip = answerPersonal(p, null, T + 1);
-    expect(yes.personal!.active!.items[1].lessonId).toBe(EQ2);
+    // A long ladder is probed a third of the way up, then a third higher or at its foot.
+    expect(initial[0].lessonId).toBe(placementProbes('eq')[0].id);
+    expect(placementProbes('eq')[0].level).toBe(4);
+    expect(yes.personal!.active!.items[1].lessonId).toBe(EQ_PLACED.id);
+    expect(EQ_PLACED.level).toBe(7);
     expect(skip.personal!.active!.items[1].lessonId).toBe('eq-1');
+    // A three-stage skill is still probed from the bottom.
+    expect(placementProbes('loudness').map(l => l.level)).toEqual([1, 1]);
+    expect(placementProbes('loudness', true).map(l => l.level)).toEqual([1, 2]);
     expect(yes.personal!.active!.items.slice(2)).toEqual(initial.slice(2));
     expect(skillEstimate(placement('mix', false), 'eq').level).toBe(1);
   });
@@ -123,7 +136,7 @@ describe('starting assessment', () => {
     p = startPersonal(p, 'placement', 'mix', T + 100_000, 4, 'new');
     p = answerPersonal(p, null, T + 100_001);
     p = endPersonal(p, T + 100_002);
-    expect(skillEstimate(p, 'eq').level).toBe(2);
+    expect(skillEstimate(p, 'eq').level).toBe(EQ_PLACED.level);
     expect(p.personal!.results.at(-1)!.status).toBe('ended');
     expect(load(p)).toEqual(p);
   });
@@ -131,7 +144,7 @@ describe('starting assessment', () => {
     const prior = placement();
     const next = placement('mix', false, prior, T + 100_000);
     expect(skillEstimate(next, 'eq')).toMatchObject({
-      level: 2,
+      level: EQ_PLACED.level,
       placementAt: prior.personal!.results[0].finishedAt,
       placementAnswered: 2,
     });
@@ -166,10 +179,10 @@ describe('adaptive difficulty', () => {
     p = manual(p, 'eq-1', 'b', [true, true, false, false, false], T + 10_000);
     expect(skillEstimate(p, 'eq').level).toBe(1);
     p = placement('mix', true, p, T + 20_000);
-    p = manual(p, EQ2, 'c', [false, false, false, true, true], T + 30_000);
-    expect(skillEstimate(p, 'eq').level).toBe(2);
-    p = manual(p, EQ2, 'd', [false, false, false, false, false], T + 40_000);
-    expect(skillEstimate(p, 'eq')).toMatchObject({ level: 1, reason: 'down' });
+    p = manual(p, EQ_PLACED.id, 'c', [false, false, false, true, true], T + 30_000);
+    expect(skillEstimate(p, 'eq').level).toBe(EQ_PLACED.level);
+    p = manual(p, EQ_PLACED.id, 'd', [false, false, false, false, false], T + 40_000);
+    expect(skillEstimate(p, 'eq')).toMatchObject({ level: EQ_PLACED.level - 1, reason: 'down' });
   });
   it('fixed-stage skills are not given invented levels', () => {
     const p = placement('music');
@@ -211,14 +224,47 @@ describe('adaptive difficulty', () => {
     p.attempts.push(...copies);
     expect(skillEstimate(p, 'eq')).toMatchObject({ level: 1, samples: 5 });
   });
-  it('reassessment resets the recommendation while retaining errors and all historical scores', () => {
+  it('an assessment can lift the suggestion; errors and all historical scores are retained', () => {
     let p = manual(initialProgress(), 'eq-1', 'a', [false, false, false, false, false]);
     const original = p.attempts;
     p = placement('mix', true, p, T + 20_000);
     expect(p.attempts).toEqual(original);
-    expect(skillEstimate(p, 'eq')).toMatchObject({ level: 2, reason: 'placement', samples: 0 });
+    expect(skillEstimate(p, 'eq')).toMatchObject({
+      level: EQ_PLACED.level,
+      reason: 'placement',
+      samples: 0,
+    });
     expect(distinctMistakes(p)).toBeGreaterThan(1);
     expect(reviewCards(p)).toHaveLength(distinctMistakes(p));
+  });
+  it('repeating the assessment never sends an advanced learner back to the start', () => {
+    // Ten fresh, correct answers over two sessions earn stage two by practice.
+    let p = manual(initialProgress(), 'eq-1', 'a', [true, true, true, true, true]);
+    p = manual(p, 'eq-1', 'b', [true, true, true, true, true], T + 10_000);
+    expect(skillEstimate(p, 'eq')).toMatchObject({ level: 2, reason: 'up' });
+    // A second assessment in which nothing is answered correctly points to stage one.
+    const failed = placement('mix', false, p, T + 20_000);
+    expect(failed.personal!.results.at(-1)!.status).toBe('completed');
+    expect(skillEstimate(failed, 'eq').level).toBe(2);
+    expect(skillEstimate(failed, 'eq').reason).not.toBe('placement');
+    // One that goes well still lifts it.
+    const passed = placement('mix', true, p, T + 20_000);
+    expect(skillEstimate(passed, 'eq')).toMatchObject({
+      level: EQ_PLACED.level,
+      reason: 'placement',
+    });
+  });
+  it('asks for fewer right answers where a lucky run is less likely', () => {
+    const ref = (lessonId: string) => ({ lessonId, seed: 1, index: 0 });
+    expect(requiredCorrect([ref('attack-1')])).toBe(9);
+    expect(requiredCorrect([ref('eq-1')])).toBe(8);
+    expect(requiredCorrect([ref('eq-shape')])).toBe(8);
+    expect(requiredCorrect([ref('eq-3')])).toBe(7);
+    expect(requiredCorrect([ref('eq-match')])).toBe(7);
+    expect(requiredCorrect([ref('melodic-dictation-1')])).toBe(8);
+    // A window that mixes tasks takes the stricter bar.
+    expect(requiredCorrect([ref('eq-3'), ref('eq-1')])).toBe(8);
+    expect(requiredCorrect([ref('eq-3'), ref('attack-1')])).toBe(9);
   });
   it('old records retain accuracy without proving a higher stage or inventing a replay', () => {
     let p = manual(initialProgress(), 'eq-1', 'a', [true, true, true, true, true]);

@@ -7,9 +7,12 @@ import type { MixEffect, MixSettings } from '../mix-types';
 import { encodeWav } from '../wav';
 import { AudioPlayer } from './AudioPlayer';
 import { MixFeedback } from './MixFeedback';
+import { EqMoveCurve } from './EqCurve';
+import { formatHz, type EqMove } from '../eq-model';
 import { SourcePicker } from './SourcePicker';
 
 const effectNames: Record<MixEffect, ReturnType<typeof text>> = {
+  eq: text('EQ: tek bant, raf ya da filtre', 'EQ: one band, shelf or filter'),
   compression: text('Kompresyon / attack / release', 'Compression / attack / release'),
   masking: text('Masking: eşlik EQ', 'Masking: backing EQ'),
   pan: text('Stereo konum', 'Stereo position'),
@@ -19,6 +22,7 @@ const effectNames: Record<MixEffect, ReturnType<typeof text>> = {
   delay: text('Delay', 'Delay'),
 };
 const defaults: Record<MixEffect, MixSettings> = {
+  eq: { shape: 'peaking', frequency: 1000, gainDb: 6, q: 1.4 },
   compression: { threshold: -24, ratio: 4, attackMs: 12, releaseMs: 180 },
   masking: { frequency: 1000, cutDb: -6 },
   pan: { pan: 0.5 },
@@ -55,7 +59,40 @@ const controls: Partial<
     ['wet', text('Efekt miktarı', 'Effect amount'), 0, 0.7, 0.05, '×'],
   ],
 };
-type FileInfo = { id: string; name: string; duration: number; channels: number };
+type FileInfo = { id: string; name: string; duration: number; total: number; channels: number };
+const eqShapes: [NonNullable<MixSettings['shape']>, ReturnType<typeof text>][] = [
+  ['peaking', text('Çan', 'Bell')],
+  ['lowshelf', text('Bas rafı', 'Low shelf')],
+  ['highshelf', text('Tiz rafı', 'High shelf')],
+  ['highpass', text('Alçak kesen', 'High-pass')],
+  ['lowpass', text('Yüksek kesen', 'Low-pass')],
+];
+// The frequency slider moves in twelfths of an octave, placed so that 1 kHz and its octaves
+// are steps: about 40 Hz at one end, 16 kHz at the other.
+const KILOHERTZ_STEP = 56,
+  STEPS = KILOHERTZ_STEP + 48;
+const stepHz = (step: number) => Math.round(1000 * 2 ** ((step - KILOHERTZ_STEP) / 12));
+const hzStep = (hz: number) => Math.round(12 * Math.log2(hz / 1000)) + KILOHERTZ_STEP;
+/** The lab's EQ settings as the move the engine plays and the curve draws. */
+const eqMove = (settings: MixSettings): EqMove => ({
+  shape: settings.shape ?? 'peaking',
+  frequency: settings.frequency ?? 1000,
+  gain: settings.shape === 'highpass' || settings.shape === 'lowpass' ? 0 : (settings.gainDb ?? 0),
+  q: settings.shape === 'peaking' ? (settings.q ?? 1.4) : Math.SQRT1_2,
+});
+const clock = (seconds: number) =>
+  `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+/** The lab tool that fits a skill, so a report's suggestion opens on the right one. */
+export const labEffectFor = (skill: string | null | undefined): MixEffect | undefined =>
+  skill === 'eq'
+    ? 'eq'
+    : skill === 'compression' || skill === 'attack' || skill === 'release'
+      ? 'compression'
+      : skill === 'masking' || skill === 'reverb' || skill === 'delay'
+        ? skill
+        : skill === 'stereo'
+          ? 'pan'
+          : undefined;
 
 export function MixLab({
   engine,
@@ -63,16 +100,27 @@ export function MixLab({
   volume,
   onVolume,
   onBack,
+  initial = 'compression',
 }: {
   engine: AudioEngine;
   locale: Locale;
   volume: number;
   onVolume: (value: number) => void;
   onBack: () => void;
+  /** The tool to open on. */
+  initial?: MixEffect;
 }) {
   const t = (value: ReturnType<typeof text>) => tx(value, locale);
-  const [effect, setEffect] = useState<MixEffect>('compression');
-  const [settings, setSettings] = useState(defaults.compression);
+  const [effect, setEffect] = useState<MixEffect>(initial);
+  const [settings, setSettings] = useState(defaults[initial]);
+  // The sound follows a slider a moment after it settles; every step would re-render audio.
+  const [applied, setApplied] = useState(settings);
+  useEffect(() => {
+    const timer = setTimeout(() => setApplied(settings), 140);
+    return () => clearTimeout(timer);
+  }, [settings]);
+  const picked = useRef<{ target?: File; backing?: File }>({});
+  const [start, setStart] = useState(0);
   const [source, setSource] = useState<EqSource>('acoustic');
   const [file, setFile] = useState<FileInfo | null>(null),
     [backing, setBacking] = useState<FileInfo | null>(null);
@@ -96,28 +144,38 @@ export function MixLab({
           ? 'stereo-2'
           : effect === 'phase'
             ? 'stereo-3'
-            : `${effect}-1`;
+            : effect === 'eq'
+              ? 'compression-1'
+              : `${effect}-1`;
     const base = makeQuestion(id, 1618, 0, source);
+    const settings =
+      effect === 'eq'
+        ? (({ shape, frequency, gain, q }) => ({ shape, frequency, gainDb: gain, q }))(
+            eqMove(applied),
+          )
+        : applied;
     const reference: MixSettings =
       effect === 'compression'
         ? { ...settings, ratio: 1 }
-        : effect === 'masking'
-          ? { cutDb: 0 }
-          : effect === 'pan'
-            ? { pan: 0 }
-            : effect === 'width'
-              ? { width: 1 }
-              : effect === 'phase'
-                ? { invert: false }
-                : { ...settings, wet: 0 };
+        : effect === 'eq'
+          ? {}
+          : effect === 'masking'
+            ? { cutDb: 0 }
+            : effect === 'pan'
+              ? { pan: 0 }
+              : effect === 'width'
+                ? { width: 1 }
+                : effect === 'phase'
+                  ? { invert: false }
+                  : { ...settings, wet: 0 };
     return {
       ...base,
       options: [],
       correct: '',
       customId: file?.id,
-      mix: { ...base.mix!, reference, target: settings, alternatives: {} },
+      mix: { ...base.mix!, effect, reference, target: settings, alternatives: {} },
     };
-  }, [effect, settings, source, file?.id]);
+  }, [effect, applied, source, file?.id]);
   const ready = !busy && (!file || effect !== 'masking' || !!backing);
   const read = async (event: ChangeEvent<HTMLInputElement>, isBacking = false) => {
     const selected = event.target.files?.[0];
@@ -126,12 +184,15 @@ export function MixLab({
     setBusy(true);
     setError('');
     try {
-      const info = await engine.loadFile(selected, isBacking);
+      const info = await engine.loadFile(selected, isBacking, isBacking ? start : 0);
       if (!alive.current) return;
       if (isBacking) {
+        picked.current.backing = selected;
         setBacking(info);
         setFile(current => (current ? { ...current, id: info.id } : null));
       } else {
+        picked.current = { target: selected };
+        setStart(0);
         setFile(info);
         setBacking(null);
       }
@@ -142,6 +203,34 @@ export function MixLab({
             text(
               'Dosya okunamadı. 20 MB altında, en az 0.25 saniyelik mono/stereo WAV veya tarayıcının desteklediği bir ses dosyası seç. Mevcut kaynak korunuyor.',
               'Could not read the file. Choose a mono/stereo WAV or a browser-supported audio file under 20 MB and at least 0.25 seconds long. The current source is preserved.',
+            ),
+          ),
+        );
+    } finally {
+      if (alive.current) setBusy(false);
+    }
+  };
+  /** Loads the eight seconds that begin at `seconds`, for the recording and its backing. */
+  const moveTo = async (seconds: number) => {
+    const { target, backing: bed } = picked.current;
+    if (!target) return;
+    setBusy(true);
+    setError('');
+    try {
+      let info = await engine.loadFile(target, false, seconds);
+      if (bed) {
+        const bedInfo = await engine.loadFile(bed, true, seconds);
+        info = { ...info, id: bedInfo.id };
+        if (alive.current) setBacking(bedInfo);
+      }
+      if (alive.current) setFile(info);
+    } catch (caught) {
+      if (alive.current && (caught as Error).message !== 'cancelled')
+        setError(
+          t(
+            text(
+              'Bu bölüm hazırlanamadı. Başka bir başlangıç noktası dene.',
+              'This section could not be prepared. Try another starting point.',
             ),
           ),
         );
@@ -192,8 +281,8 @@ export function MixLab({
         <p className="lead">
           {t(
             text(
-              'Hazır akustik örneği veya kendi dosyanı karşılaştır. A referans, B senin ayarın. Ayarı değiştirince tekrar Dinle’ye bas; bu alanda puan veya doğru yanıt yok.',
-              'Compare the acoustic example or your own file. A is the reference; B uses your settings. Press Listen after changing a setting; this space has no score or correct answer.',
+              'Hazır akustik örneği veya kendi dosyanı karşılaştır. A referans, B senin ayarın. Ses çalarken ayarı değiştir; yeni ayar kısa bir an sonra, döngü kesilmeden duyulur. Bu alanda puan veya doğru yanıt yok.',
+              'Compare the acoustic example or your own file. A is the reference; B uses your settings. Change a setting while it plays; the new setting is heard a moment later without the loop stopping. This space has no score or correct answer.',
             ),
           )}
         </p>
@@ -203,8 +292,8 @@ export function MixLab({
         <p>
           {t(
             text(
-              'Dosya cihazında işlenir; sunucuya gönderilmez ve yedeğe eklenmez. İlk 8 saniye kullanılır; reverb/delay için kuyruk eklenir. En fazla 20 MB, mono/stereo ses.',
-              'Files are processed on this device, without upload or inclusion in backups. The first 8 seconds are used, with a tail added for reverb/delay. Up to 20 MB, mono/stereo audio.',
+              'Dosya cihazında işlenir; sunucuya gönderilmez ve yedeğe eklenmez. Seçtiğin noktadan başlayan 8 saniye kullanılır; reverb/delay için kuyruk eklenir. En fazla 20 MB, mono/stereo ses.',
+              'Files are processed on this device, without upload or inclusion in backups. Eight seconds from the point you choose are used, with a tail added for reverb/delay. Up to 20 MB, mono/stereo audio.',
             ),
           )}
         </p>
@@ -227,6 +316,8 @@ export function MixLab({
               className="text-button"
               onClick={() => {
                 engine.clearCustom();
+                picked.current = {};
+                setStart(0);
                 setFile(null);
                 setBacking(null);
                 setError('');
@@ -236,6 +327,29 @@ export function MixLab({
               {t(text('Hazır örneğe dön', 'Return to the bundled sample'))}
             </button>
           </div>
+        )}
+        {file && file.total > 8.5 && (
+          <label className="lab-section-picker">
+            <span>
+              {t(text('Dinlenecek bölümün başlangıcı', 'Where the section starts'))}
+              <output>
+                {clock(start)} – {clock(Math.min(file.total, start + 8))} / {clock(file.total)}
+              </output>
+            </span>
+            <input
+              type="range"
+              data-testid="lab-start"
+              aria-label={t(text('Dinlenecek bölümün başlangıcı', 'Where the section starts'))}
+              min={0}
+              max={Math.floor(file.total - 8)}
+              step={1}
+              value={start}
+              disabled={busy}
+              onChange={event => setStart(Number(event.target.value))}
+              onPointerUp={event => void moveTo(Number(event.currentTarget.value))}
+              onKeyUp={event => void moveTo(Number(event.currentTarget.value))}
+            />
+          </label>
         )}
         {file && effect === 'masking' && (
           <>
@@ -289,6 +403,7 @@ export function MixLab({
                 engine.stop();
                 setEffect(next);
                 setSettings(defaults[next]);
+                setApplied(defaults[next]);
               }}
             >
               {Object.entries(effectNames).map(([id, name]) => (
@@ -298,6 +413,97 @@ export function MixLab({
               ))}
             </select>
           </label>
+          {effect === 'eq' && (
+            <div className="lab-controls" data-testid="lab-eq">
+              <div
+                className="setting-options lab-shapes"
+                role="group"
+                aria-label={t(text('EQ biçimi', 'EQ shape'))}
+              >
+                {eqShapes.map(([shape, name]) => (
+                  <button
+                    key={shape}
+                    data-testid={`lab-shape-${shape}`}
+                    className={settings.shape === shape ? 'selected' : ''}
+                    aria-pressed={settings.shape === shape}
+                    onClick={() => setSettings(current => ({ ...current, shape }))}
+                  >
+                    {t(name)}
+                  </button>
+                ))}
+              </div>
+              <label>
+                <span>
+                  {t(
+                    settings.shape === 'peaking'
+                      ? text('Merkez frekans', 'Centre frequency')
+                      : text('Köşe frekansı', 'Corner frequency'),
+                  )}
+                  <output>{formatHz(settings.frequency ?? 1000)}</output>
+                </span>
+                <input
+                  type="range"
+                  data-testid="lab-eq-frequency"
+                  aria-label={t(text('Frekans', 'Frequency'))}
+                  aria-valuetext={formatHz(settings.frequency ?? 1000)}
+                  min={0}
+                  max={STEPS}
+                  step={1}
+                  value={hzStep(settings.frequency ?? 1000)}
+                  onChange={event =>
+                    setSettings(current => ({
+                      ...current,
+                      frequency: stepHz(Number(event.target.value)),
+                    }))
+                  }
+                />
+              </label>
+              {settings.shape !== 'highpass' && settings.shape !== 'lowpass' && (
+                <label>
+                  <span>
+                    {t(text('Miktar', 'Amount'))}
+                    <output>
+                      {(settings.gainDb ?? 0) > 0 ? '+' : ''}
+                      {(settings.gainDb ?? 0).toFixed(1)} dB
+                    </output>
+                  </span>
+                  <input
+                    type="range"
+                    data-testid="lab-eq-gain"
+                    aria-label={t(text('Miktar', 'Amount'))}
+                    min={-15}
+                    max={15}
+                    step={0.5}
+                    value={settings.gainDb ?? 0}
+                    onChange={event =>
+                      setSettings(current => ({ ...current, gainDb: Number(event.target.value) }))
+                    }
+                  />
+                </label>
+              )}
+              {settings.shape === 'peaking' && (
+                <label>
+                  <span>
+                    {t(text('Bant genişliği (Q)', 'Bandwidth (Q)'))}
+                    <output>{(settings.q ?? 1.4).toFixed(1)}</output>
+                  </span>
+                  <input
+                    type="range"
+                    data-testid="lab-eq-q"
+                    aria-label={t(text('Bant genişliği (Q)', 'Bandwidth (Q)'))}
+                    min={0.4}
+                    max={8}
+                    step={0.1}
+                    value={settings.q ?? 1.4}
+                    onChange={event =>
+                      setSettings(current => ({ ...current, q: Number(event.target.value) }))
+                    }
+                  />
+                </label>
+              )}
+              <EqMoveCurve move={eqMove(settings)} locale={locale} />
+            </div>
+          )}
           <div className="lab-controls">
             {controls[effect]?.map(([key, label, min, max, step, unit]) => (
               <label key={key}>
@@ -371,6 +577,7 @@ export function MixLab({
                 locale={locale}
                 volume={volume}
                 onVolume={onVolume}
+                follow
               />
               <MixFeedback question={question} engine={engine} locale={locale} />
               <button

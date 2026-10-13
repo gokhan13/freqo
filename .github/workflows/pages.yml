@@ -19,8 +19,12 @@ jobs:
       - name: Install PDF validation tools
         run: sudo apt-get update && sudo apt-get install -y poppler-utils
       - run: npm ci
+      - run: npm run format:check
       - run: npm test
       - run: npm run build
+      # Nothing is published that has not passed the browser tests on this very build.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/

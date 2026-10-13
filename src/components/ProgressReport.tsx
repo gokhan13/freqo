@@ -17,6 +17,7 @@ import {
   text,
   tx,
   type Locale,
+  type SkillId,
   type Text,
 } from '../content';
 import type { Progress } from '../model';
@@ -46,9 +47,14 @@ type Props = {
   onBack: () => void;
   onPractice: (id: string) => void;
   onPersonal: (path: ReportPath) => void;
-  onLab: () => void;
+  /** Opens the lab on the tool that fits the skill being suggested. */
+  onLab: (skill: SkillId | null) => void;
   onExam: () => void;
 };
+
+/** Whole calendar days with no record between two recorded dates (YYYY-MM-DD). */
+const idleDays = (earlier: string, later: string) =>
+  Math.round((Date.parse(later) - Date.parse(earlier)) / 86_400_000) - 1;
 
 function ActivityChart({ report, locale }: { report: Report; locale: Locale }) {
   const t = (v: Text) => tx(v, locale),
@@ -65,8 +71,8 @@ function ActivityChart({ report, locale }: { report: Report; locale: Locale }) {
       <p className="small-copy">
         {t(
           text(
-            'Son 7 kayıtlı gündeki normal pratik ve hata tekrarları. Bu grafik çalışma miktarıdır; yetenek veya gelişim yüzdesi değildir.',
-            'Ordinary practice and error reviews on the last 7 recorded days. This chart shows practice volume, not aptitude or a growth percentage.',
+            'Son 7 kayıtlı gündeki normal pratik ve hata tekrarları. Yalnızca çalışılan günler gösterilir; aradaki boş günler sütunların arasında yazılıdır. Bu grafik çalışma miktarıdır; yetenek veya gelişim yüzdesi değildir.',
+            'Ordinary practice and error reviews on the last 7 recorded days. Only days with practice are shown; the idle days between them are written between the columns. This chart shows practice volume, not aptitude or a growth percentage.',
           ),
         )}
       </p>
@@ -82,7 +88,17 @@ function ActivityChart({ report, locale }: { report: Report; locale: Locale }) {
               ),
             )}
           >
-            {days.map(d => (
+            {days.flatMap((d, i) => [
+              // Recorded days are not neighbours on the calendar; the break is drawn, not hidden.
+              ...(i > 0 && idleDays(days[i - 1].date, d.date) > 0
+                ? [
+                    <div className="report-chart-gap" data-testid="chart-gap" key={`gap-${d.date}`}>
+                      <span>
+                        {idleDays(days[i - 1].date, d.date)} {t(text('gün ara', 'days off'))}
+                      </span>
+                    </div>,
+                  ]
+                : []),
               <div className="report-chart-column" key={d.date}>
                 <span>{d.practiceCount + d.reviewCount}</span>
                 <div className="report-chart-space">
@@ -105,8 +121,8 @@ function ActivityChart({ report, locale }: { report: Report; locale: Locale }) {
                   </div>
                 </div>
                 <span>{d.date.slice(5).replace('-', '/')}</span>
-              </div>
-            ))}
+              </div>,
+            ])}
           </div>
           <div className="report-chart-legend">
             <span>
@@ -190,6 +206,13 @@ export function ProgressReport({
     [progress, path, period, now],
   );
   const week = useMemo(() => studyWeek(report), [report]);
+  // The week is built around the first priority; its plan is that priority's path.
+  const weekPath =
+    path !== 'all'
+      ? path
+      : report.priorities[0]
+        ? getLesson(report.priorities[0].lessonId).path
+        : progress.path;
   const t = (v: Text) => tx(v, locale);
   const books = learningResources.filter(
     r => r.kind === 'book' && (path === 'all' || r.paths.includes(path)),
@@ -408,7 +431,10 @@ export function ProgressReport({
         {report.priorities.map((priority, index) => {
           const guide = studyGuides[priority.skill],
             row = report.skills.find(s => s.skill === priority.skill)!,
-            resources = resourcesForSkill(priority.skill);
+            resources = resourcesForSkill(priority.skill),
+            lesson = getLesson(priority.lessonId),
+            // The plan this suggestion belongs to, which under "all paths" is not the filter.
+            planPath = path === 'all' ? row.path : path;
           return (
             <article className="report-priority report-panel" key={priority.skill}>
               <div className="report-priority-heading">
@@ -418,7 +444,7 @@ export function ProgressReport({
                   <h3>{t(skillNames[priority.skill])}</h3>
                   <p className="small-copy">
                     {t(text('Önerilen aşama', 'Suggested stage'))} {row.level}
-                    {row.maxLevel > 1 && ` / ${row.maxLevel}`}
+                    {row.maxLevel > 1 && ` / ${row.maxLevel}`} · {t(lesson.title)}
                   </p>
                 </div>
                 <Target size={21} aria-hidden="true" />
@@ -432,12 +458,31 @@ export function ProgressReport({
                   {t(text('Önerilen dersi çalış', 'Practise the suggested lesson'))}
                   <ArrowRight size={16} />
                 </button>
-                <button className="text-button" onClick={() => onPersonal(path)}>
+                <button
+                  className="text-button"
+                  data-testid={`priority-plan-${index}`}
+                  onClick={() => onPersonal(planPath)}
+                >
                   {t(text('Kişisel plana git', 'Open personal plan'))}
+                  {path === 'all' && ` · ${t(paths[planPath].short)}`}
                 </button>
               </div>
               <details className="report-details" open={index === 0}>
                 <summary>{t(text('Nasıl çalışmalı?', 'How should you practise?'))}</summary>
+                <p className="report-cue" data-testid={`priority-stage-${index}`}>
+                  <strong>
+                    {t(text('Bu aşamada', 'At this stage'))} ({t(lesson.title)}):
+                  </strong>{' '}
+                  {t(lesson.listen)} {t(lesson.tip)}
+                </p>
+                <p className="small-copy">
+                  {t(
+                    text(
+                      'Aşağıdaki yöntem bu becerinin bütün aşamaları için geneldir.',
+                      'The method below is general to every stage of this skill.',
+                    ),
+                  )}
+                </p>
                 <p className="report-cue">
                   <strong>{t(text('Dinleme ipucu', 'Listening cue'))}:</strong> {t(guide.cue)}
                 </p>
@@ -512,13 +557,14 @@ export function ProgressReport({
                 </button>
               )}
               {day.action === 'personal' && (
-                <button className="text-button" onClick={() => onPersonal(path)}>
+                <button className="text-button" onClick={() => onPersonal(weekPath)}>
                   {t(text('Kişisel plana git', 'Open personal plan'))}
+                  {path === 'all' && ` · ${t(paths[weekPath].short)}`}
                   <ArrowRight size={15} />
                 </button>
               )}
               {day.action === 'lab' && (
-                <button className="text-button" onClick={onLab}>
+                <button className="text-button" onClick={() => onLab(day.skill)}>
                   {t(text('Laboratuvarı aç', 'Open the lab'))}
                   <ArrowRight size={15} />
                 </button>

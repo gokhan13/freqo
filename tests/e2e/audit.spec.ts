@@ -15,6 +15,7 @@ import {
   advancePersonal,
   refQuestion,
   skillLessons,
+  placementProbes,
 } from '../../src/personal-model';
 import { readBackup } from '../../src/backup';
 // The second stage of the EQ ladder; its id is a name, not a number.
@@ -211,14 +212,23 @@ test('correct error reviews do not inflate ordinary accuracy and skill practice 
   await expect(page.locator('.stats-card')).toContainText('1 hata tekrarı');
   await page.locator('.sidebar').getByRole('button', { name: 'Becerilerim', exact: true }).click();
   const skill = page.locator('.skill-card').first();
-  await expect(skill).toContainText('Seviye 2');
-  await expect(skill.locator('.skill-score')).toHaveText('0%');
+  // Both placement probes were right, so the suggestion is the higher probe's stage.
+  const placed = placementProbes('eq', true)[1];
+  await expect(skill).toContainText(
+    `Önerilen aşama ${placed.level} / ${skillLessons('eq').length}`,
+  );
+  // The one ordinary answer went to another stage: the card has no figure for this one,
+  // and one answer would not earn a percentage anyway.
+  await expect(skill.locator('.skill-score')).toHaveText('—');
+  await expect(page.getByTestId('skill-basis-eq')).toContainText(
+    'Önerilen aşamada henüz yanıt yok',
+  );
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await skill.getByRole('button', { name: 'Bu beceriyi çalış', exact: true }).click();
   expect(
     (await page.evaluate(key => JSON.parse(localStorage.getItem(key)!), STORAGE_KEY)).session
       .lessonId,
-  ).toBe(EQ2);
+  ).toBe(placed.id);
 });
 
 test('storage quota failure preserves the completed answer in a valid downloadable backup', async ({
@@ -273,43 +283,87 @@ test('separate deployment scopes keep their own offline caches and do not delete
   await nested.close();
 });
 
-test('records from before 0.10 are left untouched and not read; writes from an older tab cannot reach current history', async ({
+test('an earlier version is carried over with an explanation: only answers to rebuilt lessons leave, the original stays downloadable, and reset leaves the archive alone', async ({
   page,
 }) => {
-  const raw = JSON.stringify({ ...initialProgress(), locale: 'en' });
-  await page.addInitScript(
-    ({ keys, raw }) => {
-      for (const key of keys) if (!localStorage.getItem(key)) localStorage.setItem(key, raw);
+  // A 0.10 record as that version wrote it: English, one music answer that still means what
+  // it meant, and one answer to an EQ lesson that has been rebuilt since.
+  let old = {
+    ...initialProgress(),
+    locale: 'en' as const,
+    session: {
+      id: 'music',
+      lessonId: 'degree-1',
+      seed: 77,
+      index: 0,
+      started: true,
+      answers: [],
     },
-    { keys: RETIRED_STORAGE_KEYS, raw },
+  } as Progress;
+  old = answerQuestion(old, makeQuestion('degree-1', 77, 0).correct, '2026-09-20T10:00:00.000Z');
+  delete old.content;
+  old.attempts.push({
+    sessionId: 'old-eq',
+    index: 0,
+    lessonId: 'eq-5',
+    correct: true,
+    at: '2026-09-21T10:00:00.000Z',
+    response: { seed: 1, choice: '1000' },
+  });
+  expect(old.attempts).toHaveLength(2);
+  const raw = JSON.stringify(old),
+    oldKey = RETIRED_STORAGE_KEYS.at(-1)!;
+  await page.addInitScript(
+    ({ key, raw }) => {
+      if (!localStorage.getItem('seeded')) {
+        localStorage.setItem(key, raw);
+        localStorage.setItem('seeded', '1');
+      }
+    },
+    { key: oldKey, raw },
   );
   await page.goto('/');
-  // The retired record was English; a fresh start is Turkish and shows no storage warning.
-  await expect(page.getByRole('heading', { name: /İyi bir miks/ })).toBeVisible();
+  // Preferences came along, and the app says what happened to the history.
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.locator('.storage-notice')).toHaveCount(0);
-  const before = answerQuestion(
-    fixed(),
-    makeQuestion('eq-1', 123, 0).correct,
-    new Date().toISOString(),
-  );
-  await page.evaluate(({ key, p }) => localStorage.setItem(key, JSON.stringify(p)), {
-    key: STORAGE_KEY,
-    p: before,
-  });
+  const notice = page.getByTestId('update-notice');
+  await expect(notice).toContainText('1 old answers');
+  await expect(notice).toContainText('archive');
+  const current = async () =>
+    readBackup(await page.evaluate(key => localStorage.getItem(key)!, STORAGE_KEY));
+  expect((await current()).attempts.map(a => a.lessonId)).toEqual(['degree-1']);
+  expect((await current()).session!.id).toBe('music');
+  // The earlier record is still exactly what it was.
+  expect(await page.evaluate(key => localStorage.getItem(key), oldKey)).toBe(raw);
+  // The notice stays until it is dismissed, also across a reload.
   await page.reload();
-  await expect(page.locator('.feedback.correct')).toBeVisible();
-  for (const key of RETIRED_STORAGE_KEYS) {
-    expect(await page.evaluate(key => localStorage.getItem(key), key)).toBe(raw);
-    await page.evaluate(({ key, p }) => localStorage.setItem(key, JSON.stringify(p)), {
-      key,
-      p: initialProgress(),
-    });
-  }
+  await expect(page.getByTestId('update-notice')).toBeVisible();
+  await page.getByTestId('update-notice').getByRole('button', { name: 'Got it' }).click();
+  await expect(page.getByTestId('update-notice')).toHaveCount(0);
+  await page.locator('.sidebar').getByRole('button', { name: 'Profile', exact: true }).click();
+  const archives = page.getByTestId('archives');
+  await expect(archives).toContainText('1 archived record');
+  const downloading = page.waitForEvent('download');
+  await archives.getByRole('button', { name: 'Download archive', exact: true }).click();
+  expect(await readFile((await (await downloading).path())!, 'utf8')).toBe(raw);
+  // Resetting current progress does not delete what it cannot back up.
+  await page.getByRole('button', { name: 'Reset progress', exact: true }).click();
+  await page.getByRole('button', { name: 'Yes, delete', exact: true }).click();
+  expect(await page.evaluate(key => localStorage.getItem(key), oldKey)).toBe(raw);
+  await page.locator('.sidebar').getByRole('button', { name: 'Profile', exact: true }).click();
+  await expect(page.getByTestId('archives')).toBeVisible();
+  // The earlier record is carried over once. With current progress in place it is not read
+  // again, so a reset stays a reset.
   await page.reload();
-  await expect(page.locator('.feedback.correct')).toBeVisible();
-  expect(readBackup(await page.evaluate(key => localStorage.getItem(key)!, STORAGE_KEY))).toEqual(
-    before,
-  );
+  expect((await current()).attempts).toHaveLength(0);
+  expect((await current()).locale).toBe('en');
+  await expect(page.getByTestId('update-notice')).toHaveCount(0);
+  // Deleting the archive is its own decision, with its own confirmation.
+  await page.locator('.sidebar').getByRole('button', { name: 'Profile', exact: true }).click();
+  await page.getByRole('button', { name: 'Delete archive', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Yes, delete', exact: true }).click();
+  await expect(page.getByTestId('archives')).toHaveCount(0);
+  expect(await page.evaluate(key => localStorage.getItem(key), oldKey)).toBeNull();
 });
 
 test('official programme scopes remain distinct, cited, and separate from Freq mock settings in both languages', async ({

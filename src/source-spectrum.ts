@@ -1,8 +1,11 @@
 import type { EqSource } from './content';
 
 /**
- * Fairness gate for frequency questions: a band is only asked on a source that carries
- * audible energy there.
+ * Energy pre-check for frequency questions: a band is not asked on a source that carries
+ * almost nothing there. It removes the plainly unanswerable questions and promises no more:
+ * the 70 dB SPL playback level is an assumption, and what a learner hears also depends on
+ * their headphones, their hearing, the room and masking by neighbouring bands. Whether a
+ * question that passes is fair has to be judged by ear, on real playback.
  *
  * `SPECTRUM` holds each source's energy per third-octave band, in dB relative to the whole
  * signal (for the synthesised loops, the lowest value over their seeds). The numbers are
@@ -58,7 +61,7 @@ export const sensationLevel = (source: EqSource, hz: number, q: number) =>
   NOMINAL_LEVEL + bandShare(source, hz, q) - HEARING_THRESHOLD[nearestBand(hz)];
 export const bandAudible = (source: EqSource, hz: number, q: number) =>
   sensationLevel(source, hz, q) >= MIN_SENSATION_LEVEL;
-/** The bands of a list this source can fairly be asked about; all of them if none qualify. */
+/** The bands of a list that pass the energy pre-check on this source; all if none do. */
 export function audibleBands<T extends number>(
   source: EqSource,
   bands: readonly T[],

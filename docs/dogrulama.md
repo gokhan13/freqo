@@ -1,5 +1,30 @@
 # Doğrulama kayıtları
 
+## 0.12 önizleme — eleştirinin değerlendirilmesi ve düzeltmeler
+
+13 Ekim 2026 (Europe/Istanbul), macOS, Node.js 24.11.0, kurulu Google Chrome. Bu makinede Poppler kurulu değildir; PDF içeriğini `pdfinfo` ve `pdftotext` ile okuyan kontroller çalışamadı ve aşağıda ayrı sayıldı. Tam tarayıcı turu, sürüm etiketi dahil son derleme üzerinde koşturuldu. [Madde madde kayıt](kalite-denetimi-0.12.md).
+
+| Kontrol | Sonuç |
+| --- | --- |
+| Birim testleri | **382 / 388 geçti**, 15 dosya. Kalan 6 testin tamamı `report-pdf.test.ts` içinde, `pdftotext` bulunamadığı için |
+| Tarayıcı testleri | **154 / 161 geçti**, iki worker, 5,9 dakika. Kalan 7 testin tamamı `report.spec.ts` içinde, PDF indirildikten sonraki `pdfinfo` adımında (0.9 ve 0.11'de de bu makinede aynı adımda düşen 7 test) |
+| TypeScript, biçim ve build | `tsc -b`, `prettier --check` ve `npm run build` geçti |
+| Güncellemede kayıt | 0.10 biçiminde bir kayıt (bir müzik yanıtı, yeniden kurulan EQ dersine bir yanıt) gerçek tarayıcıda: dil ve müzik yanıtı taşındı, EQ yanıtı ayrıldı ve bildirimde sayıldı, eski kayıt bayt bayt aynı kaldı ve Profil'den indirildi, sıfırlama arşive dokunmadı, yeniden yüklemede eski kayıt ikinci kez okunmadı |
+| Eski yedek | Biçim 3 yedekteki yeniden kurulan ders yanıtı içe alınmıyor, pencere sayıyı söylüyor; yeni biçim (6) reddediliyor; 5 MiB üstü dosya reddediliyor |
+| EQ profili | Bandı bulup yönü ters söyleyen öğrenci: frekans 40/40, yön 0/40, zayıf bant adı yok. Bandı ve yönü bulup miktarı kaçıran: miktar 0/40. 20 yanıtta hiçbir bant "zayıf" denmiyor |
+| Soru adaleti | Komşu bant sorusunda doğru yanıtın penceredeki beş yerin her birinde bulunma oranı %17–23 arasında (5.000 soru). Masking'de tek dinlenen melodi ayar değişse de aynı |
+| Karşılaştırma | Kişisel pratikte kaçırılan yanıt 10'da 4'ten 10'da 8'e çıktığında ham oran %60 → %20 görünürdü; dengelenmiş fark 0 puan. Örtüşme azsa rakam verilmiyor |
+| Eşleştirme | İkinci soruda hiçbir bant ve miktar seçili değil, C yok, gönder düğmesi kapalı; yeniden seçince C geri geliyor |
+| Laboratuvar | EQ aracının sesi çizilen eğriyle aynı (birim testi, 0,1 dB). Sürgü 12 adım oynarken döngü çalmaya devam ediyor |
+| Erişilebilirlik | 768 pikselde dört menü düğmesinin adı var. Kısayollar kapalıyken A/B, boşluk ve rakamlar etkisiz; düğmeler çalışıyor. Profil ve laboratuvar otomatik WCAG 2 A/AA ve 2.1 AA kontrollerinden geçti |
+| Telefon | Profil 320 ve 390 pikselde yatay taşmıyor. 390×667'de eşleştirme ekranında sabit dinleme çubuğu görünüyor, alt menüyü ve gönder düğmesini örtmüyor |
+| Rapor yüklenemezse | Rapor modülü engellendiğinde hata kutusu çıkıyor, menü ve Becerilerim çalışıyor; "Yeniden dene" sayfayı yenileyip raporu açıyor |
+| Süreler | 5.000 miks yanıtı, 1,1 MB kayıt, bu Mac'te Node ile: açılışta okuma 37 ms, kişisel plan 19 ms (önce 94), rapor 51 ms (önce 141), beceri tahmini 2 ms (önce 58). Telefonda ölçülmedi |
+| Çevrimdışı önbellek | 21 dosya, sürüm `1237e596918d` |
+| Bağımlılıklar | `npm audit`: bilinen açık **0** |
+
+Sesin nasıl duyulduğu, zorluk basamaklarının doğru olup olmadığı, yeni sürüme geçişin gerçek bir güncellemede nasıl davrandığı ve gerçek telefonlardaki davranış bu kontrollerin kapsamında değildir.
+
 ## 0.11 önizleme — araştırmaya dayalı eleştiri ve düzeltmeler
 
 12 Ekim 2026 (Europe/Istanbul), macOS, Node.js 24.11.0, kurulu Google Chrome 155. Bu makinede Poppler kurulu değildir; PDF içeriğini `pdfinfo` ve `pdftotext` ile okuyan kontroller çalışamadı ve aşağıda ayrı sayıldı. [Eleştiri ve düzeltmeler](kalite-denetimi-0.11.md).

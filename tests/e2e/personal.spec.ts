@@ -10,6 +10,7 @@ import {
   personalPlan,
   reviewCards,
   skillLessons,
+  placementProbes,
 } from '../../src/personal-model';
 import { createBackup } from '../../src/backup';
 
@@ -111,7 +112,12 @@ test('mix assessment adapts the second probe, resumes, shows no early answers an
     await expect(page.locator('.personal-exercise .feedback')).toHaveCount(0);
     await expect(page.locator('.personal-exercise .is-correct')).toHaveCount(0);
     if (i === 0) {
-      expect((await read(page)).personal!.active!.items[1].lessonId).toBe(skillLessons('eq')[1].id);
+      // The first probe sits a third of the way up the ladder; a right answer sends the
+      // second one further up, not to the next stage.
+      expect(s.items[0].lessonId).toBe(placementProbes('eq')[0].id);
+      expect((await read(page)).personal!.active!.items[1].lessonId).toBe(
+        placementProbes('eq', true)[1].id,
+      );
       await page.reload();
       await expect(
         page.getByText('Yanıtın kaydedildi. Sonraki beceriye devam edebilirsin.', { exact: true }),
@@ -127,7 +133,10 @@ test('mix assessment adapts the second probe, resumes, shows no early answers an
   expect(p.results).toHaveLength(0);
   expect(p.personal!.results[0].status).toBe('completed');
   await expect(page.locator('.personal-result-score strong')).toHaveText('18/18');
-  await expect(page.locator('.personal-placement-levels li').first()).toContainText('Seviye 2');
+  // Both EQ probes were answered correctly: the start is the higher probe's stage.
+  await expect(page.locator('.personal-placement-levels li').first()).toContainText(
+    `Seviye ${placementProbes('eq', true)[1].level}`,
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: 'test-results/personal-assessment-mobile.png', fullPage: true });
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);

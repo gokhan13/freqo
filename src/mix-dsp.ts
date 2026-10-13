@@ -1,6 +1,7 @@
 import { random } from './model';
 import type { Material, MixSettings, MixSpec, Stereo } from './mix-types';
 import { loudnessMatch } from './loudness';
+import { eqCoefficients } from './eq-model';
 
 export const stereoRms = (channels: Stereo) =>
   Math.sqrt(
@@ -154,6 +155,38 @@ export function filterMono(
   return output;
 }
 
+/** One EQ move on both channels, with the same biquad the EQ lessons draw and play. */
+export function equalise(input: Stereo, rate: number, settings: MixSettings): Stereo {
+  if (!settings.shape) return [new Float32Array(input[0]), new Float32Array(input[1])];
+  const { b, a } = eqCoefficients(
+    {
+      shape: settings.shape,
+      frequency: settings.frequency ?? 1000,
+      gain: settings.gainDb ?? 0,
+      q: settings.q ?? 1,
+    },
+    rate,
+  );
+  const [b0, b1, b2, a1, a2] = [b[0] / a[0], b[1] / a[0], b[2] / a[0], a[1] / a[0], a[2] / a[0]];
+  return input.map(data => {
+    const output = new Float32Array(data.length);
+    let x1 = 0,
+      x2 = 0,
+      y1 = 0,
+      y2 = 0;
+    for (let i = 0; i < data.length; i++) {
+      const x = data[i],
+        y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+      output[i] = y;
+      x2 = x1;
+      x1 = x;
+      y2 = y1;
+      y1 = y;
+    }
+    return output;
+  }) as Stereo;
+}
+
 /** Deterministic stereo Schroeder-style reverb: early reflections, four damped combs,
  * two all-pass diffusion stages per channel.
  * Decay is a nominal RT60 coefficient; this is not a sampled room or plugin emulation.
@@ -265,7 +298,9 @@ export function renderMix(
   if (spec.effect === 'masking') {
     target = customStereo
       ? [padded(customStereo[0]), padded(customStereo[1])]
-      : centre(padded(filterMono(material.lead, rate, spec.target.frequency!, 0, true)));
+      : centre(padded(material.lead));
+    // The melody is the same whatever the answer is. It used to be band-passed around the
+    // frequency being asked about, which let its solo colour give the answer away.
     // A fixed target-to-backing relation; no processing is applied to the target.
     if (!customStereo) {
       const rms = stereoRms(target);
@@ -276,6 +311,7 @@ export function renderMix(
   }
   const apply = (settings: MixSettings): Stereo => {
     if (spec.effect === 'compression') return compressStereo(input, rate, settings);
+    if (spec.effect === 'eq') return equalise(input, rate, settings);
     if (spec.effect === 'pan') return panStereo(monoSum(input), settings.pan ?? 0);
     if (spec.effect === 'width') return widen(input, settings.width ?? 1);
     if (spec.effect === 'phase')

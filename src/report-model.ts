@@ -20,6 +20,7 @@ import {
   studyEvidence,
   type Evidence,
   type SkillEstimate,
+  refFacts,
 } from './personal-model';
 import type { PersonalSession, QuestionRef } from './personal-types';
 
@@ -154,6 +155,8 @@ export type ProgressReport = {
 
 type RoutedEvidence = Evidence & { path: PathId };
 const DAY = 86_400_000;
+/** Share of each trend window that must be answers asked in both windows. */
+const TREND_OVERLAP = 0.6;
 const percent = (correct: number, count: number) =>
   count ? Math.round((correct / count) * 100) : null;
 const logicalIdentity = (ref: QuestionRef) =>
@@ -247,9 +250,7 @@ function comparableTrend(
     };
   const recentAccuracy = percent(recent.filter(e => e.correct).length, recent.length)!,
     previousAccuracy = percent(previous.filter(e => e.correct).length, previous.length)!;
-  const minimumSounds = [...recent, ...previous].some(e => refQuestion(e.ref!).options.length === 2)
-    ? 2
-    : 3;
+  const minimumSounds = [...recent, ...previous].some(e => refFacts(e.ref!).options === 2) ? 2 : 3;
   const recentSounds = new Set(recent.map(e => audible(e.ref!))).size,
     previousSounds = new Set(previous.map(e => audible(e.ref!))).size;
   if (recentSounds < minimumSounds || previousSounds < minimumSounds)
@@ -262,6 +263,64 @@ function comparableTrend(
         `Each window needs at least ${minimumSounds} audibly different examples; the previous window has ${previousSounds} and the recent window has ${recentSounds}. The percentages count answers; repeated sounds do not establish a progress trend.`,
       ),
     };
+  // Personal practice asks more often for the answers a learner misses, so its windows hold a
+  // harder mix than a plain round does. Then like is compared with like: each answer on its
+  // own, weighted by how often both windows asked for it.
+  if ([...recent, ...previous].some(e => e.id.startsWith('personal:'))) {
+    const tally = (window: RoutedEvidence[]) => {
+      const byAnswer = new Map<string, { asked: number; right: number }>();
+      for (const e of window) {
+        const answer = refFacts(e.ref!).correct,
+          row = byAnswer.get(answer) ?? { asked: 0, right: 0 };
+        row.asked++;
+        if (e.correct) row.right++;
+        byAnswer.set(answer, row);
+      }
+      return byAnswer;
+    };
+    const now = tally(recent),
+      before = tally(previous),
+      shared = [...now.keys()].filter(answer => before.has(answer)).sort();
+    const covered = (window: Map<string, { asked: number }>, size: number) =>
+      shared.reduce((sum, answer) => sum + window.get(answer)!.asked, 0) / size;
+    if (
+      shared.length < 2 ||
+      covered(now, recent.length) < TREND_OVERLAP ||
+      covered(before, previous.length) < TREND_OVERLAP
+    )
+      return {
+        ...base,
+        reason: text(
+          'Kişisel pratik, kaçırdığın yanıtları daha sık sorar; bu yüzden iki pencerenin ham yüzdeleri karşılaştırılamaz. Adil karşılaştırma için iki pencerede de sorulmuş yanıtlar yeterince örtüşmüyor.',
+          'Personal practice asks more often for the answers you miss, so the raw percentages of the two windows cannot be compared. The answers asked in both windows do not overlap enough for a fair comparison.',
+        ),
+      };
+    const weight = (answer: string) => now.get(answer)!.asked + before.get(answer)!.asked,
+      total = shared.reduce((sum, answer) => sum + weight(answer), 0),
+      standardised = (window: Map<string, { asked: number; right: number }>) =>
+        Math.round(
+          (shared.reduce(
+            (sum, answer) =>
+              sum + (weight(answer) * window.get(answer)!.right) / window.get(answer)!.asked,
+            0,
+          ) /
+            total) *
+            100,
+        );
+    const recentLike = standardised(now),
+      previousLike = standardised(before);
+    return {
+      ...base,
+      status: 'available',
+      recentAccuracy: recentLike,
+      previousAccuracy: previousLike,
+      deltaPoints: recentLike - previousLike,
+      reason: text(
+        'Aynı çalışma yolu, aşama ve kaynakta farklı kayıtlı sorular karşılaştırıldı. Kişisel pratik kaçırdığın yanıtları daha sık sorduğu için yüzdeler, iki pencerede de sorulan yanıtlar eşit ağırlıkla sayılarak hesaplandı. Bu küçük örneklem genel yetenek gelişimi ölçümü değildir.',
+        'Distinct saved questions on the same study path, stage and source were compared. Because personal practice asks more often for the answers you miss, the percentages weight the answers asked in both windows equally. This small sample is not a measure of overall aptitude growth.',
+      ),
+    };
+  }
   return {
     ...base,
     status: 'available',

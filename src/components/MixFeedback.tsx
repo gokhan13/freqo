@@ -15,7 +15,18 @@ export function settingLabels(setting: MixSettings, locale: Locale) {
     decay: ['Kuyruk', 'Decay', 's'],
     preDelayMs: ['Ön gecikme', 'Pre-delay', 'ms'],
     delayMs: ['Tekrar aralığı', 'Echo spacing', 'ms'],
+    gainDb: ['Miktar', 'Amount', 'dB'],
   };
+  const shapes: Record<string, [string, string]> = {
+    peaking: ['Çan', 'Bell'],
+    lowshelf: ['Bas rafı', 'Low shelf'],
+    highshelf: ['Tiz rafı', 'High shelf'],
+    highpass: ['Alçak kesen', 'High-pass'],
+    lowpass: ['Yüksek kesen', 'Low-pass'],
+  };
+  // The lab's free EQ shares `frequency` with the masking tool; its own settings name it.
+  const freeEq = 'shape' in setting;
+  if (!Object.keys(setting).length) return [tx(text('İşlenmemiş', 'Unprocessed'), locale)];
   return Object.entries(setting)
     .map(([key, value]) => {
       if (key === 'pan')
@@ -33,6 +44,12 @@ export function settingLabels(setting: MixSettings, locale: Locale) {
         return value ? 'Ping-pong' : tx(text('Merkezde tekrar', 'Centred echoes'), locale);
       if (key === 'wet' || key === 'feedback')
         return `${key === 'wet' ? tx(text('Efekt miktarı', 'Effect amount'), locale) : 'Feedback'}: ${Math.round(Number(value) * 100)}%`;
+      if (key === 'shape') return shapes[String(value)]?.[locale === 'tr' ? 0 : 1] ?? '';
+      if (key === 'q') return setting.shape === 'peaking' ? `Q: ${Number(value).toFixed(1)}` : '';
+      if (freeEq && key === 'frequency')
+        return `${tx(text('Frekans', 'Frequency'), locale)}: ${value} Hz`;
+      if (key === 'gainDb' && (setting.shape === 'highpass' || setting.shape === 'lowpass'))
+        return '';
       const label = labels[key];
       return label
         ? `${label[locale === 'tr' ? 0 : 1]}: ${value}${label[2] === ':1' ? '' : ' '}${label[2]}`

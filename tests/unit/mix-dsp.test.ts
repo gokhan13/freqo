@@ -7,6 +7,7 @@ import {
   centre,
   compressStereo,
   echo,
+  equalise,
   matchStereoLevels,
   monoSum,
   panStereo,
@@ -19,6 +20,7 @@ import {
 } from '../../src/mix-dsp';
 import { encodeWav } from '../../src/wav';
 import { loudnessDb } from '../../src/loudness';
+import { eqMagnitudeDb } from '../../src/eq-model';
 import type { Material, Stereo } from '../../src/mix-types';
 
 const power = (data: Float32Array) =>
@@ -250,5 +252,50 @@ describe('processed preview WAV', () => {
     expect(bytes.readInt16LE(46)).toBe(-8192);
     expect(bytes.readInt16LE(52)).toBe(32767);
     expect(bytes.readInt16LE(54)).toBe(-32767);
+  });
+});
+
+describe("the lab's free EQ", () => {
+  const rate = 48000;
+  const sine = (hz: number) =>
+    Float32Array.from({ length: rate }, (_, i) => 0.25 * Math.sin((2 * Math.PI * hz * i) / rate));
+  // Level over the second half, once the filter has settled.
+  const level = (data: Float32Array) => {
+    let sum = 0;
+    for (let i = rate / 2; i < data.length; i++) sum += data[i] * data[i];
+    return 10 * Math.log10(sum / (data.length - rate / 2));
+  };
+  const through = (hz: number, settings: Parameters<typeof equalise>[2]) => {
+    const input = sine(hz);
+    return level(equalise([input, new Float32Array(input)], rate, settings)[0]) - level(input);
+  };
+  it("passes the signal unchanged when no shape is set, as the lab's A does", () => {
+    const input = sine(1000),
+      [left, right] = equalise([input, new Float32Array(input)], rate, {});
+    expect([...left]).toEqual([...input]);
+    expect([...right]).toEqual([...input]);
+    expect(left).not.toBe(input);
+  });
+  it('boosts and cuts by the set amount at the centre and leaves distant bands alone', () => {
+    const bell = { shape: 'peaking' as const, frequency: 1000, gainDb: 6, q: 1.4 };
+    expect(through(1000, bell)).toBeCloseTo(6, 1);
+    expect(through(1000, { ...bell, gainDb: -9 })).toBeCloseTo(-9, 1);
+    expect(Math.abs(through(100, bell))).toBeLessThan(0.2);
+    expect(Math.abs(through(10000, bell))).toBeLessThan(0.2);
+  });
+  it('shelves lift one end and cut filters remove it', () => {
+    const shelf = { shape: 'lowshelf' as const, frequency: 200, gainDb: 6, q: Math.SQRT1_2 };
+    expect(through(50, shelf)).toBeCloseTo(6, 0);
+    expect(Math.abs(through(4000, shelf))).toBeLessThan(0.3);
+    const highpass = { shape: 'highpass' as const, frequency: 200, gainDb: 0, q: Math.SQRT1_2 };
+    expect(through(50, highpass)).toBeLessThan(-20);
+    expect(Math.abs(through(4000, highpass))).toBeLessThan(0.2);
+  });
+  it('plays exactly the response the curve draws', () => {
+    const move = { shape: 'highshelf' as const, frequency: 4000, gain: -8, q: Math.SQRT1_2 };
+    for (const hz of [500, 4000, 12000])
+      expect(
+        through(hz, { shape: move.shape, frequency: move.frequency, gainDb: move.gain, q: move.q }),
+      ).toBeCloseTo(eqMagnitudeDb(move, hz), 1);
   });
 });

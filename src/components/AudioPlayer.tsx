@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { shortcutsOn } from '../shortcuts';
 import { Headphones, Pause, Play, Volume2 } from 'lucide-react';
 import { text, tx, ui, usesLoop, usesPair, type Locale } from '../content';
 import type { Question } from '../model';
@@ -15,6 +16,7 @@ export function AudioPlayer({
   heard,
   reviewed,
   live,
+  follow,
 }: {
   engine: AudioEngine;
   question: Question;
@@ -26,6 +28,8 @@ export function AudioPlayer({
   reviewed?: boolean;
   /** C is the learner's own unsubmitted setting: it follows their changes, and B stays unnamed. */
   live?: boolean;
+  /** Free listening: a changed mix setting is swapped in while the loop keeps playing. */
+  follow?: boolean;
 }) {
   const [status, setStatus] = useState<AudioStatus>(engine.status);
   const [variant, setVariant] = useState<Variant>('a');
@@ -55,7 +59,7 @@ export function AudioPlayer({
     question.source,
     // A submitted answer's comparison restarts listening; a live setting must not.
     live ? '' : comparisonKey,
-    JSON.stringify(question.mix),
+    follow ? question.mix?.effect : JSON.stringify(question.mix),
     JSON.stringify(question.music),
     question.customId,
   ]);
@@ -66,6 +70,47 @@ export function AudioPlayer({
     setVariant('c');
     void engine.swap(current.current, 'c', () => callback.current?.('c'));
   }, [engine, live, comparisonKey]);
+  // The lab: a changed setting replaces the playing loop without stopping it. Changes that
+  // arrive while one is rendering are folded into the next, so the last one always wins.
+  const followKey = follow ? `${JSON.stringify(question.mix)}:${question.customId}` : '';
+  const rendering = useRef(false),
+    stale = useRef(false),
+    playing = useRef(variant);
+  playing.current = variant;
+  useEffect(() => {
+    if (!follow || engine.status !== 'playing') return;
+    if (rendering.current) {
+      stale.current = true;
+      return;
+    }
+    rendering.current = true;
+    void (async () => {
+      do {
+        stale.current = false;
+        await engine.swap(current.current, playing.current, () =>
+          callback.current?.(playing.current),
+        );
+      } while (stale.current && engine.status === 'playing');
+      rendering.current = false;
+    })();
+  }, [engine, followKey]);
+  // On a phone the answers sit below the player. Once its buttons scroll out of view during
+  // scored practice, a small bar keeps A/B/C and play within reach (shown by CSS on narrow
+  // screens only).
+  const root = useRef<HTMLDivElement>(null);
+  const [away, setAway] = useState(false);
+  const dockable = !!onHeard;
+  useEffect(() => {
+    const watched = root.current?.querySelector('[data-dock-watch]');
+    if (!dockable || !watched || typeof IntersectionObserver === 'undefined') return;
+    // "Away" once less than most of the buttons can be seen above the bottom navigation.
+    const observer = new IntersectionObserver(([entry]) => setAway(entry.intersectionRatio < 0.6), {
+      threshold: [0, 0.6, 1],
+      rootMargin: '0px 0px -70px 0px',
+    });
+    observer.observe(watched);
+    return () => observer.disconnect();
+  }, [dockable, pair]);
   const play = async (v: Variant = variant) => {
     if (v !== 'context' && v !== 'resolution') setVariant(v);
     await engine.play(question, v, () => callback.current?.(v));
@@ -76,7 +121,7 @@ export function AudioPlayer({
   };
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (engine.capturing || event.repeat) return;
+      if (!shortcutsOn() || engine.capturing || event.repeat) return;
       if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       if (
         (event.target as HTMLElement).closest('input,button,select,textarea,[role="dialog"]') ||
@@ -100,27 +145,32 @@ export function AudioPlayer({
     return () => window.removeEventListener('keydown', onKey);
   });
   return (
-    <div className={`audio-player ${status === 'playing' ? 'is-playing' : ''}`}>
+    <div ref={root} className={`audio-player ${status === 'playing' ? 'is-playing' : ''}`}>
       <div className="player-top">
         <span className="eyebrow">{tx(text('DİNLEME ALANI', 'LISTENING SPACE'), locale)}</span>
         <span className="audio-mark" aria-hidden="true">
           <Headphones size={16} />
         </span>
       </div>
-      <div className="waveform" aria-hidden="true">
-        {Array.from({ length: 49 }, (_, i) => (
-          <i
-            key={i}
-            style={{
-              height: `${10 + Math.abs(Math.sin(i * 2.6) * Math.cos(i * 0.29)) * 64}px`,
-              animationDelay: `${i * 0.023}s`,
-            }}
-          />
-        ))}
-      </div>
+      {/* What is sounding right now. The buttons carry the same state for screen readers. */}
+      <p className="player-state" aria-hidden="true" data-testid="player-state">
+        <i />
+        {tx(
+          status === 'preparing'
+            ? ui.preparing
+            : status === 'playing'
+              ? text('Çalıyor', 'Playing')
+              : text('Durdu', 'Stopped'),
+          locale,
+        )}
+        {status === 'playing' && pair && ['a', 'b', 'c'].includes(variant) && (
+          <b>{variant.toUpperCase()}</b>
+        )}
+      </p>
       {pair && (
         <div
           className={`ab-controls ${comparing ? 'has-comparison' : ''}`}
+          data-dock-watch
           role="group"
           aria-label={tx(
             comparing
@@ -285,7 +335,7 @@ export function AudioPlayer({
           )}
         </div>
       )}
-      <div className="player-bottom">
+      <div className="player-bottom" {...(pair ? {} : { 'data-dock-watch': true })}>
         <button
           className="play-button"
           disabled={engine.capturing}
@@ -333,21 +383,63 @@ export function AudioPlayer({
           )}
         </p>
       )}
-      {onHeard && usesLoop(question.kind) && (
-        <p className="rhythm-cue">
-          {tx(
-            text(
-              'A ve B’nin her birini en az 1 saniye dinle. Geçişte zaman çizgisi korunur; durdurmak eksik dinleme süresini sıfırlar.',
-              'Listen to A and B for at least 1 second each. Switching keeps the timeline; stopping resets incomplete listening time.',
-            ),
-            locale,
-          )}
-        </p>
-      )}
+      {onHeard &&
+        usesLoop(question.kind) &&
+        !['a', 'b'].every(v => heard?.includes(v as Variant)) && (
+          <p className="rhythm-cue">
+            {tx(
+              text(
+                'A ve B’nin her birini en az 1 saniye dinle. Geçişte zaman çizgisi korunur; durdurmak eksik dinleme süresini sıfırlar.',
+                'Listen to A and B for at least 1 second each. Switching keeps the timeline; stopping resets incomplete listening time.',
+              ),
+              locale,
+            )}
+          </p>
+        )}
       {status === 'error' && (
         <p className="notice" role="alert">
           {tx(ui.audioError, locale)}
         </p>
+      )}
+      {away && (
+        <div
+          className="player-dock"
+          data-testid="player-dock"
+          role="group"
+          aria-label={tx(text('Sabit dinleme çubuğu', 'Pinned listening bar'), locale)}
+        >
+          {pair &&
+            ((comparing ? ['a', 'b', 'c'] : ['a', 'b']) as Variant[]).map(v => (
+              <button
+                key={v}
+                className={variant === v ? 'selected' : ''}
+                aria-pressed={variant === v}
+                aria-label={tx(
+                  text(`${v.toUpperCase()} sesini dinle`, `Listen to ${v.toUpperCase()}`),
+                  locale,
+                )}
+                disabled={status === 'preparing'}
+                onClick={() => void play(v)}
+              >
+                {v.toUpperCase()}
+              </button>
+            ))}
+          <button
+            className="dock-play"
+            disabled={engine.capturing}
+            onClick={toggle}
+            aria-label={tx(
+              status === 'playing' || status === 'preparing' ? ui.pause : ui.play,
+              locale,
+            )}
+          >
+            {status === 'playing' || status === 'preparing' ? (
+              <Pause size={17} fill="currentColor" />
+            ) : (
+              <Play size={17} fill="currentColor" />
+            )}
+          </button>
+        </div>
       )}
     </div>
   );

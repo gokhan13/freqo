@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { shortcutsOn } from '../shortcuts';
 import { Play, RotateCcw } from 'lucide-react';
 import { text, tx, type Locale } from '../i18n';
 import { melodyChoice, positionLabel, rhythmChoice } from '../music-model';
@@ -41,7 +42,7 @@ export function MusicAnswerEditor({
         (e.target as HTMLElement).closest('input,textarea,select')
       )
         return;
-      if (/^[0-7]$/.test(e.key) && m.allowedDegrees.includes(Number(e.key))) {
+      if (shortcutsOn() && /^[0-7]$/.test(e.key) && m.allowedDegrees.includes(Number(e.key))) {
         e.preventDefault();
         enter(Number(e.key));
       }

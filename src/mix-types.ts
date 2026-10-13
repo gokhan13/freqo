@@ -2,7 +2,8 @@ import type { Text } from './i18n';
 
 export type MixSkill =
   'compression' | 'attack' | 'release' | 'masking' | 'stereo' | 'reverb' | 'delay';
-export type MixEffect = 'compression' | 'masking' | 'pan' | 'width' | 'phase' | 'reverb' | 'delay';
+export type MixEffect =
+  'compression' | 'eq' | 'masking' | 'pan' | 'width' | 'phase' | 'reverb' | 'delay';
 export type MixSettings = {
   threshold?: number;
   ratio?: number;
@@ -10,6 +11,10 @@ export type MixSettings = {
   releaseMs?: number;
   frequency?: number;
   cutDb?: number;
+  /** The lab's free EQ: with no shape the signal passes unchanged. */
+  shape?: 'peaking' | 'lowshelf' | 'highshelf' | 'highpass' | 'lowpass';
+  gainDb?: number;
+  q?: number;
   pan?: number;
   width?: number;
   invert?: boolean;

@@ -289,7 +289,8 @@ export const skillNames: Record<SkillId, Text> = {
   memory: text('Melodik hafıza', 'Melodic memory'),
   ...musicSkillNames,
 };
-export const getLesson = (id: string) => lessons.find(l => l.id === id)!;
+const lessonsById = new Map(lessons.map(lesson => [lesson.id, lesson]));
+export const getLesson = (id: string) => lessonsById.get(id)!;
 
 export const lessonGroups: Record<PathId, { id: string; title: Text; skills: SkillId[] }[]> = {
   mix: [
@@ -497,16 +498,12 @@ export const ui = {
     'This backup was created with a newer Freq version. Update the app to restore it.',
   ),
   importLarge: text(
-    'Yedek dosyası çok büyük. En fazla 16 MB boyutunda bir Freq JSON yedeği seç.',
-    'The backup is too large. Choose a Freq JSON backup of up to 16 MB.',
-  ),
-  importRetired: text(
-    'Bu yedek daha eski bir Freq önizlemesinden. Miks dersleri yeniden kurulduğu için eski yanıtlar içe alınamıyor. Mevcut kayıtların değişmedi.',
-    'This backup comes from an earlier Freq preview. The mixing lessons were rebuilt, so its answers cannot be imported. Your current records have not changed.',
+    'Yedek dosyası çok büyük. En fazla 5 MB boyutunda bir Freq JSON yedeği seç.',
+    'The backup is too large. Choose a Freq JSON backup of up to 5 MB.',
   ),
   importConflict: text(
-    'Yedek bu cihazdaki kayıtlarla birleştirilemiyor: çelişen kayıtlar veya iki farklı yarım çalışma var. Mevcut ilerlemen korunuyor.',
-    'The backup cannot be merged with this device: records conflict or there are two different unfinished sessions. Your current progress is safe.',
+    'Yedek bu cihazdaki kayıtlarla birleştirilemiyor: aynı kayıt için birbiriyle çelişen iki sürüm var. Mevcut ilerlemen korunuyor.',
+    'The backup cannot be merged with this device: it holds a version of a record that contradicts yours. Your current progress is safe.',
   ),
   importSuccess: text(
     'Yedek birleştirildi. Aynı kayıtlar tekrar sayılmadı.',
@@ -537,8 +534,8 @@ export const ui = {
   ),
   resetTitle: text('Bu cihazdaki ilerleme silinsin mi?', 'Delete progress on this device?'),
   resetCopy: text(
-    'Pratik kayıtları ve yarım kalan oturum silinecek. Önce ilerlemeni indirebilirsin.',
-    'Practice history and your unfinished session will be deleted. You can download your progress first.',
+    'Güncel pratik kayıtların ve yarım kalan oturumun silinecek. Önce ilerlemeni indirebilirsin.',
+    'Your current practice history and unfinished session will be deleted. You can download your progress first.',
   ),
   cancel: text('Vazgeç', 'Cancel'),
   delete: text('Evet, sil', 'Yes, delete'),
@@ -550,7 +547,7 @@ export const ui = {
     'Ses başlatılamadı. Dinle düğmesiyle tekrar dene; başka ses uygulamalarını kapatmayı deneyebilirsin.',
     'Audio could not start. Try Listen again, or close other audio apps.',
   ),
-  early: text('DİNLEME STÜDYOSU · 0.11 ÖNİZLEME', 'LISTENING STUDIO · 0.11 PREVIEW'),
+  early: text('DİNLEME STÜDYOSU · 0.12 ÖNİZLEME', 'LISTENING STUDIO · 0.12 PREVIEW'),
   future: text('Bu yolun devamı', 'Further along this path'),
   roadmapMix: text(
     'Sırada: daha geniş kayıt kütüphanesi, çoklu sorunları teşhis ve yeni müziklerde beceri aktarımı. İleri miks pratiklerini veya Kendi kaydın alanını keşfet.',

@@ -112,7 +112,7 @@ describe('backup format', () => {
       expect(errorCode(() => readBackup(raw))).toBe('invalid');
     },
   );
-  it.each([{ format: 'freq-backup', schemaVersion: 5 }, { version: 2 }])(
+  it.each([{ format: 'freq-backup', schemaVersion: 6 }, { version: 2 }])(
     'identifies an unsupported future schema',
     future => {
       expect(errorCode(() => readBackup(JSON.stringify(future)))).toBe('future');

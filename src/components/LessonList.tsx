@@ -13,6 +13,9 @@ import {
 import type { Progress } from '../model';
 import { skillEstimate, skillLessons, studyEvidence } from '../personal-model';
 
+// Ladders longer than this get a shortcut to the suggested stage above the list.
+const LONG_LADDER = 5;
+
 export function LessonList({
   path,
   progress,
@@ -64,6 +67,25 @@ export function LessonList({
             </span>
           </summary>
           <div className="lesson-list">
+            {/* A long ladder opens on where the learner stands, not on its first rung. */}
+            {group.skills.map(skill => {
+              const ladder = skillLessons(skill),
+                here = ladder.find(l => suggested.has(l.id));
+              return here && ladder.length > LONG_LADDER ? (
+                <div className="lesson-here" data-testid={`here-${skill}`} key={skill}>
+                  <div>
+                    <span className="eyebrow">
+                      {t(text('Önerilen aşama', 'Suggested stage'))} {here.level} / {ladder.length}
+                    </span>
+                    <strong>{t(here.title)}</strong>
+                  </div>
+                  <button className="button" onClick={() => onStart(here.id)}>
+                    {t(progress.session?.lessonId === here.id ? ui.resume : ui.start)}
+                    <ArrowRight size={18} />
+                  </button>
+                </div>
+              ) : null;
+            })}
             {lessons
               .filter(l => l.path === path && group.skills.includes(l.skill))
               .map(lesson => {
@@ -87,11 +109,11 @@ export function LessonList({
                       <p>{t(lesson.description)}</p>
                       {attempts.length > 0 && (
                         <span className="attempt-count">
-                          {attempts.length} {t(text('yanıt', 'answers'))} ·{' '}
-                          {Math.round(
-                            (attempts.filter(a => a.correct).length / attempts.length) * 100,
-                          )}
-                          %
+                          {attempts.length} {t(text('yanıt', 'answers'))}
+                          {attempts.length >= 5 &&
+                            ` · ${Math.round(
+                              (attempts.filter(a => a.correct).length / attempts.length) * 100,
+                            )}%`}
                         </span>
                       )}
                     </div>

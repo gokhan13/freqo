@@ -58,8 +58,8 @@ const frequencyStages: Copy[] = [
       'A band one octave wide is boosted by 9 dB in B. Settle the region first: lows, mids or highs? Then decide between the neighbouring bands in that region.',
     ),
     tip: text(
-      'Komşu iki bandı karıştırmak normaldir. Yanlış yanıttan sonra B ile C arasında geçiş yap; aradaki fark tam bir oktavdır.',
-      'Confusing two neighbouring bands is normal. After a wrong answer, switch between B and C; they are exactly one octave apart.',
+      'Komşu iki bandı karıştırmak normaldir; aralarında tam bir oktav vardır. Yanlış yanıttan sonra B ile C arasında geçiş yap ve merkezin ne kadar kaydığını dinle.',
+      'Confusing two neighbouring bands is normal; they are exactly one octave apart. After a wrong answer, switch between B and C and hear how far the centre moves.',
     ),
   },
   {
@@ -69,8 +69,8 @@ const frequencyStages: Copy[] = [
       'Find the missing band. Cuts are harder to hear than boosts.',
     ),
     learn: text(
-      'Kesilen bant kendini göstermez; geriye kalan ses değişir. Bas kesilince ses incelir, orta kesilince içi boşalır ve geri çekilir, tiz kesilince örtülür. Gerçek mikste düzeltici EQ’nun çoğu kesmedir; bu çalışmada kesme 12 dB’dir.',
-      'A cut band does not announce itself; what remains changes. Cutting lows thins the sound, cutting mids hollows it and pushes it back, cutting highs dulls it. Most corrective EQ in a real mix is a cut; here the cut is 12 dB.',
+      'Kesilen bant kendini göstermez; geriye kalan ses değişir. Bas kesilince ses incelir, orta kesilince içi boşalır ve geri çekilir, tiz kesilince örtülür. Düzeltici EQ’da kesmeye sık başvurulur; hangisinin uygun olduğu kaynağa ve amaca bağlıdır. Bu çalışmada kesme 12 dB’dir.',
+      'A cut band does not announce itself; what remains changes. Cutting lows thins the sound, cutting mids hollows it and pushes it back, cutting highs dulls it. Corrective EQ often reaches for a cut; which move suits depends on the source and the aim. Here the cut is 12 dB.',
     ),
     listen: text(
       'A orijinal; B’de bir oktav bandı 12 dB kesildi. B’den A’ya dönerken neyin geri geldiğini dinle. Eksik olan bant odur.',
@@ -107,8 +107,8 @@ const frequencyStages: Copy[] = [
       'Find the band and direction of 6 dB boosts and cuts.',
     ),
     learn: text(
-      'Miks sırasında yapılan EQ hamlelerinin çoğu 6 dB’den küçüktür. Fark küçüldükçe ilk izlenim daha önemli olur; uzun dinledikçe kulak iki hale de alışır.',
-      'Most EQ moves made while mixing are smaller than 6 dB. As the difference shrinks, the first impression matters more; the longer you listen, the more your ear adapts to both versions.',
+      'Gerçek bir mikste EQ hamleleri sık sık bu derstekinden de küçüktür. Fark küçüldükçe ilk izlenim daha önemli olur; uzun dinledikçe kulak iki hale de alışır.',
+      'In a real mix, EQ moves are often smaller still than in this lesson. As the difference shrinks, the first impression matters more; the longer you listen, the more your ear adapts to both versions.',
     ),
     listen: text(
       'B’de bir oktav bandı 6 dB yükseltildi veya kesildi. Kısa geçişlerle karşılaştır. Kararsız kalırsan birkaç saniye ara ver ve yeniden dinle.',
@@ -167,8 +167,8 @@ const otherStages: Record<string, Copy> = {
       'Tell a region being removed from a region being lifted as a whole.',
     ),
     learn: text(
-      'Mikste en sık kullanılan EQ hamleleri çan değil, filtre ve raftır. Alçak kesen filtre köşe frekansının altını giderek siler; yüksek kesen filtre üstünü. Raf ise köşenin ötesindeki her şeyi aynı miktarda kaldırır. Burada dört hamle var: alçak kesen, yüksek kesen, bas rafı yükseltme, tiz rafı yükseltme.',
-      'The most common EQ moves in a mix are filters and shelves, not bells. A low-cut filter progressively removes what lies below its corner; a high-cut filter what lies above. A shelf lifts everything beyond its corner by the same amount. There are four moves here: low cut, high cut, low shelf boost, high shelf boost.',
+      'Çan biçimli bantların yanında filtreler ve raflar da mikste sık kullanılır. Alçak kesen filtre köşe frekansının altını giderek siler; yüksek kesen filtre üstünü. Raf ise köşenin ötesindeki her şeyi aynı miktarda kaldırır. Burada dört hamle var: alçak kesen, yüksek kesen, bas rafı yükseltme, tiz rafı yükseltme.',
+      'Alongside bell-shaped bands, filters and shelves are common moves in a mix. A low-cut filter progressively removes what lies below its corner; a high-cut filter what lies above. A shelf lifts everything beyond its corner by the same amount. There are four moves here: low cut, high cut, low shelf boost, high shelf boost.',
     ),
     listen: text(
       'A orijinal; B’ye dört hamleden biri uygulandı ve köşe frekansı sorudan soruya değişir. Önce hangi uçta değişiklik olduğunu duy, sonra bir şey eklendi mi eksildi mi karar ver.',
@@ -205,8 +205,8 @@ const otherStages: Record<string, Copy> = {
       'Rebuild the target with your own EQ: find the band and the amount by ear.',
     ),
     learn: text(
-      'Gerçek işte kimse seçenek sunmaz; duyduğun rengi kendi EQ’nla kurarsın. Burada B hedef, C senin ayarındır. Bandı ve miktarı değiştirdikçe C anında güncellenir. İkisi aynı duyulduğunda doğru ayarı bulmuşsundur.',
-      'In real work nobody offers you options; you build the colour you hear with your own EQ. Here B is the target and C is your setting. C updates as soon as you change the band or the amount. When the two sound the same, you have found the setting.',
+      'Gerçek işte duyduğun rengi kendi EQ’nla kurarsın. Bu çalışma onun dar bir provasıdır: tek çan bant, sekiz frekans, altı miktar. Burada B hedef, C senin ayarındır. Bandı ve miktarı değiştirdikçe C anında güncellenir. İkisi aynı duyulduğunda doğru ayarı bulmuşsundur.',
+      'In real work you build the colour you hear with your own EQ. This is a narrow rehearsal of that: one bell band, eight frequencies, six amounts. Here B is the target and C is your setting. C updates as soon as you change the band or the amount. When the two sound the same, you have found the setting.',
     ),
     listen: text(
       'Önce A ile B’yi karşılaştırıp bir tahmin yap. Sonra bandı ve miktarı seç, B ile C arasında geçiş yap. Fark kalmayınca yanıtını gönder. Yalnızca bant ve miktar birlikte doğruysa sayılır.',

@@ -1,5 +1,26 @@
 # Sürüm değişiklikleri
 
+## 0.12 önizleme — eleştirinin değerlendirilmesi ve düzeltmeler (`0.12.0-preview.1`)
+
+0.11 üzerine yazılan 48 maddelik eleştiri tek tek incelendi: 30'u düzeltildi, 7'si kısmen düzeltildi, 11'i gerekçesiyle ertelendi. [Madde madde kayıt](kalite-denetimi-0.12.md).
+
+- **Güncelleme artık geçmişi silmez.** Her dersin bir içerik sürümü var. Güncellemede yalnızca yeniden kurulan derslerin yanıtları kayıttan ayrılır; geri kalan her şey taşınır. Ne olduğunu söyleyen bir bildirim çıkar, kaydın özgün hali arşivlenir ve Profil'den indirilebilir. 0.9–0.11 kayıtları ilk açılışta bu yolla taşınır.
+- **Eski yedekler** tümden reddedilmez: yeniden kurulan derslerin yanıtları ayrılır, kalanı içe alınır ve pencere kaç yanıtın alınmadığını söyler. Yedek biçimi sürüm 5, sınır 5 MiB.
+- **Yedek geri yükleme** bu cihazdaki yarım oturumu korur; yedekteki farklı yarım oturum geçmişe "yarıda bırakıldı" olarak eklenir.
+- **Sıfırlama** yalnızca güncel ilerlemeyi siler; eski sürüm arşivleri ayrı indirilir ve ayrı silinir.
+- **EQ profili** (eski bant haritası): bir yanıtın bölge, biçim, frekans, yön, miktar ve bant genişliği parçaları ayrı sayılır. Doğru bandı bulup yönü ters söylemek artık bant hatası sayılmaz. Zayıf bant ve yön eğilimi yalnızca yeterli yanıt varsa söylenir.
+- **Soru düzeltmeleri:** masking'de melodi artık yanıtı ele vermez; komşu bant sorusunda seçeneklerin dizilişi ipucu taşımaz; başlangıç değerlendirmesi EQ merdiveninin ortasını ve üstünü yoklar; değerlendirmeyi tekrarlamak seviyeyi düşürmez; geçiş eşiği seçenek sayısına göre ayarlanır.
+- **Kişisel pratik** hangi yanlışın seçildiğini ve hatanın ne kadar yeni olduğunu hesaba katar.
+- **Rapor:** kişisel pratik içeren karşılaştırmalar yanıt bazında dengelenir. Odak kartı önerilen aşamanın kendi talimatını gösterir ve "Kişisel plana git" önerinin ait olduğu yolu açar. Çalışma grafiği günler arasındaki boşluğu gösterir. Rapor yüklenemezse uygulama çalışmaya devam eder.
+- **Laboratuvar:** parametrik EQ aracı (çan, raflar, kesen filtreler, yanıt eğrisi). Ayar değişince ses kesilmez. Kendi kaydında dinlenecek 8 saniyenin başlangıcı seçilebilir.
+- **Arayüz:** yeni kullanıcıya tek bir ilk adım gösterilir. Becerilerim'de yalnızca etkin yol açık gelir; kart yalnızca önerilen aşamayı sayar ve 5 yanıtın altında yüzde vermez. Uzun ders listelerinde önerilen aşamaya kısayol var. Süs dalga biçimi kaldırıldı; yerinde gerçek çalma durumu yazar. Telefonda oynatıcı görünümden çıkınca A/B/C düğmeleri sabit bir çubukta kalır.
+- **Erişilebilirlik:** tablet menüsündeki düğmelerin adı var; tek tuşlu kısayollar Profil'den kapatılabilir; Profil 320 ve 390 pikselde taşmaz.
+- **Çevrimdışı ve güncelleme durumu** Profil'de ve üst çubukta görünür; yeni sürüme hemen geçilebilir.
+- Metin düzeltmeleri: oktavla ilgili yanlış cümle, kural gibi yazılmış miks tercihleri, "adil soru" iddiası (artık "enerji ön denetimi").
+- GitHub Pages yayını tarayıcı testleri geçmeden yapılmaz.
+
+Açık kalanlar: gerçek stem malzemesi, zorluk eğrisinin kulakla ayarı, eşik ölçümü, Q'lu ve çok bantlı eşleştirme, kompresyon eşleştirme, EQ boyutlarına göre ayrı seviye, müzik ve sınav yollarındaki maddeler, uygulama kılavuzu.
+
 ## 0.11 önizleme — araştırmaya dayalı eleştiri ve düzeltmeler (`0.11.0-preview.1`)
 
 Teknik kulak eğitimi literatürü ve rakip ürünler tarandı; 0.10 buna göre eleştirildi ve düzeltilebilen her şey düzeltildi. [Araştırma](research/teknik-kulak-egitimi-arastirmasi.md), [eleştiri ve düzeltme kaydı](kalite-denetimi-0.11.md).

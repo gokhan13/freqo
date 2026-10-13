@@ -4,6 +4,8 @@ import type { ExamProgress } from './exam-types';
 import { readPersonalProgress } from './personal-validation';
 import type { PersonalProgress } from './personal-types';
 import { evaluateAnswer, makeMusicQuestion } from './music-model';
+import { currentContent, LEGACY_CONTENT, type ContentMap } from './content-revision';
+import { retireStale } from './retire';
 import { isAdvanced } from './advanced-content';
 import { eqChoiceSetting, makeEqQuestion, type EqShape, type EqStageKind } from './eq-model';
 import { makeAdvancedQuestion } from './advanced-model';
@@ -91,10 +93,21 @@ export type Progress = {
   results: Result[];
   exam?: ExamProgress;
   personal?: PersonalProgress;
+  /** The revision of each rebuilt lesson these answers were given to (content-revision.ts). */
+  content?: ContentMap;
+  /** Single-key shortcuts (A/B/C, digits, Space, Enter) can be switched off. On unless false. */
+  shortcuts?: boolean;
 };
-// 0.10 and 0.11 rebuilt the mixing questions, so answers stored by earlier previews no longer
-// describe the sounds they were given for. They stay untouched under their old keys, unread.
+// Records of earlier previews stay under their own keys as archives. On the first run of a
+// newer version the newest one is carried over, minus the answers to rebuilt lessons.
 export const RETIRED_STORAGE_KEYS = ['freq.progress.v1', 'freq.progress.v2', 'freq.progress.v3'];
+/** What a record without a content map was answered against, by the key it was stored under. */
+export const STORED_CONTENT: Record<string, ContentMap> = {
+  'freq.progress.v1': LEGACY_CONTENT['0.9'],
+  'freq.progress.v2': LEGACY_CONTENT['0.9'],
+  'freq.progress.v3': LEGACY_CONTENT['0.10'],
+  'freq.progress.v4': LEGACY_CONTENT['0.11'],
+};
 export const STORAGE_KEY = 'freq.progress.v4';
 export const initialProgress = (): Progress => ({
   version: 1,
@@ -105,6 +118,7 @@ export const initialProgress = (): Progress => ({
   session: null,
   attempts: [],
   results: [],
+  content: currentContent(),
 });
 export const isEqSource = (v: unknown): v is EqSource =>
   typeof v === 'string' && eqSourceIds.includes(v as EqSource);
@@ -460,12 +474,17 @@ export const validResult = (r: unknown): r is Result =>
   r.total === ROUND_COUNT &&
   validDate(r.at) &&
   validSource(r);
-export function parseProgress(raw: string | null): Progress {
+/** `written` says what a record without a content map was answered against; the oldest by default. */
+export function parseProgress(
+  raw: string | null,
+  written: ContentMap = LEGACY_CONTENT['0.9'],
+): Progress {
   const fallback = initialProgress();
   if (!raw) return fallback;
   try {
-    const v: unknown = JSON.parse(raw);
-    if (!object(v) || v.version !== 1) return fallback;
+    const parsed: unknown = JSON.parse(raw);
+    if (!object(parsed) || parsed.version !== 1) return fallback;
+    const v = retireStale(parsed, written).value;
     const p: Progress = {
       ...fallback,
       locale: v.locale === 'en' ? 'en' : 'tr',
@@ -475,6 +494,7 @@ export function parseProgress(raw: string | null): Progress {
           ? Math.min(0.8, Math.max(0.05, v.volume))
           : fallback.volume,
       eqSource: isEqSource(v.eqSource) ? v.eqSource : 'studio',
+      ...(v.shortcuts === false ? { shortcuts: false } : {}),
     };
     const exam = readExamProgress(v.exam);
     if (exam) p.exam = exam;

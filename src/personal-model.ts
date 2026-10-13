@@ -9,7 +9,7 @@ import {
   isFixedSource,
   sourceFor,
 } from './content';
-import { makeQuestion, random, type Progress } from './model';
+import { makeQuestion, random, type Progress, type Question } from './model';
 import { evaluateAnswer } from './music-model';
 import { musicTimeline } from './music-dsp';
 import type {
@@ -71,15 +71,33 @@ const exampleIdentity = (ref: QuestionRef) =>
     (ref.seed + ref.index * 2654435761) >>> 0,
     usesLoop(getLesson(ref.lessonId).skill) ? (ref.source ?? 'studio') : null,
   ]);
-/** Compare the sound, not the random identifier. Rhythm playback ignores key and seed. */
-export function soundIdentity(ref: QuestionRef): string {
-  const q = refQuestion(ref);
+/**
+ * What the history needs to know about a question, kept after the first look. Plans and
+ * reports ask the same thing about every stored answer on every change; rebuilding each
+ * question each time made a long history slow.
+ */
+type RefFacts = { sound: string; correct: string; options: number };
+const facts = new Map<string, RefFacts>();
+export function refFacts(ref: QuestionRef): RefFacts {
+  const key = refIdentity(ref);
+  let known = facts.get(key);
+  if (!known) {
+    const q = refQuestion(ref);
+    known = { sound: soundOf(q), correct: q.correct, options: q.options.length };
+    // A history never comes near this; the bound only keeps a stray loop from growing it.
+    if (facts.size >= 100_000) facts.clear();
+    facts.set(key, known);
+  }
+  return known;
+}
+function soundOf(q: Question): string {
   if (q.music) return JSON.stringify([q.kind, musicTimeline(q.music)]);
   if (usesLoop(q.kind))
     return JSON.stringify([
       q.kind,
       q.source,
       isFixedSource(q.source ?? 'studio') ? null : q.seed,
+      q.shape,
       q.frequency,
       q.gain,
       q.q,
@@ -90,6 +108,8 @@ export function soundIdentity(ref: QuestionRef): string {
     ]);
   return JSON.stringify([q.kind, q.notesA, q.notesB, q.rhythmA, q.rhythmB, q.tempo, q.subdivision]);
 }
+/** Compare the sound, not the random identifier. Rhythm playback ignores key and seed. */
+export const soundIdentity = (ref: QuestionRef): string => refFacts(ref).sound;
 const freshRef = (
   lessonId: string,
   seed: number,
@@ -104,18 +124,59 @@ const freshRef = (
     : {}),
 });
 
-/** How the learner has done on each possible answer of a lesson, fresh questions only. */
+export type AnswerStat = {
+  /** Plain counts of fresh questions whose correct answer this was. */
+  answered: number;
+  wrong: number;
+  /** The same, with each answer weighted by how recent it is. */
+  recentAnswered: number;
+  recentWrong: number;
+  /** Recency-weighted times this answer was given when another was correct. */
+  recentConfused: number;
+};
+// Each newer answer to a lesson shrinks the weight of the older ones by this factor, so a
+// band that was hard twenty questions ago and is fine now stops being chased.
+const RECENCY = 0.93;
+/**
+ * How the learner has done on each possible answer of a lesson, fresh questions only. An
+ * error says two things: the correct answer was missed, and the chosen one was mistaken
+ * for it. Both are counted, so the pair that gets confused is the pair that gets practised.
+ */
 export function answerStats(lessonId: string, evidence: Evidence[]) {
-  const stats = new Map<string, { answered: number; wrong: number }>();
-  for (const e of evidence) {
-    if (e.lessonId !== lessonId || e.review || !e.ref) continue;
-    const answer = refQuestion(e.ref).correct;
-    const entry = stats.get(answer) ?? { answered: 0, wrong: 0 };
-    entry.answered++;
-    if (!e.correct) entry.wrong++;
-    stats.set(answer, entry);
-  }
+  const own = evidence.filter(e => e.lessonId === lessonId && !e.review && e.ref);
+  const stats = new Map<string, AnswerStat>();
+  const entry = (id: string) => {
+    let stat = stats.get(id);
+    if (!stat) {
+      stat = { answered: 0, wrong: 0, recentAnswered: 0, recentWrong: 0, recentConfused: 0 };
+      stats.set(id, stat);
+    }
+    return stat;
+  };
+  own.forEach((e, i) => {
+    const { correct, options } = refFacts(e.ref!),
+      weight = RECENCY ** (own.length - 1 - i),
+      target = entry(correct);
+    target.answered++;
+    target.recentAnswered += weight;
+    if (e.correct) return;
+    target.wrong++;
+    target.recentWrong += weight;
+    // Free entries (dictation, tapping) are not one of a fixed set of answers to confuse.
+    if (options > 0 && e.choice && e.choice !== correct) entry(e.choice).recentConfused += weight;
+  });
   return stats;
+}
+/**
+ * How many of the last ten fresh answers must be right before a harder stage is suggested.
+ * The bar follows how easily the task is guessed: nine for a two-way choice, eight for three
+ * or four options and for written or tapped answers, seven where five or more options make
+ * a lucky run of that length about as unlikely as the others.
+ */
+export function requiredCorrect(refs: QuestionRef[]): number {
+  const options = refs.map(ref => refFacts(ref).options);
+  if (options.some(count => count === 2)) return 9;
+  return options.every(count => count >= 5) ? 7 : 8;
 }
 const CANDIDATES = 4;
 /**
@@ -132,10 +193,16 @@ export function targetedRefs(
   evidence: Evidence[],
 ): QuestionRef[] {
   const stats = answerStats(lessonId, evidence);
-  // An unmet answer weighs 3.5, a reliably known one close to 1, a reliably missed one up to 6.
+  // An unmet answer weighs 3.5, a reliably known one close to 1, one that is missed or
+  // wrongly chosen again and again up to 6. Being mistaken for another answer counts half.
   const need = (answer: string) => {
-    const entry = stats.get(answer);
-    return 1 + (5 * ((entry?.wrong ?? 0) + 0.5)) / ((entry?.answered ?? 0) + 1);
+    const stat = stats.get(answer),
+      confused = (stat?.recentConfused ?? 0) / 2;
+    return (
+      1 +
+      (5 * ((stat?.recentWrong ?? 0) + confused + 0.5)) /
+        ((stat?.recentAnswered ?? 0) + confused + 1)
+    );
   };
   const rng = random((seed ^ 0x9e3779b9) >>> 0);
   const chosen: QuestionRef[] = [],
@@ -154,7 +221,7 @@ export function targetedRefs(
       (ref, at) => unheard.findIndex(r => soundIdentity(r) === soundIdentity(ref)) === at,
     );
     const pool = unheard.length ? unheard : candidates.slice(0, CANDIDATES);
-    const weights = pool.map(ref => need(refQuestion(ref).correct));
+    const weights = pool.map(ref => need(refFacts(ref).correct));
     let remaining = rng() * weights.reduce((sum, weight) => sum + weight, 0),
       at = 0;
     while (at < pool.length - 1 && (remaining -= weights[at]) > 0) at++;
@@ -172,11 +239,22 @@ export function placementItems(
   source: QuestionRef['source'] = 'studio',
 ): QuestionRef[] {
   return personalSkills[path].flatMap((skill, i) => {
-    const available = skillLessons(skill),
-      first = available[0];
-    const next = answers[i * 2]?.correct ? (available[1] ?? first) : first;
+    const [first, next] = placementProbes(skill, answers[i * 2]?.correct);
     return [freshRef(first.id, seed, i * 2, source), freshRef(next.id, seed, i * 2 + 1, source)];
   });
+}
+/**
+ * Where a skill's two probes sit on its ladder. A three-stage skill is probed from the foot,
+ * as before. A long ladder is probed a third of the way up, and after a correct answer
+ * another third higher, so an experienced learner is not started at stage one or two. After
+ * a wrong first answer the second probe is the first stage.
+ */
+export function placementProbes(skill: SkillId, firstCorrect?: boolean) {
+  const available = skillLessons(skill),
+    top = available.length - 1,
+    first = Math.floor(top / 3),
+    second = firstCorrect ? Math.min(top, first + Math.max(1, Math.floor(top / 3))) : 0;
+  return [available[first], available[second]] as const;
 }
 export type Evidence = {
   id: string;
@@ -261,15 +339,20 @@ export function skillEstimate(
     placement?.answers.filter((_, i) => getLesson(placement.items[i].lessonId).skill === skill) ??
     [];
   let pos = 0,
-    reason: SkillEstimate['reason'] = placement ? 'placement' : 'new';
-  if (placement) {
-    const answers = placement.answers.filter(
-      (_, i) => getLesson(placement.items[i].lessonId).skill === skill,
-    );
-    if (answers.length === 2 && answers.every(a => a.correct))
-      pos = Math.min(1, available.length - 1);
-  }
-  const seen = new Set<string>(placement?.items.map(exampleIdentity));
+    // Assigned inside a closure too, so the type is stated rather than narrowed.
+    reason = 'new' as SkillEstimate['reason'];
+  // The stage the two probes point to: the highest one answered correctly.
+  const placed = placement
+    ? Math.max(
+        0,
+        ...placement.items.flatMap((item, i) =>
+          getLesson(item.lessonId).skill === skill && placement.answers[i]?.correct
+            ? [available.findIndex(l => l.id === item.lessonId)]
+            : [],
+        ),
+      )
+    : 0;
+  const seen = new Set<string>();
   const higher = new Map<number, Evidence[]>();
   const strong = (data: Evidence[]) => {
     // Old scores remain visible, but their missing seeds cannot prove fresh sounds.
@@ -279,21 +362,32 @@ export function skillEstimate(
       new Set(data.map(e => e.sessionId)).size < 2
     )
       return false;
-    const binary = data.some(e => refQuestion(e.ref!).options.length === 2);
+    const binary = data.some(e => refFacts(e.ref!).options === 2);
     return (
-      data.filter(e => e.correct).length >= (binary ? 9 : 8) &&
+      data.filter(e => e.correct).length >= requiredCorrect(data.map(e => e.ref!)) &&
       new Set(data.map(e => soundIdentity(e.ref!))).size >= (binary ? 2 : 3)
     );
   };
   let window: Evidence[] = [],
-    lastAt: number | null = null;
+    lastAt: number | null = null,
+    assessed = !placement;
+  // An assessment is one event in the history. It can lift the suggestion; it never lowers
+  // what practice has already shown, and earlier practice is not forgotten because of it.
+  const assess = () => {
+    assessed = true;
+    for (const item of placement!.items) seen.add(exampleIdentity(item));
+    if (placed > pos || reason === 'new') {
+      if (placed > pos) {
+        pos = placed;
+        window = [];
+        higher.clear();
+      }
+      reason = 'placement';
+    }
+  };
   for (const e of evidence) {
-    if (
-      getLesson(e.lessonId).skill !== skill ||
-      e.review ||
-      (placement && e.at <= placement.finishedAt)
-    )
-      continue;
+    if (getLesson(e.lessonId).skill !== skill || e.review) continue;
+    if (!assessed && e.at > placement!.finishedAt) assess();
     // Exact repeats may improve recall, but cannot independently raise difficulty.
     const identity = e.ref ? exampleIdentity(e.ref) : e.id;
     if (seen.has(identity)) continue;
@@ -339,6 +433,7 @@ export function skillEstimate(
       reason = 'support';
     else if (reason === 'new' || reason === 'support') reason = 'steady';
   }
+  if (!assessed) assess();
   const explanation =
     reason === 'support'
       ? text(

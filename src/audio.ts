@@ -286,7 +286,8 @@ export class AudioEngine {
     const pair = await this.prepare(question, this.init().sampleRate);
     return pair.b;
   }
-  async loadFile(file: File, backing = false) {
+  /** Loads up to eight seconds of a file, starting `startSeconds` into it. */
+  async loadFile(file: File, backing = false, startSeconds = 0) {
     if (!file.size || file.size > 20 * 1024 * 1024) throw new Error('size');
     if (backing && !this.custom) throw new Error('target');
     const token = ++this.loadToken;
@@ -295,17 +296,26 @@ export class AudioEngine {
     const decoded = await context.decodeAudioData(await file.arrayBuffer());
     if (token !== this.loadToken) throw new Error('cancelled');
     if (decoded.numberOfChannels > 2 || decoded.duration < 0.25) throw new Error('format');
-    const length = Math.min(decoded.length, context.sampleRate * 8);
+    const shortest = Math.round(context.sampleRate * 0.25),
+      first = Math.max(
+        0,
+        Math.min(Math.round(startSeconds * context.sampleRate), decoded.length - shortest),
+      );
+    const length = Math.min(decoded.length - first, context.sampleRate * 8);
     const stereo: Stereo = [
-      new Float32Array(decoded.getChannelData(0).slice(0, length)),
+      new Float32Array(decoded.getChannelData(0).slice(first, first + length)),
       new Float32Array(
-        decoded.getChannelData(decoded.numberOfChannels === 1 ? 0 : 1).slice(0, length),
+        decoded.getChannelData(decoded.numberOfChannels === 1 ? 0 : 1).slice(first, first + length),
       ),
     ];
-    // Preserve the start/time relationship. Fade only the end of the preview clip.
+    // Preserve the start/time relationship. Fade the end of the clip, and its start only
+    // when the clip begins inside the recording.
     const fade = Math.min(length, Math.round(context.sampleRate * 0.01));
     for (const channel of stereo)
-      for (let i = 0; i < fade; i++) channel[length - 1 - i] *= i / fade;
+      for (let i = 0; i < fade; i++) {
+        channel[length - 1 - i] *= i / fade;
+        if (first > 0) channel[i] *= i / fade;
+      }
     const id = crypto.randomUUID();
     if (backing) {
       const length = this.custom!.stereo[0].length;
@@ -318,6 +328,7 @@ export class AudioEngine {
       id,
       name: file.name,
       duration: length / context.sampleRate,
+      total: decoded.duration,
       channels: decoded.numberOfChannels,
     };
   }
